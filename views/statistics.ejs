@@ -1,0 +1,200 @@
+
+<style>
+
+  .swapy-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .chart-card {
+    background-color: var(--app-content-secondary-color);
+    border-radius: 8px;
+    padding: 20px;
+    flex: 1;
+    min-width: 300px;
+    border:1px solid var(--sidebar-active-link);
+  }
+
+  .chart-card h2 {
+    color: var(--app-content-main-color);
+    margin-bottom: 15px;
+    text-align: center;
+  }
+.handle {
+    cursor: grab;
+    width: 24px;
+    height: 24px;
+    background-image: url("data:image/svg+xml,%3csvg%20viewBox='0%200%2024%2024'%20xmlns='http://www.w3.org/2000/svg'%20id='fi_3793594'%3e%3ccircle%20cx='8'%20cy='4'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='8'%20cy='12'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='8'%20cy='20'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='4'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='12'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='20'%20r='2'%3e%3c/circle%3e%3c/svg%3e");
+    opacity: .5;
+
+}
+
+
+</style>
+<%- include('./partials/header/layout') %>
+
+
+    <%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+  </div>
+    <%- include('./partials/statistics/statistics'); %>
+<div class="swapy-container">
+  <%- include('./partials/statistics/charts/productos') %>
+  <%- include('./partials/statistics/charts/categorias') %>
+  <%- include('./partials/statistics/charts/clientes') %>
+</div>
+
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // EJS data
+  const productosLabels = <%- JSON.stringify(topProductosNombres || []) %>;
+  const productosData = <%- JSON.stringify(topProductosCantidades || []) %>;
+
+  const categoriasLabels = <%- JSON.stringify(catLabels || []) %>;
+  const categoriasData = <%- JSON.stringify(catData || []) %>;
+
+  const clientesLabels = <%- JSON.stringify(clientLabels || []) %>;
+  const clientesData = <%- JSON.stringify(clientData || []) %>;
+
+
+  // Restaurar orden si existe
+  const container = document.querySelector(".swapy-container");
+  const savedOrder = JSON.parse(localStorage.getItem("chartOrder") || "null");
+
+  if (container && savedOrder) {
+    const slotElements = Array.from(container.querySelectorAll("[data-swapy-slot]"));
+    const slotsMap = {};
+    slotElements.forEach(el => {
+      const key = el.getAttribute("data-swapy-slot");
+      slotsMap[key] = el;
+    });
+
+    // Limpia el container y reordena
+    Object.values(slotsMap).forEach(slot => {
+  container.appendChild(slot);
+});
+    for (const key of Object.keys(savedOrder)) {
+      const slot = savedOrder[key];
+      if (slotsMap[slot]) {
+        container.appendChild(slotsMap[slot]);
+      }
+    }
+  }
+
+  // Renderizar gráficas
+  renderBarChart("#chart-productos", productosLabels, productosData, "Productos");
+  renderBarChart("#chart-categorias", categoriasLabels, categoriasData, "Categorías");
+  renderBarChart("#chart-clientes", clientesLabels, clientesData, "Clientes");
+
+  // Iniciar Swapy con drag solo desde el handle
+  if (container && Swapy?.createSwapy) {
+    const swapy = Swapy.createSwapy(container, {
+      swapMode: "hover",
+      animation: "dynamic",
+      draggable: true,
+      handle: "[data-swapy-handle]"  // Solo permite mover desde el handle
+    });
+
+    // Guardar orden en localStorage al mover
+    swapy.onSwapEnd(event => {
+      const order = event.slotItemMap.asObject;
+      console.log("Nuevo orden:", order);
+      localStorage.setItem("chartOrder", JSON.stringify(order));
+    });
+  }
+});
+
+  // Crear gráficas
+function renderBarChart(selector, labels, data, title = "Cantidad") {
+  const element = document.querySelector(selector);
+  if (!element) {
+    console.warn("Elemento no encontrado para selector:", selector);
+    return;
+  }
+
+  // Limpia contenido previo
+  element.innerHTML = "";
+
+  // ⚠️ Mostrar mensaje si no hay datos
+  if (!labels.length || !data.length || data.every(val => val === 0)) {
+    element.innerHTML = `
+  <div style="text-align:center; color:#ccc; padding: 30px;">
+    <div style="font-size:40px;">📉</div>
+    <div>No hay datos disponibles</div>
+  </div>
+`;
+
+    return;
+  }
+
+  const options = {
+    series: [{ name: title, data }],
+    chart: { type: 'bar', height: 300, background: 'transparent', toolbar: { show: false }},
+    plotOptions: { bar: { horizontal: false, columnWidth: '50%', distributed: true }},
+    dataLabels: { enabled: false },
+    xaxis: { categories: labels, labels: { style: { colors: 'var(--app-content-main-color)' } }},
+    yaxis: { labels: { style: { colors: 'var(--app-content-main-color)' } }},
+    tooltip: { theme: 'dark' },
+    colors: ["#2962ff", "#d50000", "#2e7d32", "#ff6d00", "#583cb3"],
+    grid: { borderColor: "#55596e" }
+  };
+
+  const chart = new ApexCharts(element, options);
+  chart.render();
+}
+
+</script>
+
+
+
+<script>
+  document.getElementById("filtrar-productos").addEventListener("click", () => {
+  const desde = document.getElementById("filtro-fecha-inicio").value;
+  const hasta = document.getElementById("filtro-fecha-fin").value;
+  const categoria = document.getElementById("filtro-categoria").value;
+  const top = document.getElementById("filtro-top").value;
+
+  fetch(`/api/grafica-productos?desde=${desde}&hasta=${hasta}&categoria=${categoria}&top=${top}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.labels && data.data) {
+        renderBarChart("#chart-productos", data.labels, data.data, "Productos");
+      }
+    })
+    .catch(err => console.error("Error al filtrar productos:", err));
+});
+
+</script>
+
+<script>
+document.getElementById("filtrar-categorias").addEventListener("click", () => {
+  const categoria = document.getElementById("filtro-categoria-especifica").value;
+
+  const url = categoria === "todas"
+    ? `/api/grafica-categorias`
+    : `/api/grafica-categorias?categoria=${encodeURIComponent(categoria)}`;
+
+  fetch(url)
+  .then(res => res.json())
+  .then(data => {
+    if (Array.isArray(data.labels) && Array.isArray(data.data)) {
+      renderBarChart("#chart-categorias", data.labels, data.data, "Categorías");
+    } else {
+      console.warn("Datos inválidos recibidos");
+    }
+  })
+  .catch(err => {
+    console.error("Error al filtrar categorías:", err);
+    const chartElement = document.querySelector("#chart-categorias");
+    if (chartElement) {
+      chartElement.innerHTML = "<p style='text-align:center; color:red;'>Error al cargar datos.</p>";
+    }
+  });
+
+});
+
+</script>

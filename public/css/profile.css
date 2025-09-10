@@ -1,0 +1,275 @@
+.form-config-user {
+    float: none;
+    overflow-y: auto;
+    height: auto;
+    width: auto;
+    background: var(--app-content-secondary-color);
+    border: 1px solid var(--sidebar-active-link);
+    border-radius: 5px;
+    padding: 20px 20px;
+
+}
+.contenedor-ventas .cont-from-ventas {
+    height: auto;
+    width: auto;
+    border: 1px solid var(--sidebar-active-link);
+    /* max-width: 500px; */
+    border-radius: 5px;
+    flex-direction: row-reverse;
+    background: var(--app-content-secondary-color);
+    align-items: center;
+}
+
+.form-config-user .body .wrap {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 0;
+}
+
+.form-config-user .body .first {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3% 0;
+}
+
+.form-users .body .section-user-image, .form-config-user .body .section-user-image {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+.form-users .body .section-user-image img, .form-config-user .body .section-user-image img {
+    display: block;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+    background-color: #eef4ff;
+    border: solid #eef4ff 4px;
+    border-radius: 100%;
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(142, 136, 192, 0.2);
+}
+
+.form-users .body .section-user-image .file, .form-config-user .body .section-user-image .file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 55px;
+    height: 55px;
+    margin: 0 auto;
+    margin-top: -32px;
+    padding: 0;
+    background: var(--action-color);
+    box-shadow: 0 0 6px rgba(142, 136, 192, 0.2);
+    border-radius: 100%;
+    color: #eef4ff;
+    text-decoration: none;
+    font-size: 1.6em;
+    font-weight: 100;
+    cursor: pointer;
+    transition: all 300ms ease-out;
+}
+
+.form-config-user .body .section-user-info span.user-name {
+    margin-top: 8px;
+}
+
+.form-config-user .body .section-user-info span.user-name, .form-config-user .body .section-user-info span.user-id {
+    display: block;
+    color: var(--sidebar-main-color);
+    text-shadow: 0 1px 5px rgba(142, 136, 192, 0.2);
+    text-align: center;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+
+.form-config-user .body .last {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.form-config-user .body .first, .form-config-user .body .last {
+    width: 45%;
+}
+
+.form-config-user .body .config-data-user {
+    width: 100%;
+}
+
+.form-config-user .body .config-data-user form{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+
+.form-config-user .body .config-data-user .btn-edit-email {
+    float: right;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 25%;
+    height: 38px;
+    margin-top: -39px;
+    background: var(--action-color);
+    box-shadow: none;
+    border: none;
+    border-color: #929cb9;
+    border-top-right-radius: 0.3em;
+    border-bottom-right-radius: 0.3em;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    color: #eef4ff;
+    font-size: 0.95em;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 300ms ease-out;
+}
+/* .form-config-user .body .config-data-user .btn-edit-info-user {
+    margin: 10% 0;
+} */
+
+
+.form-config-user .body .config-data-user .btn-change-pass span.icon {
+    display: block;
+    position: absolute;
+    left: 2.7%;
+    font-size: 1.2em;
+}
+ .form-config-user .body .config-data-user .btn-change-pass input[type=text], input[type=number] {
+    background: transparent;
+    width: 100%;
+    font-size: 20px;
+    border: 1px solid var(--app-content-main-color);
+    border-radius: 5px;
+    color: var(--action-color);
+}
+
+.form-config-user .body .config-data-user .sss{
+    margin:3% 0;
+}
+ .form-config-user .body .config-data-user .btn-change-pass input[type=password] {
+    background: transparent;
+    width: 100%;
+    font-size: 20px;
+    border: 1px solid var(--app-content-main-color);
+    border-radius: 5px;
+    color: var(--action-color);
+}
+
+.config-data-user   input {
+    font-size: 16px;
+    background: transparent;
+    padding: 10px;
+    width: 100%;
+    border: 1px solid var(--app-content-main-color);
+    border-radius: 5px;
+    color: var(--action-color);
+}
+.config-data-user  input:focus {
+    outline: none;
+    border-color: var(--action-color);
+}
+
+.config-data-user input:hover {
+    border: 1px solid var(--action-color);
+}
+
+
+@media only screen and (max-width: 701px){
+.form-data {
+    width: 100%;
+}
+.form-data .body .first, .form-data .body .last, .form-data .body .description{
+    width: 88%;
+}
+.form-config-user .body .first{
+    padding: 24px 0 2%;
+}
+.form-config-user .body .wrap{
+    flex-flow: column;
+}
+.form-config-user  .footer {
+    padding: 24px 0 24px;
+}
+}
+
+.app-content-headerButton {
+    background-color: var(--action-color);
+    color: #fff;
+    font-size: 14px;
+    line-height: 24px;
+    border: none;
+    border-radius: 4px;
+    height: 32px;
+    padding: 0 16px;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.form-config-user  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0 0 3%;
+}
+
+
+.swal2-popup{
+    background: var(--sidebar) !important;
+}
+.swal2-icon.swal2-success.swal2-icon-show .swal2-success-circular-line-right{
+    background: transparent !important;
+}
+
+.swal2-icon.swal2-success [class^=swal2-success-circular-line][class$=left]{
+    background: transparent !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-fix{
+    background: transparent !important
+}
+
+.config-data-user label {
+    display: block;
+    font-size: 14px;
+    color: var(--app-content-main-color);
+    margin-top: 8px;
+}
+.config-data-user p {
+    font-size: 0.7em;
+    color: var(--colorProfileWindow);
+    font-weight: 100;
+}
+
+.cont-p {
+    width: 100%;
+    display: flex;
+    flex-wrap:wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+.swal2-styled.swal2-confirm{
+    background-color: var(--action-color) !important;
+}
+
+.swal2-html-container{
+    color:var(--colorProfileWindow);
+}
+
+.swal2-title{
+    color:var(--sidebar-link) !important;
+}

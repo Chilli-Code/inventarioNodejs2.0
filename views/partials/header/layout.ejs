@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Estilos globales -->
+    <link rel="stylesheet" href="/css/containerSell.css">
+    <link rel="stylesheet" href="/css/containerHome.css">
+     <% if (currentOption === '/products') { %>
+        <link rel="stylesheet" href="/css/dashboard.css">
+        <script src="/js/addProduct.js" defer></script>
+        <script src="/js/buscador.js" defer></script>
+        <script src="/js/HoraInput.js" defer></script>
+        <script src="/js/filters.js" defer></script>
+    <% } %>
+     <% if (currentOption === 'edit-product') { %>
+        <script src="/js/HoraInput.js" defer></script>
+    
+    <% } %>
+     <% if (currentOption === '/sell') { %>
+        <script src="/js/HoraInput.js" defer></script>
+        <link rel="stylesheet" href="/css/recibo.css">
+        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+    <% } %>
+     <% if (currentOption === '/receipt_page') { %>
+        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <% } %>
+     <% if (currentOption === '/statistics') { %>
+        <link rel="stylesheet" href="/css/statistics.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
+
+<script src="/js/swapy.min.js"></script>
+
+
+<% } %>
+
+
+
+
+<!-- SweetAlert2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<!-- Lottie (Bodymovin) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
+
+<!-- Scripts personalizados (globales) -->
+<script src="/js/activateLottie.js" defer></script>
+<script src="/js/navigation.js" defer></script>
+
+<!-- Header parcial (opcional) -->
+<%- include('./header') %>
+</head>
+<% if (currentOption === '/statistics') { %>
+    <script src="https://unpkg.com/swapy@latest/dist/swapy.min.js"></script>
+
+    <% } %>
+<body>
+</body>
+</html>

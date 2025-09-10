@@ -1,0 +1,41 @@
+<div class="contenedor-ventas">
+    <div class="cont-from-ventas">
+
+        <div class="contenedor-image">
+            <div class="lottie-animation" data-animation-path="/Lottie/animacionMeth.json"></div>
+        </div>
+        <div class="from-ventas">
+            <form action="/products/update/<%= data._id %>" method="POST">
+                <h3 class="sd">Informacion</h3>
+                <label>Producto</label>
+
+                <input type="text" name="producto" value="<%= data.producto %>" placeholder="Actuliza El Nombre">
+                <hr>
+                <label>Categoria</label>
+                <select name="categoria" value="<%= data.categoria %>">
+                    <option>Tecnologia</option>
+                    <option>Ropa</option>
+                    <option>Heladeria</option>
+                </select>
+                <hr>
+                <label>Estado</label>
+                <select name="estado" value="<%= data.estado %>">
+                    <option>Activo</option>
+                    <option>Agotado</option>
+                </select>
+                <hr>
+                <label>Cantidad</label>
+                <input type="number" name="cantidad" value="<%= data.cantidad %>" placeholder="Actuliza El Nombre">
+                <hr>
+                <label>Precio</label>
+                <input type="number" value="<%= data.precio %>" name="precio" placeholder="Actuliza El precio">
+                <hr>
+                <label>Hora</label>
+                <input name="hora" type="text" id="clock" readonly>
+                <hr>
+
+                <button type="submit" class="filter-button apply agregaar">Actulizar</button>
+            </form>
+        </div>
+    </div>
+</div>

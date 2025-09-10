@@ -1,0 +1,226 @@
+<style>
+  #lista-sugerencias {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    background: white;
+    position: absolute;
+    z-index: 9;
+    width: 52%;
+    top: 87px;
+  }
+
+  #lista-sugerencias li {
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
+  #lista-sugerencias li:hover {
+    background-color: #f0f0f0;
+  }
+
+  .overform {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: scroll;
+  }
+  #tabla-carrito {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+</style>
+
+
+<div class="app-content-inicio">
+  <div class="contenedor-ventas dd">
+    <div class="over">
+      <div class="cont-from-ventas">
+        <div class="contenedor-image titlePr">
+          <div>
+            <h3 class="titleSell">Escoja El Producto</h3>
+          </div>
+          <div class="lottie-animation" data-animation-path="/Lottie/animacionHome.json"></div>
+        </div>
+        <div class="from-ventas">
+          <form id="agregar-producto-form" class="overform" action="/receipt_page" method="POST">
+            <label>Buscar Producto</label>
+            <input type="text" id="buscar-producto" placeholder="Escribe para buscar..." autocomplete="off">
+            <input type="hidden" id="producto-id" name="productoVenta">
+            <ul id="lista-sugerencias" class="sugerencias"></ul>
+
+            <hr>
+            <div id="panel_selector"></div>
+            <label id="signo">Precio</label>
+            <input type="text" id="precio-formateado" readonly>
+            <input type="hidden" id="precio" name="precioVenta">
+            <hr>
+            <hr>
+            <label>Cantidad</label>
+            <input type="number" id="cantidad" name="cantidadVenta">
+            <hr>
+            <label>Medio De Pago</label>
+            <select name="medio">
+              <option>Efectivo</option>
+              <option>Transferencia</option>
+            </select>
+            <hr>
+            <label>Nombre De Cliente</label>
+            <input type="text" name="nombrecliente">
+            <hr>
+            <label>Hora de Venta</label>
+            <input type="text" name="fechaa" id="clock" readonly="">
+            <hr>
+            <label>Codigo</label>
+            <input type="text" id="codigo" name="codigo" readonly>
+            <hr>
+            <label>Vendedor</label>
+            <select name="vendedor">
+              <option>Vendedor1</option>
+              <option>Vendedor2</option>
+            </select>
+            <hr>
+            <input type="hidden" name="items" id="items-json">
+
+            <%- include('./buttonAddCart') %>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function generarCodigoUnico() {
+      const timestamp = Date.now().toString(); // marca de tiempo
+      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0'); // número aleatorio
+      return timestamp + random;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const inputCodigo = document.getElementById("codigo");
+      const codigoGenerado = generarCodigoUnico();
+      inputCodigo.value = codigoGenerado;
+    });
+  </script>
+
+
+
+<script>
+  const carrito = [];
+
+  function actualizarTotalGeneral() {
+    const total = carrito.reduce((sum, item) => sum + item.precioVenta * item.cantidadVenta, 0);
+    document.getElementById('total-general').textContent = `$${total.toLocaleString('es-CO')}`;
+  }
+
+  document.getElementById('agregar-producto-btn').addEventListener('click', () => {
+    const productoId = document.getElementById('producto-id').value;
+    const productoNombre = document.getElementById('buscar-producto').value;
+    const precio = parseFloat(document.getElementById('precio').value);
+    const cantidad = parseInt(document.getElementById('cantidad').value);
+
+    if (!productoId || isNaN(precio) || isNaN(cantidad) || cantidad <= 0) {
+      alert('Debes seleccionar un producto válido y una cantidad mayor a 0.');
+      return;
+    }
+
+    // Agregar al carrito
+    carrito.push({ productoVenta: productoId, nombre: productoNombre, precioVenta: precio, cantidadVenta: cantidad });
+
+    // Actualizar tabla visual
+    const tbody = document.querySelector('#tabla-carrito tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${productoNombre}</td>
+      <td>${cantidad}</td>
+      <td>$${precio.toLocaleString('es-CO')}</td>
+      <td>$${(precio * cantidad).toLocaleString('es-CO')}</td>
+    `;
+    tbody.appendChild(row);
+
+    // Actualizar total general
+    actualizarTotalGeneral();
+
+    // Reset campos
+    document.getElementById('cantidad').value = '';
+  });
+
+  // Antes de enviar el formulario
+  document.getElementById('agregar-producto-form').addEventListener('submit', function (e) {
+    if (carrito.length === 0) {
+      e.preventDefault();
+      alert('Agrega al menos un producto al recibo.');
+      return;
+    }
+
+    // Guardar el carrito en el campo oculto como JSON
+    document.getElementById('items-json').value = JSON.stringify(carrito);
+  });
+</script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('buscar-producto');
+      const lista = document.getElementById('lista-sugerencias');
+      const inputHiddenId = document.getElementById('producto-id');
+      const inputPrecio = document.getElementById('precio');
+      const inputPrecioFormateado = document.getElementById('precio-formateado');
+
+      let timeout;
+
+      input.addEventListener('input', () => {
+        clearTimeout(timeout);
+
+        const valor = input.value.trim();
+        if (!valor) {
+          lista.innerHTML = '';
+          return;
+        }
+
+        timeout = setTimeout(() => {
+          fetch(`/api/productos/activos?q=${encodeURIComponent(valor)}`)
+            .then(res => res.json())
+            .then(data => {
+              lista.innerHTML = '';
+              data.forEach(prod => {
+                const li = document.createElement('li');
+                li.textContent = prod.producto;
+                li.dataset.id = prod._id;
+                li.dataset.precio = prod.precio;
+                li.dataset.cantidad = prod.cantidad;
+                lista.appendChild(li);
+              });
+            });
+        }, 200); // retraso para evitar muchas peticiones
+      });
+
+      lista.addEventListener('click', e => {
+        if (e.target.tagName === 'LI') {
+          const nombre = e.target.textContent;
+          const id = e.target.dataset.id;
+          const precio = e.target.dataset.precio;
+
+          input.value = nombre;
+          inputHiddenId.value = id;
+          inputPrecio.value = precio;
+          inputPrecioFormateado.value = Number(precio).toLocaleString("es-CO");
+
+          lista.innerHTML = '';
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !lista.contains(e.target)) {
+          lista.innerHTML = '';
+        }
+      });
+    });
+  </script>

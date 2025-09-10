@@ -1,0 +1,88 @@
+<%- include('./partials/header/layout') %>
+<%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+</div>
+
+<div class="app-content-inicio" style="align-items: center; overflow: auto;">
+  <div class="receipt" id="productos-seleccionados">
+    <h1 class="logo">Inventario NodeJS</h1>
+    <div class="address">Calle 82E N 26C-163 Barranquilla</div>
+
+    <div class="Detalles-transaccion"><%= venta.medio %></div>
+
+    <div class="transactionDetails">
+      Atendido Por: <%= venta.vendedor %>
+    </div>
+
+    <div class="centerItem bold">
+      <div class="item"></div>
+    </div>
+
+<% venta.productos.forEach(item => { %>
+  <div class="transactionDetails transactionDetaills">
+    <div class="detail textCantidad"><%= item.cantidadVenta %></div>
+    <div class="detail textProducto"><%= item.productoVenta ? item.productoVenta.producto : 'Producto Desconocido' %></div>
+    <div class="detail textPrecio">$<%= item.precioVenta.toLocaleString("es-CO") %></div>
+  </div>
+<% }); %>
+
+
+    <div class="paymentDetails bold">
+      <div class="detail">TOTAL</div>
+      
+      <div class="detail">$<%= venta.total.toLocaleString("es-CO") %></div>
+    </div>
+
+    <div class="receiptBarcode">
+      <div class="barcode">
+        <svg id="barcode"></svg>
+      </div>
+    </div>
+
+    <!-- <div class="survey bold">
+      <p>Codigo</p>
+      <p class="surveyID"></p>
+    </div> -->
+
+    <div class="tripSummary">
+      <div class="bold">Mas Informacion:</div>
+      <div class="returnPolicy">
+        <div class="detail"><%= venta.fechaa %></div>
+      </div>
+      <div class="detail">Nombre Cliente:</div>
+      <div class="detail returnPolicy"><%= venta.nombrecliente || "No registrado" %></div>
+    </div>
+
+    <div class="feedback">
+      <div class="break">**********************************</div>
+    </div>
+    <div>
+      <h3 class="clickBait">Gracias Por Su Compra</h3>
+    </div>
+    <div class="feedback">
+      <div class="break">**********************************</div>
+    </div>
+
+    <div class="legal center">
+      Se requiere tarjeta ExtraCare. Excluye lotería, giros postales, sellos de correos, leche, recetas, tarjetas prepago, tarjetas regalo, productos con pseudoefedrina, otras tasas, depósitos, impuestos, alcohol y exclusiones locales. No se devuelve dinero. Impuestos aplicados sobre el precio anterior al cupón cuando sea necesario. Límite de un cupón basado en la compra, es decir, $4 de descuento en una compra de $20, por transacción. No válido en centros especializados dentro de CVS
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="/js/printReceipt.js"></script>
+<button class="print-button print-button" onclick="imprimirRecibo()"><span class="print-icon" ></span></button>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    JsBarcode("#barcode", "<%= venta.codigo %>", {
+      format: "CODE128",
+      lineColor: "#000",
+      width: 2,
+      height: 50,
+      displayValue: true
+    });
+  });
+</script>
+

@@ -1,0 +1,60 @@
+<style>
+.quesadilla {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.quesadilla:after{
+  z-index:-1;
+  content:'📅';
+  display: block;
+  font-size:2rem;
+  color:STEELBLUE;
+  background: none;
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top:13px;
+  right:-7px;
+}
+input.date{
+  border-radius:10px;
+  height:auto;
+  transition:all ease 400ms;
+
+}
+
+label{
+  color: var(--app-content-main-color);
+}
+
+
+</style>
+
+<div data-swapy-slot="cat">
+  <div data-swapy-item="cat">
+    <div class="chart-card">
+      <div class="handle" data-swapy-handle></div>
+      <h2>Ventas por Categorías</h2>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <div class="quesadilla">
+          <label >Desde</label>
+          <input type="date" id="filtro-cat-fecha-inicio" class="date" />
+        </div>
+        <div class="quesadilla">
+          <label>Hasta</label>
+          <input type="date" id="filtro-cat-fecha-fin" class="date" />
+        </div>
+    <select id="filtro-categoria-especifica">
+      <option value="todas">Todas</option>
+      <% categoriasDisponibles.forEach(cat => { %>
+        <option value="<%= cat %>"><%= cat %></option>
+      <% }); %>
+    </select>
+        <button id="filtrar-categorias">Filtrar Categorías</button>
+        <div id="chart-categorias"></div>
+      </div>
+    </div>
+  </div>
+</div>

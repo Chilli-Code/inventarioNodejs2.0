@@ -1,0 +1,152 @@
+<style>
+.gap{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+@media(max-width:990px){
+    .gap{
+    margin-bottom: 80px;
+
+    }
+}
+.add-to-cart {
+    padding: 8px 8px !important;
+    font-size: 0.8rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.hhcheck{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+}
+.filter-buttoon{
+    margin-top: 0px !important;
+    align-items: center;
+    padding: 8px 8px !important;
+
+    justify-content: center;
+    display: flex;
+    gap:6px;
+}
+
+  .contenedor-image.titlePr{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    flex-direction: column;
+  }
+  .container-carty {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    position: relative;
+    width: 100%;
+    text-align: left;
+    height: 300px;
+    z-index: 10;
+
+  }
+.contenedor-ventas.dd {
+    padding: 0px 5px !important;
+}
+  .container-carty h3 {
+    color: var(--app-content-main-color);
+    font-size: 1.2em;
+    margin-bottom: 5px;
+  }
+  .container-carty button {
+    background-color: transparent ;
+    border: none;
+    cursor: pointer;
+  }
+  .container-carty button svg{
+    fill: var(--app-content-main-color);
+  }
+
+
+  .filter-menu {
+    background-color: var(--app-content-secondary-color);
+    position: absolute;
+    top: calc(100% + 16px);
+    right: -74px;
+    border-radius: 4px;
+    padding: 8px;
+    width: 220px;
+    z-index: 2;
+    box-shadow: var(--filter-shadow);
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.2s;
+  }
+  
+.windowcart.active {
+    visibility: visible;
+    opacity: 1;
+    top: calc(100% + 8px);
+    border: 1px solid var(--sidebar-active-link);
+}
+.windowcart{
+  right: 20px;
+  width: auto;
+  background-color: var(--app-bg);
+}
+.windowcart:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid var(--app-content-secondary-color);
+    bottom: 100%;
+    left: 97%;
+    transform: translatex(-50%);
+}
+.windowcart label {
+    display: block;
+    font-size: 14px;
+    color: var(--app-content-main-color);
+    margin-bottom: 8px;
+}
+
+
+</style>
+<div class="gap">
+    <button class="add-to-cart filter-button filter-buttoon apply agregaar" type="button" id="agregar-producto-btn">
+        <div class="cart">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z">
+                </path>
+            </svg>
+        </div>
+        <div>
+            <span>Agregar al Recibo</span>
+
+        </div>
+    </button>
+    <div class="hhcheck">
+        <button type="submit" name="enviar" class="filter-button filter-buttoon apply agregaar">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-80q-50 0-85-35t-35-85v-120h120v-560l60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60v680q0 50-35 85t-85 35H240Zm480-80q17 0 28.5-11.5T760-200v-560H320v440h360v120q0 17 11.5 28.5T720-160ZM360-600v-80h240v80H360Zm0 120v-80h240v80H360Zm320-120q-17 0-28.5-11.5T640-640q0-17 11.5-28.5T680-680q17 0 28.5 11.5T720-640q0 17-11.5 28.5T680-600Zm0 120q-17 0-28.5-11.5T640-520q0-17 11.5-28.5T680-560q17 0 28.5 11.5T720-520q0 17-11.5 28.5T680-480ZM240-160h360v-80H200v40q0 17 11.5 28.5T240-160Zm-40 0v-80 80Z"/></svg>
+            Confirmar Ventas
+        </button>
+    </div>
+
+</div>

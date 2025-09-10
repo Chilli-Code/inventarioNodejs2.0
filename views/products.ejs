@@ -1,0 +1,55 @@
+<%- include('./partials/header/layout') %>
+
+
+  <%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+    <%- include('./partials/content-header-ventas/button-añadir') %>
+      </div>
+
+      <%- include('./partials/content-header-ventas/content-header-ventas') %>
+        <%- include('./partials/dashboard-products/dashboard-products') %>
+
+          <% if (success) { %>
+            <div class="swirl-alert" style="background-color: var(--sidebar);"></div>
+
+            <% const lottieMap={ 'Producto agregado correctamente' : '/Lottie/sendSuccess.json' , 'Producto Eliminado'
+              : '/Lottie/delete.json' , 'Articulo Actualizado Correctamente' : '/Lottie/update.json'
+              , 'El producto ya existe, no se puede agregar duplicado.' : '/Lottie/no_product.json' }; %>
+
+              <% if (success==='El producto ya existe, no se puede agregar duplicado.' ) { %>
+                <script>
+                  Swal.fire({
+                    title: `<span style="color: #e74c3c;"><%= success %></span>`,
+                    icon: '',
+                    html: `<div class="lottie-animation" style="height: 140px; overflow: hidden;" data-animation-path="<%= lottieMap[success] %>"></div>`,
+                    confirmButtonText: 'Cerrar',
+                    timerProgressBar: true,
+                    timer: 4000
+                  });
+                </script>
+                <% } else { %>
+                  <script>
+                    Swal.fire({
+                      title: '<%= success %>',
+                      icon: '',
+                      html: `<div class="lottie-animation" style="height: 140px; overflow: hidden;" data-animation-path="<%= lottieMap[success] || '/Lottie/sendSuccess.json' %>"></div>`,
+                      confirmButtonText: 'Cerrar',
+                      timerProgressBar: true,
+                      timer: 3000
+                    });
+                  </script>
+                  <% } %>
+                    <% } %>
+
+
+
+                      <script>
+                        function addBaseURLToHistory() {
+                          var urlWithoutQueryString = window.location.href.split('?')[0];
+                          history.replaceState({}, '', urlWithoutQueryString);
+                        }
+
+                        window.onload = function () {
+                          addBaseURLToHistory();
+                        };
+
+                      </script>

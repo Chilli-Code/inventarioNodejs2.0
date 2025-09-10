@@ -1,0 +1,33 @@
+<button class="app-content-headerButton filter-product">Añadir Producto</button>
+<div class="filter-button-wrapper">
+    <div class="filter-agregar-from">
+        <!-- FORMULARIO DE PRODUCTOS -->
+        <form action="/products/add" method="POST">
+            <label>Producto</label>
+            <input name="producto" type="text" />
+            <label>Categoria</label>
+            <select name="categoria">
+                <option>Tecnologia</option>
+                <option>Ropa</option>
+                <option>Heladeria</option>
+            </select>
+            <label>Estado</label>
+            <select name="estado" id="stateProduct">
+                <option value="Activo">Activo</option>
+                <option value="Agotado">Agotado</option>
+            </select>
+            <label>Ventas</label>
+            <select name="ventas" type="number">
+                <option value="0">0</option>
+            </select>
+            <label>Cantidad</label>
+            <input name="cantidad" type="number" />
+            <label>Precio</label>
+            <input name="precio" type="number" step="0.01" id="precioProduct" />
+            <label>Hora</label>
+            <input name="hora" type="text" id="clock" readonly>
+            <input type="submit" class="filter-button apply agregaar" value="Agregar">
+            
+            </from>
+    </div>
+</div>

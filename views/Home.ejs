@@ -1,0 +1,41 @@
+<%- include('./partials/header/layout') %>
+
+
+
+
+    <%- include('./partials/navigation/navigation'); %>
+        </div>
+
+        <% if (user && !hasSeenWelcomeAnimation) { %>
+            <script>
+                const lottiePath = '/Lottie/welcome-animation.json';
+                Swal.fire({
+                    title: '¡Bienvenido!',
+                    html: `<h2 style="color:#22d358f7;"> <%= user.nombre %></h2><div class="lottie-animation" style="height: 230px; overflow:hidden;" data-animation-path="/Lottie/welcome-animation.json"></div>`,
+                    confirmButtonText: 'Cerrar',
+                    timerProgressBar: true,
+                });
+            </script>
+            <% hasSeenWelcomeAnimation=true; %>
+                <% } %>
+                    <div class="app-content-inicio">
+                        <div class="contenedor-ventas">
+                            <div class="cont-producto">
+                                <h3>Ultimas Ventas</h3>
+                                <div class="contcard">
+                                    <div class="card">
+                                        <h2>Producto 1</h2>
+                                    </div>
+                                    <div class="card">
+                                        <h2>Producto 1</h2>
+                                    </div>
+                                    <div class="card">
+                                        <h2>Producto 1</h2>
+                                    </div>
+                                    <div class="card">
+                                        <h2>Producto 1</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>

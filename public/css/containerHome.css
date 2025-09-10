@@ -1,0 +1,109 @@
+.app-content-inicio {
+    padding: 10px;
+    width: 100%;
+    background-color: var(--app-bg);
+    height: 100%;
+    flex: 1;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cont-producto {
+    position: relative;
+    min-height:96vh;
+    /* margin-top: 50px;
+    margin-bottom: 50px; */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.cont-producto h3{
+    color: var(--app-content-main-color);
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.cont-producto .contcard {
+    width: 100%;
+    height: 100%;
+    padding: 0 50px;
+    flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cont-producto .contcard .card {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border: 5px solid rgb(231, 13, 13);
+    margin: 20px;
+}
+
+@media(max-width: 990px){
+    .contenedor-ventas .cont-from-ventas {
+        margin: 0px 0px 64px 0px !important;
+    }
+}
+
+@media (max-width:641px){
+    .cont-producto{
+        min-height:auto;
+    }
+    .cont-producto .contcard{
+        margin: 0px 0px 100px 0px;
+    }
+}
+
+@media (max-width: 260px){
+
+    form#venderProducto {
+        display: flex;
+        position: relative;
+        width: 160px;
+        flex-direction: column;
+    }
+    .cont-from-ventas select{
+        width: auto !important;
+    }
+    .cont-from-ventas hr{
+        width: auto;
+    }
+    
+    .cont-from-ventas input{
+        width: auto;
+    }
+    
+    .contenedor-ventas .cont-from-ventas{
+        width: 177px;
+    }
+    .contenedor-image .lottie-animation{
+        width: 378px;
+        height: 100px;
+    }
+    .app-content-inicio{
+        padding:0px;
+    }
+}
+
+.swal2-container.swal2-center>.swal2-popup{
+    background: var(--sidebar) !important;
+}
+
+.swal2-styled.swal2-confirm{
+    background-color: var(--action-color) !important;
+}
+.swal2-title{
+    color: var(--action-color) !important;
+}
+.swal2-styled.swal2-confirm:focus {
+    box-shadow: 0 0 0 3px rgb(36 36 36 / 65%) !important;
+}

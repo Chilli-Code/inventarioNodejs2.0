@@ -1,0 +1,48 @@
+<style>
+  .windowcart th {
+    padding: 8px 10px;
+    font-size: 14px;
+    color: var(--app-content-main-color);
+
+  }
+
+  .windowcart td {
+    font-size: 14px;
+    color: var(--app-content-main-color);
+    text-align: center;
+
+  }
+
+  @media(max-width:354px) {
+    .windowcart {
+      right: 0px;
+      left: 0px;
+      overflow-x: scroll;
+    }
+  }
+</style>
+
+
+
+
+<div class="filter-menu windowcart">
+  <label>Lista</label>
+  <table id="tabla-carrito">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+<tfoot>
+  <tr>
+    <td colspan="3" style="border-top: 2px solid var(--sidebar-active-link);"><strong>Total</strong></td>
+    <td id="total-general" style="border-top: 2px solid var(--sidebar-active-link);">$0</td>
+  </tr>
+</tfoot>
+
+  </table>
+</div>

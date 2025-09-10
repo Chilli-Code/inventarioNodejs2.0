@@ -1,0 +1,32 @@
+<div data-swapy-slot="prod">
+  <div data-swapy-item="prod">
+    <div class="chart-card">
+      <div class="handle" data-swapy-handle></div>
+      <h2>Top Productos Vendidos</h2>
+
+      <!-- Filtros -->
+      <div class="chart-filters">
+        <label>Desde: <input type="date" id="filtro-fecha-inicio" /></label>
+        <label>Hasta: <input type="date" id="filtro-fecha-fin" /></label>
+        <label>Categoría:
+          <select id="filtro-categoria">
+            <option value="">Todas</option>
+            <% categoriasDisponibles.forEach(cat => { %>
+              <option value="<%= cat %>"><%= cat %></option>
+            <% }); %>
+          </select>
+        </label>
+        <label>Top:
+          <select id="filtro-top">
+            <option value="5" selected>Top 5</option>
+            <option value="10">Top 10</option>
+            <option value="15">Top 15</option>
+          </select>
+        </label>
+        <button id="filtrar-productos">Filtrar</button>
+      </div>
+
+      <div id="chart-productos"></div>
+    </div>
+  </div>
+</div>
