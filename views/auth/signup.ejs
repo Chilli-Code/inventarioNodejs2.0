@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.3/dist/sweetalert2.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.3/dist/sweetalert2.all.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
-  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <link rel="shortcut icon" href="./img/Logo.jpg" type="image/x-icon">
   <link rel="stylesheet" href="/css/login.css">
   <link rel="stylesheet" href="/css/navigation.css">
 
@@ -15,7 +9,8 @@
 
 <body>
 
-
+<div class="violet-storm-wrapper">
+   <div class="violet-storm-bg"></div>
   <% if (typeof message !== 'undefined' && message) { %>
     <script>
       // Mostrar la ventana de SweetAlert2
@@ -46,16 +41,9 @@
     <ul>
       <li><a href="/signin">Inicar</a></li>
       <li><a href="/signup">Registrarse</a></li>
-      <button class="mode-switch" title="Switch Theme">
-        <svg class="moon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-          stroke-width="2" width="24" height="24" viewBox="0 0 24 24">
-          <defs></defs>
-          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
-        </svg>
-      </button>
     </ul>
   </header>
-  <section>
+  <section class="sectionform">
     <div class="leftPanel">
       <div class="custom-shape-divider-bottom-1629894577">
         <h1 class="welcomeTxt">WELCOME</h1>
@@ -252,5 +240,6 @@
     </div>
     <div class="footer">
       <p>Copyright © 2022 ChillY_Code. All Right Reserverd</p>
+    </div>
     </div>
   </section>

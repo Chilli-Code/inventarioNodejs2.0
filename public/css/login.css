@@ -34,7 +34,27 @@ body {
                                                 
 }
 
+      .violet-storm-wrapper {
+      position: relative;
+      min-height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
 
+    .violet-storm-bg {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      z-index: 0;
+      background-image:
+        radial-gradient(
+          circle at top center,
+          rgba(173, 109, 244, 0.5),
+          transparent 70%
+        );
+              filter: blur(80px);
+      background-repeat: no-repeat;
+    }
 
 
 
@@ -96,70 +116,6 @@ header ul li a {
     cursor: pointer;
 }
 
-.hexagono{
-    position: relative;
-    width: 46%;
-    height: 80%;
-    margin:auto;
-    color:#fff;
-    /* background: linear-gradient(-180deg, #ede3e3, #bb234da3); */
-    background: linear-gradient(-180deg, #ede3e3, #8d26edab);
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    transition: 0.5s;
-}
-
-.hexagono a{
-        text-decoration: none;
-        z-index: 1;
-        color: #fff;
-        display: flex;
-
-}
-.hexagono ion-icon{
-    z-index: 1;
-    margin:auto;
-    font-size: 40px;
-    border-radius: 10px;
-    /* background: linear-gradient(45deg, #a58fe9, #e37682); */
-    background: linear-gradient(-180deg, #343434, #000000);
-    background-clip: text;
-    --webkit-background-clip:text;
-}
-
-.hexagono::before, .hexagono::after{
-    position: absolute;
-    content: '';
-    background: inherit;
-    width: 100%;
-    height: 100%;
-    border-radius:0;
-    transition: 0.5s;
-    transform-origin: center;
-}
-
-.hexagono::before{
-    transform: rotateZ(60deg);
-}
-
-.hexagono::after{
-    transform: rotateZ(-60deg);
-}
-
-.hexagono:hover{
-    border-radius: 50px;
-    transition: 0.5s;
-}
-.hexagono:hover::before{
-    border-radius: 50px;
-    transition: 0.5s;
-}
-.hexagono:hover::after{
-    border-radius: 50px;
-    transition: 0.5s;
-}
-
 .custom-shape-divider-bottom-1629894577 svg{
     width: 500px;
     height: 100%;
@@ -168,7 +124,7 @@ header ul li a {
 @media(max-width:990px){
     
 section{
-    overflow-x: hidden;
+    height: auto !important;
     position: relative;
     display: flex;
     align-items: center;
@@ -194,13 +150,18 @@ section{
 }
 
 
+.sectionform{
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
+}
 
 
 .leftPanel {
-    float: left;
-    width: 50%;
-    height: 100vh;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -208,9 +169,7 @@ section{
 }
 
 .rightPanel {
-    float: right;
-    width: 50%;
-    height: 100vh;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -218,10 +177,11 @@ section{
 }
 
 .welcomeTxt {
-    color: var(--app-content-main-color);
+    color: #44ccd5;
     margin: 20px 0px;
     font-size: 50px;
     letter-spacing: 10px;
+    z-index: 1;
 }
 
 .authSideImg {
@@ -232,6 +192,7 @@ section{
 /*css for form*/
 .loginForm {
     padding: 30px 30px 30px 30px;
+    z-index: 1;
     background-color: var(--bg-cont-login);
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     border-radius: 5px;
@@ -256,6 +217,7 @@ section{
 
 .inputInDiv {
     margin: 24px 0px !important;
+    gap:20px;
     align-items: center;
     flex-direction: column;
     margin: 10px;
@@ -283,24 +245,23 @@ section{
     object-fit: cover;
 }
 .txtInput {
-    font-family: inherit;
-    width:90%;
-    height: 25px;
-    margin: 10px 0px;
-    padding-right: 10px;
-    font-size: 1.1rem;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
     color:var(--app-content-main-color);
-    background-color: rgba(255, 255, 255, 0);
-    border:0px;
-    border-bottom: 2px solid #7d2dc9;
-    transition: 0.5s;
+    border: 1px solid #44ccd5;
+    transition: border-color 300ms ease;
     text-align: right;
+    box-sizing: border-box;
+    background: transparent;
 }
 
 .txtInput:focus  {
-    border-bottom: 2px solid #11998e ;
     outline: none;
-    
+    border-color: #7d2dc9;
+    box-shadow: 0 0 10px rgba(255, 255, 136, 0.3);
+
 
 }
 
@@ -315,7 +276,7 @@ section{
     margin: 10px 0px;
     font-family: inherit;
     font-size: 1.2rem;
-    background-color: #8d26ed;
+    background-color: #44ccd5;
     border: 0;
     float: right;
     border-radius: 4px;

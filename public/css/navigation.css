@@ -73,7 +73,7 @@ body{
     --action-color-hover: #6291fd;
     --bg-login:#fff ;
     --EliminarLG: #972222;
-    --bg-cont-login:#fff;
+    --bg-cont-login:rgba(255, 255, 255, 0.95);
     --colorProfileWindow:#747474e6;
 
 }
