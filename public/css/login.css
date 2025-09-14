@@ -56,10 +56,17 @@ body {
       background-repeat: no-repeat;
     }
 
+img {
+  -webkit-user-drag: none; /* Safari/Chrome */
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
 
 
 header {
-    background: #7d2dc9;
+    background: #7B68EE;
     position: sticky;
     top: 0;
     left: 0;

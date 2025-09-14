@@ -30,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('layout', 'layout');
 app.set('views', path.join(__dirname, 'views'));
+app.use('/js', express.static(__dirname + '/node_modules/vanilla-tilt/dist'));
 
 // Sesión y flash (deben estar antes de las rutas)
 app.use(session({

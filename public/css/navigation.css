@@ -19,6 +19,16 @@ body{
     border-radius: 10px;
 }
 
+
+img{
+  -webkit-user-drag: none; /* Safari/Chrome */
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+
+}
+
 /* Colors */
 
 .light {

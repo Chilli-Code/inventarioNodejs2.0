@@ -6,7 +6,21 @@
   <link rel="stylesheet" href="/css/login.css">
   <link rel="stylesheet" href="/css/navigation.css">
     <link rel="shortcut icon" href="./img/Logo.jpg" type="image/x-icon">
-
+    <link rel="stylesheet" href="/css/Landing.css">
+<style>
+  body {
+    flex-direction: column;
+  }
+  footer{
+    margin-top:24px;
+    width:100%;
+  }
+  .container{
+    width: 100%;
+    box-shadow: none;
+    border: none;
+  }
+</style>
 </head>
 
 <body>
@@ -36,7 +50,7 @@
       <% } %>
         <header id="header">
           <a href="/" class="logo">
-            <img src="./img/Logo.jpg">
+            <img src="./img/Logo.jpg" alt="Logo" loading="lazy"  draggable="false"  draggable="false">
           </a>
           <ul>
             <li><a href="/signin">Inicar</a></li>
@@ -201,7 +215,7 @@
 
             <form class="loginForm" action="/signin" method="POST">
               <div class="imgcaja">
-                <img src="./img/Logo.jpg" alt="Logo">
+                <img src="./img/Logo.jpg" alt="Logo" loading="lazy">
               </div>
               <h2 class="loginFormH2">Iniciar Sesión</h2>
               <div class="inputInDiv">
@@ -212,8 +226,6 @@
             </form>
 
           </div>
-          <div class="footer">
-            <p>Copyright © 2022 ChillY_Code. All Right Reserverd</p>
-          </div>
-  </div>
-  </section>
+        </div>
+        <%- include('../partials/Landing/FooterSection'); %>
+      </section>
