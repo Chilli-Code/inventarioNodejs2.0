@@ -40,23 +40,29 @@ router.get('/products', isAuthenticated, async (req, res) => {
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
 
-    // 1. Obtener productos de MongoDB
-    const products = await Product.find().lean(); // `lean()` para pasar objetos planos a EJS
-
-    // 2. Ordenar (si se proporciona por query)
+    // 📌 Parámetros para orden y paginación
     const orderBy = req.query.orderBy || 'producto';
     const order = req.query.order === 'desc' ? -1 : 1;
+    const perPage = 15;
+    const page = parseInt(req.query.page) || 1;
 
-    products.sort((a, b) => {
-      if (a[orderBy] < b[orderBy]) return -1 * order;
-      if (a[orderBy] > b[orderBy]) return 1 * order;
-      return 0;
-    });
+    // 📌 Total de productos
+    const totalProducts = await Product.countDocuments();
 
-    // 3. Flash message
+    // 📌 Traer productos paginados desde Mongo
+    const products = await Product.find()
+      .sort({ [orderBy]: order }) // ordenar directamente en Mongo
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean(); // `lean()` para objetos planos en EJS
+
+    const totalPages = Math.ceil(totalProducts / perPage);
+
+    // 📌 Mensaje flash
     const success = req.flash("success");
+    const error = req.flash('error');
 
-    // 4. Renderizar la vista con productos reales
+    // 📌 Renderizar vista
     res.render('products', {
       title: 'Inventario || Producto',
       data: products,
@@ -64,9 +70,13 @@ router.get('/products', isAuthenticated, async (req, res) => {
       order: req.query.order || 'asc',
       titleMain: "Lista De Productos",
       success: success.length ? success[0] : null,
+      error: error.length ? error[0] : null,
       currentOption: "/products",
       imageUrl: null,
-      user: req.session.user
+      user: req.session.user,
+      currentPage: page,
+      totalProducts: totalProducts,
+      totalPages: totalPages
     });
   } catch (err) {
     console.error('Error cargando productos:', err);

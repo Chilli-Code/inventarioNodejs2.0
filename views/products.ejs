@@ -1,55 +1,240 @@
 <%- include('./partials/header/layout') %>
 
 
-  <%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
-    <%- include('./partials/content-header-ventas/button-añadir') %>
-      </div>
+<%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+<%- include('./partials/content-header-ventas/button-añadir') %>
+</div>
 
-      <%- include('./partials/content-header-ventas/content-header-ventas') %>
-        <%- include('./partials/dashboard-products/dashboard-products') %>
-
-          <% if (success) { %>
-            <div class="swirl-alert" style="background-color: var(--sidebar);"></div>
-
-            <% const lottieMap={ 'Producto agregado correctamente' : '/Lottie/sendSuccess.json' , 'Producto Eliminado'
-              : '/Lottie/delete.json' , 'Articulo Actualizado Correctamente' : '/Lottie/update.json'
-              , 'El producto ya existe, no se puede agregar duplicado.' : '/Lottie/no_product.json' }; %>
-
-              <% if (success==='El producto ya existe, no se puede agregar duplicado.' ) { %>
-                <script>
-                  Swal.fire({
-                    title: `<span style="color: #e74c3c;"><%= success %></span>`,
-                    icon: '',
-                    html: `<div class="lottie-animation" style="height: 140px; overflow: hidden;" data-animation-path="<%= lottieMap[success] %>"></div>`,
-                    confirmButtonText: 'Cerrar',
-                    timerProgressBar: true,
-                    timer: 4000
-                  });
-                </script>
-                <% } else { %>
-                  <script>
-                    Swal.fire({
-                      title: '<%= success %>',
-                      icon: '',
-                      html: `<div class="lottie-animation" style="height: 140px; overflow: hidden;" data-animation-path="<%= lottieMap[success] || '/Lottie/sendSuccess.json' %>"></div>`,
-                      confirmButtonText: 'Cerrar',
-                      timerProgressBar: true,
-                      timer: 3000
-                    });
-                  </script>
-                  <% } %>
-                    <% } %>
+<%- include('./partials/content-header-ventas/content-header-ventas') %>
+<%- include('./partials/dashboard-products/dashboard-products') %>
 
 
 
-                      <script>
-                        function addBaseURLToHistory() {
-                          var urlWithoutQueryString = window.location.href.split('?')[0];
-                          history.replaceState({}, '', urlWithoutQueryString);
-                        }
+<div class="swirl-alert" style="background-color: var(--sidebar);"></div>
+<% 
+  // Mapeo de Lotties según mensaje
+  const lottieMap = {
+    'Producto agregado correctamente': '/Lottie/sendSuccess.json',
+    'Producto Eliminado': '/Lottie/delete.json',
+    'Articulo Actualizado Correctamente': '/Lottie/update.json',
+    'El producto ya existe, no se puede agregar duplicado.': '/Lottie/no_product.json',
+    'Error al guardar el producto.': '/Lottie/userOps.json' // tu animación de error
+  };
+%>
 
-                        window.onload = function () {
-                          addBaseURLToHistory();
-                        };
+<% if (success) { %>
+  <div class="swirl-alert" style="background-color: var(--sidebar);"></div>
+  <script>
+    Swal.fire({
+      title: `<span style="color:#2ba972;"><%= success %></span>`,
+      icon: '',
+      html: `<div class="lottie-animation" style="height: 140px; overflow: hidden;" 
+      data-animation-path="<%= lottieMap[success] || '/Lottie/sendSuccess.json' %>"></div>`,
+      confirmButtonText: 'Cerrar',
+      timerProgressBar: true,
+      timer: 3000
+    });
+  </script>
+<% } %>
 
-                      </script>
+<% if (error) { %>
+  <div class="swirl-alert" style="background-color: var(--sidebar);"></div>
+  <script>
+    Swal.fire({
+      title: `<span style="color:#e74c3c;"><%= error %></span>`,
+      icon: '',
+      html: `<div class="lottie-animation" style="height: 140px; overflow: hidden;" 
+      data-animation-path="<%= lottieMap[error] || '/Lottie/userOps.json' %>"></div>`,
+      confirmButtonText: 'Cerrar',
+      timerProgressBar: true,
+      timer: 4000
+    });
+  </script>
+<% } %>
+
+
+
+
+<script>
+  function addBaseURLToHistory() {
+    var urlWithoutQueryString = window.location.href.split('?')[0];
+    history.replaceState({}, '', urlWithoutQueryString);
+  }
+
+  window.onload = function() {
+    addBaseURLToHistory();
+  };
+</script>
+
+<!-- Scripts filtros -->
+<!-- Scripts filtros -->
+<script>
+/* filter.js - versión robusta para buscar el nombre correcto en cada fila */
+(function(){
+  const DEBUG = false; // pon true para ver logs
+
+  function dbg(...args){ if(DEBUG) console.log(...args); }
+
+  // Guarda referencias reales de las filas
+  let filasOriginales = [];
+
+  function parseFechaCustom(fechaStr) {
+    if (!fechaStr) return new Date();
+    const [fecha, hora] = fechaStr.split(" - ");
+    const [dia, mes, año] = fecha.split("/");
+    return new Date(`${año}-${mes}-${dia}T${hora}`);
+  }
+
+  // Intenta obtener el texto del producto dentro de una fila (robusto)
+  function getProductText(row){
+    if(!row) return "";
+
+    // 1) Preferencia: clase explícita producto-nombre (si la pones, será ideal)
+    const selectorsPreferidos = [
+      '.producto-nombre',
+      '.product-cell.tituloProduct.busqueda',
+      '.tituloProduct.busqueda',
+      '.product-cell.tituloProduct',
+      '.busqueda' // fallback
+    ];
+
+    for (const sel of selectorsPreferidos) {
+      const el = row.querySelector(sel);
+      if (el) {
+        const t = (el.textContent || '').trim();
+        if (t && /[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ]/.test(t)) return t.toLowerCase();
+      }
+    }
+
+    // 2) Si no encontramos, buscar la primera TD que NO sea la columna de iconos
+    const tds = Array.from(row.querySelectorAll('td'));
+    for (const td of tds) {
+      // evita contenedores de íconos (clase conocida en tu template: iconosPosision)
+      if (td.classList.contains('iconosPosision')) continue;
+      const t = (td.textContent || '').trim();
+      if (t && /[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ]/.test(t)) return t.toLowerCase();
+    }
+
+    return "";
+  }
+
+  function aplicarFiltro(){
+    const inputBuscador = document.getElementById('buscador');
+    const selectCategoria = document.getElementById('filtro-categoria');
+    const selectEstado = document.getElementById('filtro-estado');
+    const selectOrden = document.getElementById('filtro-orden');
+    const noDataDiv = document.querySelector('.noData');
+
+    const textoBuscado = (inputBuscador?.value || '').toLowerCase().trim();
+    const categoria = (selectCategoria?.value || '').toLowerCase();
+    const estado = (selectEstado?.value || '').toLowerCase();
+    const orden = (selectOrden?.value || '');
+
+    const filas = Array.from(document.querySelectorAll("#products-row tbody tr"));
+    dbg("aplicarFiltro: filas totales", filas.length, "texto:", textoBuscado, "cat:", categoria, "est:", estado);
+
+    filas.forEach(row=>{
+      const productoText = getProductText(row);
+      const cat = (row.querySelector(".category")?.textContent || '').toLowerCase();
+      const est = (row.querySelector(".status")?.textContent || '').toLowerCase();
+
+      const cumpleBuscador = textoBuscado === '' || (productoText && productoText.includes(textoBuscado));
+      const cumpleCategoria = categoria === '' || cat.includes(categoria);
+      const cumpleEstado = estado === '' || est.includes(estado);
+
+      row.style.display = (cumpleBuscador && cumpleCategoria && cumpleEstado) ? '' : 'none';
+    });
+
+    const filasVisibles = filas.filter(r => r.style.display !== 'none');
+    dbg("filas visibles:", filasVisibles.length);
+
+    // Actualiza contador visible
+    const contador = document.getElementById('filteredCount');
+    if (contador) contador.textContent = filasVisibles.length;
+
+    // Ordenar si aplica
+    if (orden !== '') {
+      const [campo, direccion] = orden.split('-');
+      filasVisibles.sort((a,b)=>{
+        let valA, valB;
+        switch(campo){
+          case 'ventas':
+            valA = parseInt(a.querySelector('.sales')?.textContent || 0);
+            valB = parseInt(b.querySelector('.sales')?.textContent || 0);
+            break;
+          case 'cantidad':
+            valA = parseInt(a.querySelector('.cantidad')?.textContent.replace(/\D/g,'') || 0);
+            valB = parseInt(b.querySelector('.cantidad')?.textContent.replace(/\D/g,'') || 0);
+            break;
+          case 'precio':
+            valA = parseFloat((a.querySelector('.price')?.textContent || '0').replace(/[^\d.-]/g,'')) || 0;
+            valB = parseFloat((b.querySelector('.price')?.textContent || '0').replace(/[^\d.-]/g,'')) || 0;
+            break;
+          case 'hora':
+            valA = parseFechaCustom(a.querySelector('.hora')?.textContent.replace('Hora:','').trim() || '');
+            valB = parseFechaCustom(b.querySelector('.hora')?.textContent.replace('Hora:','').trim() || '');
+            break;
+          default:
+            valA = getProductText(a);
+            valB = getProductText(b);
+        }
+
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return direccion === 'asc' ? valA - valB : valB - valA;
+        }
+        return direccion === 'asc' ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
+      });
+
+      const tbody = document.querySelector('#products-row tbody');
+      filasVisibles.forEach(row => tbody.appendChild(row));
+    }
+
+    if (noDataDiv) noDataDiv.style.display = filasVisibles.length > 0 ? 'none' : 'block';
+  }
+
+  function resetFilters(){
+    const buscador = document.getElementById('buscador');
+    const cat = document.getElementById('filtro-categoria');
+    const est = document.getElementById('filtro-estado');
+    const ord = document.getElementById('filtro-orden');
+
+    if (buscador) buscador.value = '';
+    if (cat) cat.value = '';
+    if (est) est.value = '';
+    if (ord) ord.value = '';
+
+    // Mostrar todas las filas (referencias reales)
+    filasOriginales.forEach(r => r.style.display = '');
+
+    const contador = document.getElementById('filteredCount');
+    if (contador) contador.textContent = filasOriginales.length;
+
+    const noDataDiv = document.querySelector('.noData');
+    if (noDataDiv) noDataDiv.style.display = 'none';
+  }
+
+  function initFilters(){
+    const tbody = document.querySelector('#products-row tbody');
+    if(!tbody){ dbg("initFilters: no hay tbody"); return; }
+    filasOriginales = Array.from(tbody.querySelectorAll('tr'));
+    dbg("initFilters: filasOriginales", filasOriginales.length);
+
+    const contador = document.getElementById('filteredCount');
+    if (contador) contador.textContent = filasOriginales.length;
+
+    document.getElementById('buscador')?.addEventListener('input', aplicarFiltro);
+    document.getElementById('filtro-categoria')?.addEventListener('change', aplicarFiltro);
+    document.getElementById('filtro-estado')?.addEventListener('change', aplicarFiltro);
+    document.getElementById('filtro-orden')?.addEventListener('change', aplicarFiltro);
+  }
+
+  // inicializar al cargar. Si usas defer, esto se ejecutará correctamente.
+  document.addEventListener('DOMContentLoaded', initFilters);
+
+  // Exponer funciones globalmente por si necesitas reinicializar tras AJAX
+  window.aplicarFiltro = aplicarFiltro;
+  window.resetFilters = resetFilters;
+  window.initFilters = initFilters;
+})();
+</script>
+

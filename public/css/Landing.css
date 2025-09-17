@@ -498,6 +498,15 @@ header {
     flex-direction: column;
     gap: 0.5rem;
 }
+
+@media (max-width: 1023px) {
+        .hero-image {
+        height: 85%;
+    }
+    .main-card{
+        height: 400px !important;
+    }
+}
 @media (max-width: 990px) {
     .pricing-header  {
         align-items: center;
@@ -511,10 +520,13 @@ header {
     align-items: center;
     justify-content: center;
     }
-    .hero-image {
-        height: 90%;
-    }
 
+}
+
+@media (max-width: 768px) {
+    .main-card{
+        height: 500px !important;
+    }
 }
 
 @media (max-width: 1023px) {
@@ -645,7 +657,7 @@ header {
 
 /* Footer */
 footer {
-    background-color: #1f2937;
+    background-color: #2d274d;
     color: white;
 }
 

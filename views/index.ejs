@@ -5,8 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keku Inventory - Gestión de Inventario y Ventas</title>
+      <!-- Cargar GSAP y ScrollTrigger desde CDN -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js" defer></script>
+
     <%- include ('./partials/header/header'); %>
-        <link rel="stylesheet" href="/css/Landing.css">
+        <link rel="stylesheet" href="/css/Landing.min.css">
 
         <style>
 
@@ -35,8 +39,8 @@
                 <%- include ('./partials/Landing/PricingSection'); %>
                 <%- include ('./partials/Landing/CtaSection'); %>
                 <%- include ('./partials/Landing/FooterSection'); %>
-            </main>
-        </div>
+              </main>
+            </div>
     </div>
 
     <section>

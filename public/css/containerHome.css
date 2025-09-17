@@ -10,11 +10,6 @@
 }
 
 
-.contenedor-ventas{
-    height: auto;
-    overflow: hidden;
-
-}
 .cont-producto .contcard{
     height: 100% !important;
     overflow: auto;

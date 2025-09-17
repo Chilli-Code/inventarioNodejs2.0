@@ -39,7 +39,7 @@ router.post('/add', async (req, res) => {
 
   } catch (err) {
     console.error('Error al guardar producto:', err);
-    req.flash('success', 'Error al guardar el producto.');
+    req.flash('error', 'Error al guardar el producto.');
     res.redirect('/products');
   }
 });

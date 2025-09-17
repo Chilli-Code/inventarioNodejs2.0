@@ -1,14 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+128&family=VT323&display=swap');
+@font-face {
+  font-family: 'VT323';
+  src: url('/fonts/VT323-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Libre Barcode 128 */
+@font-face {
+  font-family: 'Libre Barcode 128';
+  src: url('/fonts/LibreBarcode128-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 .contenedor-ventas {
     position: relative;
     overflow: auto;
     min-height: 100vh;
     padding: 30px 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
     
 }
 
@@ -17,12 +29,7 @@
 }
 
 @media (max-width: 990px) {
-    .over{
-        margin-top: 600px;
-    }
-    .contenedor-ventas.dd {
-        margin-top: 20px;
-}
+
 }
 @media (max-width: 260px) {
     .over{
@@ -42,7 +49,7 @@
     border-radius: 5px;
     flex-direction: row-reverse;
     background: var(--app-content-secondary-color);
-    padding: 20px 20px;
+    /* padding: 20px 20px; */
     display: flex;
     align-items: center;
 }
@@ -62,7 +69,7 @@
 .contenedor-ventas .cont-from-ventas .from-ventas {
     justify-content: center;
     width: 100%;
-    padding: 10px 40px;
+    /* padding: 10px 40px; */
     display: flex;
     flex-direction: column;
     position: relative;
@@ -161,9 +168,230 @@
     color: #fff;
 }
 
-.contenedor-ventas {
-    padding: 30px 5px !important;
+.cont-from-ventas .h3{
+    display: none;
 }
+@media (max-width: 260px){
+    .contenedor-ventas .cont-from-ventas {
+        width:100% !important;
+    }
+    .contenedor-ventas .cont-from-ventas .from-ventas{
+        padding: 10px 0px;
+    }
+    .cont-from-ventas input{
+        width: 100% !important;
+    }
+
+}
+@media (max-width: 990px) {
+    .contenedor-ventas .cont-from-ventas {
+        flex-direction: column !important;
+        height: auto;
+        margin: 0px 0px 100px 0px;
+    }
+    .contenedor-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    .contenedor-image img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .from-ventas h3{
+        display:none;
+    }
+    .cont-from-ventas .h3 {
+        display: flex;
+        color: var(--app-content-main-color);
+        font-size: 1.5em;
+        margin-bottom: 5px;
+    }
+    .contenedor-image .lottie-animation{
+        height: 250px;
+    }
+}
+
+.cont-from-ventas .titleSell{
+    
+    color: var(--app-content-main-color);
+    font-size: 1.5em;
+    margin-bottom: 5px;
+
+}
+
+.from-ventas #precio::before {
+    content: "$"; /* agregar el signo de dólar antes del input */
+    position: absolute;
+    left: 5px; /* ajustar la posición del signo de dólar */
+    font-size: 16px; /* ajustar el tamaño del signo de dólar */
+    color: #555;
+}
+
+
+div#productos-seleccionados {
+    width: 330px;
+    height: auto;
+    background: #fff;
+    padding: 20px 20px;
+    position: relative;
+    /* top: 20px; */
+    right: 0;
+}
+
+
+
+
+
+.over{
+    margin-top:-70px;
+}
+
+@media (max-width: 990px) {
+
+}
+@media (max-width: 260px) {
+    .over{
+        margin-top: 300px;
+    }
+}
+
+
+
+
+
+.contenedor-ventas .cont-from-ventas {
+    height: 90%;
+    width: auto;
+    border:1px solid var(--sidebar-active-link);
+    /* max-width: 500px; */
+    border-radius: 5px;
+    flex-direction: row-reverse;
+    background: var(--app-content-secondary-color);
+    /* padding: 20px 20px; */
+    display: flex;
+    align-items: center;
+}
+
+.contenedor-image {
+    width: 100%;
+    padding: 20px;
+}
+
+.contenedor-image .lottie-animation  {
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.contenedor-ventas .cont-from-ventas .from-ventas {
+    justify-content: center;
+    width: 100%;
+    /* padding: 10px 40px; */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: center;
+}
+
+.from-ventas h3 {
+    color: var(--app-content-main-color);
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.cont-from-ventas input {
+    font-size: 16px;
+    background: transparent;
+    padding: 10px;
+    width: 218px;
+    border: 1px solid var(--app-content-main-color);
+    border-radius: 5px;
+    color: var(--action-color);
+}
+
+.cont-from-ventas input:hover {
+    border: 1px solid var(--action-color);
+}
+
+.cont-from-ventas  input:focus {
+    outline: none;
+    border-color: var(--action-color);
+}
+
+.cont-from-ventas label {
+    display: block;
+    font-size: 14px;
+    color: var(--app-content-main-color);
+    margin-bottom: 8px;
+    margin-top: 5px;
+}
+
+.cont-from-ventas  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    padding: 8px 24px 8px 8px;
+    background-position: right 4px center;
+    border: 1px solid var(--app-content-main-color);
+    border-radius: 4px;
+    color: var(--app-content-main-color);
+    font-size: 13px;
+    background-color: transparent;
+    margin-bottom: 3px;
+    width: 218px;
+}
+
+.cont-from-ventas select:focus, .cont-from-ventas select.active {
+    outline: none;
+    color: var(--action-color);
+    border-color: var(--action-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232869ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+.cont-from-ventas select:hover {
+    border-color: var(--action-color-hover);
+}
+.cont-from-ventas button:hover {
+    transform: scale(0.976651);
+}
+
+.cont-from-ventas button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    position: relative;
+    transition: 0.5s;
+}
+
+.filter-button.apply {
+    background-color: var(--action-color);
+}
+
+.cont-from-ventas hr {
+    width: 218px;
+    position: relative;
+    margin-top: 10px;
+    border-color: #ffffff0f;
+}
+.filter-button {
+    border-radius: 2px;
+    font-size: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+}
+
 .cont-from-ventas .h3{
     display: none;
 }

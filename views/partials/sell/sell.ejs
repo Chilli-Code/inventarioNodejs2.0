@@ -9,10 +9,13 @@
     background: white;
     position: absolute;
     z-index: 9;
-    width: 52%;
-    top: 87px;
+    width: 218px;
+    top: 75px;
   }
 
+  .contenedor-ventas{
+    display: block !important;
+  }
   #lista-sugerencias li {
     padding: 5px 10px;
     cursor: pointer;
@@ -34,16 +37,37 @@
   width: 100%;
 }
 
+span{
+    font-size: 14px;
+    color: var(--app-content-main-color);
+}
+.status {
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    font-size: 12px;
+    width: max-content;
+    display: inline-flex;
+}
+.status.active {
+    color: #2ba972;
+    background-color: rgba(43, 169, 114, 0.2);
+}
 </style>
 
 
 <div class="app-content-inicio">
   <div class="contenedor-ventas dd">
-    <div class="over">
       <div class="cont-from-ventas">
         <div class="contenedor-image titlePr">
           <div>
             <h3 class="titleSell">Escoja El Producto</h3>
+            <span style="text-align: center;">Recuerde que solo aparecen los productos <br> que tengan  el estado en 
+              <span class="status active">
+                Activo
+              </span>
+            </span>
           </div>
           <div class="lottie-animation" data-animation-path="/Lottie/animacionHome.json"></div>
         </div>
@@ -59,7 +83,6 @@
             <label id="signo">Precio</label>
             <input type="text" id="precio-formateado" readonly>
             <input type="hidden" id="precio" name="precioVenta">
-            <hr>
             <hr>
             <label>Cantidad</label>
             <input type="number" id="cantidad" name="cantidadVenta">
@@ -93,7 +116,6 @@
         </div>
       </div>
 
-    </div>
   </div>
 
   <script>

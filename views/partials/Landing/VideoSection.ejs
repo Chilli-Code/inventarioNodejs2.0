@@ -1,0 +1,101 @@
+<style>
+  .vd-pin-section {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .video-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    transition: clip-path 1s ease;
+    will-change: clip-path;
+    clip-path: <%= isMobile ? 'circle(100% at 50% 50%)' : 'circle(6% at 50% 50%)' %>;
+  }
+
+  video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .abs-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .spin-circle {
+    animation: spin 10s infinite linear;
+  }
+
+.play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    width: 9vw;
+    height: 9vw;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari support */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+
+<section class="vd-pin-section">
+  <div class="video-box">
+    <video src="/videos/pin-video.mp4" playsinline muted loop autoplay></video>
+
+    <div class="abs-center">
+      <img src="/img/circle-text.svg" alt="Text" class="spin-circle" />
+      <div class="play-btn">
+        <img src="/img/play.svg" alt="Play" style="width: 3vw; margin-left: .5vw;" draggable="false" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (!isMobile) { %>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const videoBox = document.querySelector(".video-box");
+
+    if (videoBox) {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: ".vd-pin-section",
+          start: "-15% top",
+          end: "200% top",
+          scrub: 1.5,
+          pin: true
+        }
+      })
+      .to(videoBox, {
+        clipPath: "circle(100% at 50% 50%)",
+        ease: "power1.inOut"
+      });
+    }
+  });
+</script>
+<% } %>

@@ -11,7 +11,7 @@ const authRoutes = require('./routes/auth');
 const homeRoutes = require('./routes/home');
 const productRoutes = require('./routes/products'); // Asegúrate de que la ruta es correcta
 const apiRoutes = require('./routes/api');
-
+const compression = require('compression');
 
 dotenv.config();
 
@@ -24,13 +24,28 @@ mongoose.connect(process.env.MONGODB_URI, {
 }).then(() => console.log("🟢 Conectado a MongoDB"))
   .catch(err => console.error("🔴 Error en MongoDB:", err));
 
+// Middleware de cache selectiva para recursos pesados (antes de static)
+app.use((req, res, next) => {
+  if (req.url.match(/\.(mp4|webp|svg|ttf|woff2?|eot|otf)$/)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 año
+  }
+  next();
+});
+
+// Archivos estáticos
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1y',
+  etag: false
+}));
+
+
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('layout', 'layout');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/js', express.static(__dirname + '/node_modules/vanilla-tilt/dist'));
+app.use(compression());
 
 // Sesión y flash (deben estar antes de las rutas)
 app.use(session({
@@ -44,10 +59,6 @@ app.use(session({
   }
 }));
 app.use(flash());
-app.use((req, res, next) => {
-  res.locals.message = req.flash('message');
-  next();
-});
 
 // Rutas
 app.use('/', authRoutes); // Primero las rutas de autenticación
@@ -56,8 +67,16 @@ app.use('/products', productRoutes);
 app.use('/api', apiRoutes);
 // Ruta raíz
 app.get('/', (req, res) => {
-  res.render('index', { titulo: "Inicio",  currentOption: req.path, });
+  const isMobile = /mobile|android|iphone|ipad/i.test(req.headers['user-agent']);
+  
+  res.render('index', { 
+    titulo: "Inicio",  
+    currentOption: req.path,
+    isMobile // 👈 ahora sí se pasa a index.ejs
+  });
 });
+
+
 
 // Puerto
 const PORT = process.env.PORT || 3000;
