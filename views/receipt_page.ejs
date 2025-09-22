@@ -1,17 +1,24 @@
+
+<head>
+    <link rel="shortcut icon" href="/img/Logo.webp" type="image/x-icon">
+
+</head>
+
 <%- include('./partials/header/layout') %>
 <%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
 </div>
 
 <div class="app-content-inicio" style="align-items: center; overflow: auto;">
   <div class="receipt" id="productos-seleccionados">
-    <h1 class="logo">Inventario NodeJS</h1>
+    <h1 class="logo">Keku Inventory</h1>
     <div class="address">Calle 82E N 26C-163 Barranquilla</div>
 
     <div class="Detalles-transaccion"><%= venta.medio %></div>
 
-    <div class="transactionDetails">
-      Atendido Por: <%= venta.vendedor %>
-    </div>
+<div class="transactionDetails">
+  Atendido Por: <%= venta.vendedor || 'Vendedor desconocido' %>
+</div>
+
 
     <div class="centerItem bold">
       <div class="item"></div>
@@ -68,7 +75,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script src="/js/printReceipt.js"></script>
 <button class="print-button print-button" onclick="imprimirRecibo()"><span class="print-icon" ></span></button>
 

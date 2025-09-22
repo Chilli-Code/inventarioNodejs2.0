@@ -1,0 +1,67 @@
+<head>
+  <!-- en tu <head> o antes de cerrar </body> -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+</head>
+
+<%- include('./partials/header/layout') %>
+<%- include('./partials/navigation/navigation') %>
+</div>
+
+
+<div class="form-data form-config-user">
+  <div class="body">
+    <div>
+      <div class="wrap">
+        <%- include('./partials/settings/form-update-user') %>
+        <div class="window">
+<% if (success_msg) { 
+  let lottieSrc = "/Lottie/ProfileUpdate.json";
+  if (success_msg === "Subusuario eliminado correctamente.") {
+    lottieSrc = "/Lottie/delete.json";
+  }
+%>
+<script>
+  Swal.fire({
+    title: '¡Éxito!',
+    html: `
+      <lottie-player
+        src="<%= lottieSrc %>"
+        background="transparent"
+        speed="1"
+        style="width: 150px; height: 150px; margin: 0 auto;"
+        autoplay>
+      </lottie-player>
+      <p><%= success_msg %></p>
+    `,
+    confirmButtonText: 'Aceptar'
+  });
+</script>
+<% } %>
+
+          <% if (error_msg) { %>
+          <script>
+            Swal.fire({
+              title: 'Error',
+              html: `
+        <lottie-player
+          src="/Lottie/userOps.json"
+          background="transparent"
+          speed="1"
+          style="width: 150px; height: 150px; margin: 0 auto;"
+          autoplay>
+        </lottie-player>
+        <p><%= error_msg %></p>
+      `,
+              confirmButtonText: 'Aceptar'
+            });
+          </script>
+          <% } %>
+
+        </div>
+
+      </div>
+    </div>
+    <%- include('./partials/settings/form-list-subUsuarios') %>
+  </div>

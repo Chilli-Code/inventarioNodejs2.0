@@ -6,6 +6,17 @@
   <!-- Estilos globales -->
   <link rel="stylesheet" href="/css/containerSell.css">
   <link rel="stylesheet" href="/css/containerHome.css">
+<meta name="description" content="App web para gestionar inventario de productos">
+
+  <% if (currentOption==='/usuarios') { %>
+  <link rel="stylesheet" href="/css/dashboard.css">
+<link rel="stylesheet" href="/toastify/toastify.css">
+<script src="/toastify/toastify.js"></script>
+
+
+<% } %>
+
+
   <% if (currentOption==='/products' ) { %>
   <link rel="stylesheet" href="/css/dashboard.css">
   <script src="/js/addProduct.js" defer></script>
@@ -29,14 +40,14 @@
   <% if (currentOption==='/statistics' ) { %>
   <link rel="stylesheet" href="/css/statistics.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
-
   <script src="/js/swapy.min.js"></script>
-
-
   <% } %>
 
 
-
+  <% if (currentOption==='/settings') { %>
+  <link rel="stylesheet" href="/css/profile.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <% } %>
 
   <!-- SweetAlert2 -->
   <link rel="stylesheet" href="/css/sweetalert2.min.css">
@@ -56,9 +67,52 @@
 <script src="https://unpkg.com/swapy@latest/dist/swapy.min.js"></script>
 
 <% } %>
-
+  <% if (currentOption==='/home') { %>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="/js/lottie-player.js" defer></script>
+<% } %>
+  <% if (currentOption==='/receipt_page') { %>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<% } %>
 
 <body>
+
+
+
+
+    <% if (currentOption==='/settings') { %>
+  <script src="/js/addProduct.js" defer></script>
+      
+      <% } %>
+
+  <% if (currentOption==='/usuarios') { %>
+  <script src="/js/addProduct.js" defer></script>
+    <script src="/js/lottie-player.js" defer></script>
+    <script src="/js/filtersUsers.js" defer></script>
+
+  <script>
+  <% if (success_msg) { %>
+    Toastify({
+      text: "<%= success_msg %>",
+      duration: 3000,
+      gravity: "top", // 'top' or 'bottom'
+      position: "center", // 'left', 'center' or 'right'
+      backgroundColor: "#28a745",
+    }).showToast();
+  <% } %>
+
+  <% if (error_msg) { %>
+    Toastify({
+      text: "<%= error_msg %>",
+      duration: 3000,
+      gravity: "top",
+      position: "center",
+      backgroundColor: "#dc3545",
+    }).showToast();
+  <% } %>
+</script>
+<% } %>
+
 </body>
 
 </html>

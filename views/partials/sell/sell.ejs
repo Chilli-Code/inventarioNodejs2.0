@@ -54,6 +54,19 @@ span{
     color: #2ba972;
     background-color: rgba(43, 169, 114, 0.2);
 }
+
+.badge-carrito {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  display: none;
+}
+
 </style>
 
 
@@ -94,7 +107,7 @@ span{
             </select>
             <hr>
             <label>Nombre De Cliente</label>
-            <input type="text" name="nombrecliente">
+            <input type="text" name="nombrecliente" required>
             <hr>
             <label>Hora de Venta</label>
             <input type="text" name="fechaa" id="clock" readonly="">
@@ -102,11 +115,12 @@ span{
             <label>Codigo</label>
             <input type="text" id="codigo" name="codigo" readonly>
             <hr>
-            <label>Vendedor</label>
-            <select name="vendedor">
-              <option>Vendedor1</option>
-              <option>Vendedor2</option>
-            </select>
+<label>Vendedor</label>
+<select name="vendedor" required>
+  <% vendedores.forEach(vendedor => { %>
+    <option value="<%= vendedor._id %>"><%= vendedor.nombre %></option>
+  <% }) %>
+</select>
             <hr>
             <input type="hidden" name="items" id="items-json">
 
@@ -117,6 +131,7 @@ span{
       </div>
 
   </div>
+<audio id="carrito-sonido" src="/sounds/click.mp3" preload="auto"></audio>
 
   <script>
     function generarCodigoUnico() {
@@ -142,11 +157,18 @@ span{
     document.getElementById('total-general').textContent = `$${total.toLocaleString('es-CO')}`;
   }
 
+  // ✅ Validación + agregar al carrito
   document.getElementById('agregar-producto-btn').addEventListener('click', () => {
     const productoId = document.getElementById('producto-id').value;
     const productoNombre = document.getElementById('buscar-producto').value;
     const precio = parseFloat(document.getElementById('precio').value);
     const cantidad = parseInt(document.getElementById('cantidad').value);
+    const nombreCliente = document.querySelector('[name="nombrecliente"]').value.trim();
+
+    if (!nombreCliente) {
+      alert('Debes ingresar el nombre del cliente antes de agregar productos.');
+      return;
+    }
 
     if (!productoId || isNaN(precio) || isNaN(cantidad) || cantidad <= 0) {
       alert('Debes seleccionar un producto válido y una cantidad mayor a 0.');
@@ -154,7 +176,12 @@ span{
     }
 
     // Agregar al carrito
-    carrito.push({ productoVenta: productoId, nombre: productoNombre, precioVenta: precio, cantidadVenta: cantidad });
+    carrito.push({
+      productoVenta: productoId,
+      nombre: productoNombre,
+      precioVenta: precio,
+      cantidadVenta: cantidad
+    });
 
     // Actualizar tabla visual
     const tbody = document.querySelector('#tabla-carrito tbody');
@@ -170,79 +197,106 @@ span{
     // Actualizar total general
     actualizarTotalGeneral();
 
-    // Reset campos
+    // 🔊 Reproducir sonido
+    const sonido = document.getElementById('carrito-sonido');
+    if (sonido) sonido.play();
+
+    // 🔴 Actualizar contador visual del ícono
+    const contador = document.getElementById('contador-carrito');
+    contador.textContent = carrito.length;
+    contador.style.display = 'inline-block';
+
+    // Limpiar cantidad
     document.getElementById('cantidad').value = '';
   });
 
-  // Antes de enviar el formulario
+  // ✅ Validación al enviar formulario
   document.getElementById('agregar-producto-form').addEventListener('submit', function (e) {
+    const nombreCliente = this.querySelector('[name="nombrecliente"]').value.trim();
+
     if (carrito.length === 0) {
       e.preventDefault();
       alert('Agrega al menos un producto al recibo.');
       return;
     }
 
-    // Guardar el carrito en el campo oculto como JSON
+    if (!nombreCliente) {
+      e.preventDefault();
+      alert('El nombre del cliente es obligatorio.');
+      return;
+    }
+
+    // Guardar carrito en campo oculto
     document.getElementById('items-json').value = JSON.stringify(carrito);
   });
 </script>
 
 
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const input = document.getElementById('buscar-producto');
-      const lista = document.getElementById('lista-sugerencias');
-      const inputHiddenId = document.getElementById('producto-id');
-      const inputPrecio = document.getElementById('precio');
-      const inputPrecioFormateado = document.getElementById('precio-formateado');
+   document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('buscar-producto');
+  const lista = document.getElementById('lista-sugerencias');
+  const inputHiddenId = document.getElementById('producto-id');
+  const inputPrecio = document.getElementById('precio');
+  const inputPrecioFormateado = document.getElementById('precio-formateado');
 
-      let timeout;
+  let timeout;
 
-      input.addEventListener('input', () => {
-        clearTimeout(timeout);
+  input.addEventListener('input', () => {
+    clearTimeout(timeout);
 
-        const valor = input.value.trim();
-        if (!valor) {
+    const valor = input.value.trim();
+    if (!valor) {
+      lista.innerHTML = '';
+      return;
+    }
+
+    timeout = setTimeout(() => {
+      fetch(`/api/productos/activos?q=${encodeURIComponent(valor)}`)
+        .then(res => res.json())
+        .then(data => {
           lista.innerHTML = '';
-          return;
-        }
+          if (data.length === 0) {
+            lista.innerHTML = '<li>No se encontraron productos</li>';
+            return;
+          }
+          data.forEach(prod => {
+            const li = document.createElement('li');
+            li.textContent = `${prod.producto} - $${prod.precio}`;
+            li.dataset.id = prod._id;
+            li.dataset.precio = prod.precio;
+            li.dataset.cantidad = prod.cantidad;
+            lista.appendChild(li);
+          });
+        })
+        .catch(error => {
+          console.error('Error al buscar productos:', error);
+          lista.innerHTML = '<li>Error al buscar productos</li>';
+        });
+    }, 200); // retraso para evitar muchas peticiones
+  });
 
-        timeout = setTimeout(() => {
-          fetch(`/api/productos/activos?q=${encodeURIComponent(valor)}`)
-            .then(res => res.json())
-            .then(data => {
-              lista.innerHTML = '';
-              data.forEach(prod => {
-                const li = document.createElement('li');
-                li.textContent = prod.producto;
-                li.dataset.id = prod._id;
-                li.dataset.precio = prod.precio;
-                li.dataset.cantidad = prod.cantidad;
-                lista.appendChild(li);
-              });
-            });
-        }, 200); // retraso para evitar muchas peticiones
-      });
+  lista.addEventListener('click', e => {
+    if (e.target.tagName === 'LI') {
+      const nombre = e.target.textContent.split(' - ')[0];
+      const id = e.target.dataset.id;
+      const precio = e.target.dataset.precio;
 
-      lista.addEventListener('click', e => {
-        if (e.target.tagName === 'LI') {
-          const nombre = e.target.textContent;
-          const id = e.target.dataset.id;
-          const precio = e.target.dataset.precio;
+      input.value = nombre;
+      inputHiddenId.value = id;
+      inputPrecio.value = precio;
+      inputPrecioFormateado.value = Number(precio).toLocaleString("es-CO");
 
-          input.value = nombre;
-          inputHiddenId.value = id;
-          inputPrecio.value = precio;
-          inputPrecioFormateado.value = Number(precio).toLocaleString("es-CO");
+      lista.innerHTML = '';
+    }
+  });
 
-          lista.innerHTML = '';
-        }
-      });
+  document.addEventListener('click', (e) => {
+    if (!input.contains(e.target) && !lista.contains(e.target)) {
+      lista.innerHTML = '';
+    }
+  });
+});
 
-      document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !lista.contains(e.target)) {
-          lista.innerHTML = '';
-        }
-      });
-    });
   </script>

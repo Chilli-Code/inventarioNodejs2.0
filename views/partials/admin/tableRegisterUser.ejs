@@ -1,0 +1,182 @@
+
+<style>
+  form {
+    display: flex;
+    gap: 20px;
+  }
+
+  h2 {
+    color: var(--app-content-main-color);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pagination {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .pagination a {
+    padding: 6px 12px;
+    text-decoration: none;
+    background-color: #333;
+    color: #fff;
+    border-radius: 4px;
+  }
+
+  .pagination a.active {
+    background-color: #e3e3e3;
+    color: #333;
+  }
+</style>
+
+<div class="app-content-actions">
+  <h2>
+    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="currentColor" class="icon">
+      <path d="M500-482q29-32 44.5-73t15.5-85q0-44-15.5-85T500-798q60 8 100 53t40 105q0 60-40 105t-100 53Zm220 322v-120q0-36-16-68.5T662-406q51 18 94.5 46.5T800-280v120h-80Zm240-360H720v-80h240v80Zm-640 40q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM0-160v-112q0-34 17.5-62.5T64-378q62-31 126-46.5T320-440q66 0 130 15.5T576-378q29 15 46.5 43.5T640-272v112H0Zm320-400q33 0 56.5-23.5T400-640q0-33-23.5-56.5T320-720q-33 0-56.5 23.5T240-640q0 33 23.5 56.5T320-560ZM80-240h480v-32q0-11-5.5-20T540-306q-54-27-109-40.5T320-360q-56 0-111 13.5T100-306q-9 5-14.5 14T80-272v32Zm240-400Zm0 400Z" />
+    </svg>
+    Usuarios Pendientes
+  </h2>
+  <input class="search-bar" placeholder="Buscar..." type="text" id="buscadorUserNew">
+</div>
+<div class="products-area-wrapper tableView direction ssssss">
+
+
+    <% if (pendingUsers.length === 0) { %>
+    <!-- Mostrar Lottie si no hay usuarios -->
+    <div style="text-align:center; width:100%; padding:20px 0;">
+      <lottie-player 
+        src="/Lottie/No_receipts2.0.json" 
+        background="transparent" 
+        speed="1" 
+        style="width: 250px; height: 250px; margin: 0 auto;" 
+        loop autoplay>
+      </lottie-player>
+      <h3 style="color: #666;">No hay usuarios pendientes</h3>
+    </div>
+  <% } else { %>
+  <table>
+    <thead class="products-header">
+      <tr>
+        <th class="product-cell padding color: var(--app-content-main-color);" style="padding: 2px 20px;">
+          N°
+        </th>
+        <th class="product-cell padding color: var(--app-content-main-color);">
+          Codigo
+        </th>
+        <th class="product-cell padding color: var(--app-content-main-color);">
+          Usuario
+        </th>
+        <th class="product-cell padding color: var(--app-content-main-color);">
+          Correo
+        </th>
+        <th class="product-cell padding color: var(--app-content-main-color);">
+          Estado
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% pendingUsers.forEach((user, index)=> { %>
+      <% if(user.nombre && user.correo) { %>
+      <tr class="products-row articulo busquedaExitosa">
+        <td class="product-cell tituloProduct">
+          <%= index + 1 %>
+        </td>
+        <td class="product-cell tituloProduct busquedaUserNew">
+          <%= user.codigoUser %>
+        </td>
+        <td class="product-cell tituloProduct busquedaUserNew">
+          <%= user.nombre %>
+        </td>
+        <td class="product-cell correoNewUser">
+          <%= user.correo %>
+        </td>
+        <td class="product-cell status-cell">
+          <form action="/listUsers/update/<%= user._id %>" method="POST">
+            <select name="status" class="status active">
+              <option value="pendiente" <%=user.status==='pendiente' ? 'selected' : '' %>>Pendiente</option>
+              <option value="aprobado" <%=user.status==='aprobado' ? 'selected' : '' %>>Aprobado</option>
+              <option value="rechazado" <%=user.status==='rechazado' ? 'selected' : '' %>>Rechazado</option>
+            </select>
+            <button type="submit" class="app-content-headerButton">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                <path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" />
+              </svg>
+            </button>
+          </form>
+        </td>
+      </tr>
+      <% } %>
+      <% }) %>
+    </tbody>
+
+  </table>
+  <% } %>
+
+  <div class="pagination">
+<% if (totalPages > 1) { %>
+  <div class="pagination">
+    <% if (page > 1) { %>
+      <a href="/listUsers?page=<%= page - 1 %>">« Anterior</a>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <a href="/listUsers?page=<%= i %>" class="<%= i === page ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+
+    <% if (page < totalPages) { %>
+      <a href="/listUsers?page=<%= page + 1 %>">Siguiente »</a>
+    <% } %>
+  </div>
+<% } %>
+  </div>
+
+</div>
+
+
+
+<script>
+  document.querySelectorAll('.Menu-opciones-articulos-eliminar').forEach(el => {
+    el.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const userId = el.getAttribute('data-id');
+
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Se eliminará el usuario y todo su inventario.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const res = await fetch(`/listUsers/users/${userId}`, {
+              method: 'DELETE'
+            });
+
+            if (res.ok) {
+              Swal.fire(
+                'Eliminado!',
+                'El usuario ha sido eliminado correctamente.',
+                'success'
+              ).then(() => {
+                location.reload();
+              });
+            } else {
+              Swal.fire('Error!', 'No se pudo eliminar el usuario.', 'error');
+            }
+          } catch (err) {
+            Swal.fire('Error!', 'No se pudo conectar al servidor.', 'error');
+          }
+        }
+      });
+    });
+  });
+</script>

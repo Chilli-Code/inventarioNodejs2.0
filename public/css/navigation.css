@@ -79,12 +79,14 @@ img{
     --bg-login:#12181b;
     --bg-cont-login:#2a2e35;
     --colorProfileWindow:#ffffff4a;
+    --bg-form-settings:#ffffff0d;
 
 }
 
 
 :root {
     --app-bg: #fff;
+    --bg-form-settings:#9d959512;
     --sidebar: #f3f6fd;
     --app-content-secondary-color: #f3f6fd;
     --app-content-main-color: #1f1c2e;

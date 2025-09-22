@@ -1,29 +1,49 @@
 const Venta = require('../models/Sell');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const SubUser = require('../models/subUsuers');
 
 async function getDashboardData(req, res) {
   try {
-    // Prevenir caché
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
+    const user = req.session.user;
+    const isAdmin = user.role === 'admin';
+
+    // filtros
+    const ventaFilter = isAdmin ? {} : { user: user.id };
+    const productoFilter = isAdmin ? {} : { user: user.id };
 
     // 1. Total de productos
-    const totalProductos = await Product.countDocuments();
+    const totalProductos = await Product.countDocuments(productoFilter);
 
     // 2. Total de categorías
-    const categorias = await Product.distinct('categoria');
+    const categorias = await Product.distinct('categoria', productoFilter);
     const totalCategorias = categorias.length;
 
     // 3. Total de clientes únicos
     const clientesUnicos = await Venta.distinct('nombrecliente', {
+      ...ventaFilter,
       nombrecliente: { $ne: null, $ne: '' }
     });
     const totalClientes = clientesUnicos.length;
 
-    // 4. Top 5 productos más vendidos
+    // 4. Total de subusuarios
+    const subUserFilter = isAdmin ? {} : { parentUser: user.id };
+    const totalSubUsuarios = await SubUser.countDocuments(subUserFilter);
+
+    // 5. Top productos
     const topVentas = await Venta.aggregate([
+      { $match: ventaFilter },
       { $unwind: '$productos' },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'productos.productoVenta',
+          foreignField: '_id',
+          as: 'productoInfo'
+        }
+      },
+      { $unwind: '$productoInfo' },
+      { $match: isAdmin ? {} : { 'productoInfo.user': user.id } },
       {
         $group: {
           _id: '$productos.productoVenta',
@@ -34,8 +54,10 @@ async function getDashboardData(req, res) {
       { $limit: 5 }
     ]);
 
+    // Obtener los nombres de los productos
     const productosConNombre = await Product.find({
-      _id: { $in: topVentas.map(p => p._id) }
+      _id: { $in: topVentas.map(p => p._id) },
+      ...productoFilter
     });
 
     const topProductos = topVentas.map(venta => {
@@ -49,8 +71,9 @@ async function getDashboardData(req, res) {
     const topProductosNombres = topProductos.map(p => p.nombre);
     const topProductosCantidades = topProductos.map(p => p.cantidad);
 
-    // 5. Gráfica de categorías
+    // 6. Gráfico por categorías
     const categoriaVentas = await Venta.aggregate([
+      { $match: ventaFilter },
       { $unwind: '$productos' },
       {
         $lookup: {
@@ -61,6 +84,7 @@ async function getDashboardData(req, res) {
         }
       },
       { $unwind: '$productoInfo' },
+      { $match: isAdmin ? {} : { 'productoInfo.user': user.id } },
       {
         $group: {
           _id: '$productoInfo.categoria',
@@ -73,10 +97,11 @@ async function getDashboardData(req, res) {
     const catLabels = categoriaVentas.map(c => c._id || 'Sin Categoría');
     const catData = categoriaVentas.map(c => c.totalVendidos);
 
-    // 6. Gráfica de clientes
+    // 7. Gráfico de clientes
     const clienteVentas = await Venta.aggregate([
       {
         $match: {
+          ...ventaFilter,
           nombrecliente: { $ne: null, $ne: '' }
         }
       },
@@ -93,11 +118,40 @@ async function getDashboardData(req, res) {
     const clientLabels = clienteVentas.map(c => c._id || 'Sin Nombre');
     const clientData = clienteVentas.map(c => c.totalComprado);
 
+    // 8. Ventas por usuario (solo admin) - *** CORREGIDO ***
+    let salesByUser = [];
+    if (isAdmin) {
+      salesByUser = await Venta.aggregate([
+        {
+          $group: {
+            _id: '$user', // campo de referencia al usuario que hizo la venta
+            totalVentas: { $sum: '$total' },
+            cantidadVentas: { $sum: 1 },
+             cantidadRecibos: { $sum: 1 }
+          }
+        },
+        {
+          $lookup: {
+            from: 'users', // nombre de la colección de usuarios
+            localField: '_id',
+            foreignField: '_id',
+            as: 'user' // *** CAMBIO: usar 'user' en lugar de 'userInfo' ***
+          }
+        },
+        { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } } // *** CAMBIO: usar 'user' ***
+      ]);
+    }
+
+    // 9. Lista de usuarios (para admin)
+    const usuarios = await User.find({ role: 'user' }).lean();
+
     // Animación de bienvenida
     const hasSeenWelcomeAnimation = req.session.hasSeenWelcomeAnimation || false;
     req.session.hasSeenWelcomeAnimation = true;
-const categoriasDisponibles = await Product.distinct('categoria');
-    // Renderizar vista
+
+    const categoriasDisponibles = await Product.distinct('categoria', productoFilter);
+    const allUsers = await User.find({ role: 'user' }).lean();
+    
     req.session.save(err => {
       if (err) console.error('Error saving session:', err);
 
@@ -106,23 +160,23 @@ const categoriasDisponibles = await Product.distinct('categoria');
         currentOption: "/statistics",
         titleMain: "Estadísticas",
         imageUrl: null,
-        user: req.session.user,
-        username: req.session.user?.nombre || "Usuario",
+        user,
+        username: user.nombre || "Usuario",
         hasSeenWelcomeAnimation,
-
-        // Estadísticas generales
         totalProductos,
         totalCategorias,
         totalClientes,
-
-        // Gráficas
         topProductosNombres,
         topProductosCantidades,
         catLabels,
         catData,
         clientLabels,
         clientData,
-        categoriasDisponibles
+        categoriasDisponibles,
+        usuarios,
+        totalSubUsuarios,
+        salesByUser,
+        allUsers,
       });
     });
 

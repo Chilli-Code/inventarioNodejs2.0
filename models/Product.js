@@ -1,3 +1,4 @@
+// models/Product.js
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
@@ -7,8 +8,9 @@ const productSchema = new mongoose.Schema({
   ventas: { type: Number, default: 0 },
   cantidad: { type: Number, required: true },
   precio: { type: Number, required: true },
-  hora: { type: String } // o usa Date si lo deseas
+  hora: { type: String },
+  // owner del producto (usuario)
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, index: true }
 });
 
-const Product = mongoose.model('Product', productSchema);
-module.exports = Product;
+module.exports = mongoose.model('Product', productSchema);

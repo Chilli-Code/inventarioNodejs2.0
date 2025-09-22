@@ -3,7 +3,7 @@
     overflow-y: auto;
     height: auto;
     width: auto;
-    background: var(--app-content-secondary-color);
+    background: var(--app-bg);
     border: 1px solid var(--sidebar-active-link);
     border-radius: 5px;
     padding: 20px 20px;
@@ -33,7 +33,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 3% 0;
+    padding: 5% 0;
+    background-color: var(--app-content-secondary-color);
+
 }
 
 .form-users .body .section-user-image, .form-config-user .body .section-user-image {
@@ -110,6 +112,9 @@
     justify-content: center;
     flex-direction: column;
     width: 100%;
+    padding: 20px;
+    background-color: var(--app-content-secondary-color) ;
+    border-radius:10px;
 }
 
 
@@ -223,7 +228,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 90%;
     padding: 0 0 3%;
 }
 

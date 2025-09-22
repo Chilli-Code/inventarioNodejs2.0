@@ -1,3 +1,4 @@
+// models/Venta.js (was sell.js)
 const mongoose = require('mongoose');
 
 const ventaSchema = new mongoose.Schema({
@@ -16,7 +17,8 @@ const ventaSchema = new mongoose.Schema({
   fechaa: { type: String, required: true },
   codigo: { type: String },
   vendedor: { type: String, required: true },
-});
 
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, index: true }
+});
 
 module.exports = mongoose.model('Venta', ventaSchema);

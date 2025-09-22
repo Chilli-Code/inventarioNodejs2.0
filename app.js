@@ -11,8 +11,10 @@ const authRoutes = require('./routes/auth');
 const homeRoutes = require('./routes/home');
 const productRoutes = require('./routes/products'); // Asegúrate de que la ruta es correcta
 const apiRoutes = require('./routes/api');
+const adminRoutes = require('./routes/admin');
+const profileRoutes = require('./routes/settings');
 const compression = require('compression');
-
+const subUserRoutes = require('./routes/subusers');
 dotenv.config();
 
 const app = express();
@@ -28,6 +30,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use((req, res, next) => {
   if (req.url.match(/\.(mp4|webp|svg|ttf|woff2?|eot|otf)$/)) {
     res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 año
+    
   }
   next();
 });
@@ -45,6 +48,9 @@ app.set('view engine', 'ejs');
 app.set('layout', 'layout');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/js', express.static(__dirname + '/node_modules/vanilla-tilt/dist'));
+app.use('/js', express.static(__dirname + '/node_modules/toastify-js'));
+app.use('/css', express.static(__dirname + '/node_modules/toastify-js'));
+app.use('/toastify', express.static(path.join(__dirname, 'node_modules/toastify-js/src')));
 app.use(compression());
 
 // Sesión y flash (deben estar antes de las rutas)
@@ -59,18 +65,27 @@ app.use(session({
   }
 }));
 app.use(flash());
-
+app.use((req, res, next) => {
+  res.locals.userSession = req.session.user || null;
+  res.locals.success_msg = req.flash('success_msg')[0] || null;
+  res.locals.error_msg = req.flash('error_msg')[0] || null;
+  next();
+});
 // Rutas
 app.use('/', authRoutes); // Primero las rutas de autenticación
 app.use('/', homeRoutes); // Luego las rutas protegidas
 app.use('/products', productRoutes);
 app.use('/api', apiRoutes);
+app.use('/listUsers', adminRoutes);
+app.use('/subusers', subUserRoutes);
+app.use('/settings', profileRoutes);
+
 // Ruta raíz
 app.get('/', (req, res) => {
   const isMobile = /mobile|android|iphone|ipad/i.test(req.headers['user-agent']);
   
   res.render('index', { 
-    titulo: "Inicio",  
+    title: "Inicio",  
     currentOption: req.path,
     isMobile // 👈 ahora sí se pasa a index.ejs
   });

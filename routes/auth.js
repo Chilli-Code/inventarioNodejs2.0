@@ -4,59 +4,65 @@ const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const { isNotAuthenticated } = require('../middleware/auth');
+const RegisterUser = require('../models/RegisterUser');
+
 
 // Mostrar formulario signup
 router.get('/signup', isNotAuthenticated, (req, res) => {
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  res.set('Pragma', 'no-cache');
-  res.set('Expires', '0');
-    res.render('auth/signup', {
-    title: 'Registro | InventarioApp', // ✅ AÑADIDO
+  const successMessage = req.flash('success'); // esto lo limpia después de leerlo
+  res.render('auth/signup', {
+    title: 'Registro | InventarioApp',
     titulo: 'Registro',
-    message: req.flash('message')
+    message: successMessage.length > 0 ? successMessage[0] : null
   });
-  
 });
 
+
+// Procesar formulario signup
 // Procesar formulario signup
 router.post('/signup', isNotAuthenticated, async (req, res) => {
   const { nombre, correo, password } = req.body;
 
   try {
-    const existingUser = await User.findOne({ correo });
+    const existingUser = await RegisterUser.findOne({ correo });
     if (existingUser) {
-      req.flash('message', 'El usuario ya existe');
-      return res.redirect('/signup');
+      return res.render('auth/signup', {
+        title: 'Registro | InventarioApp',
+        titulo: 'Registro',
+        message: 'Ya existe un registro pendiente para este correo'
+      });
     }
 
-    // 🚫 Ya NO se hace hash aquí, el modelo se encarga de eso
-    const user = new User({ nombre, correo, password });
-    await user.save();
+    const existingUserActive = await User.findOne({ correo });
+    if (existingUserActive) {
+      return res.render('auth/signup', {
+        title: 'Registro | InventarioApp',
+        titulo: 'Registro',
+        message: 'El usuario ya está activo'
+      });
+    }
 
-    // Iniciar sesión automáticamente
-    req.session.user = {
-      id: user._id,
-      nombre: user.nombre,
-      correo: user.correo
-    };
+    const regUser = new RegisterUser({ nombre, correo, password });
+    await regUser.save();
 
-    req.session.save((err) => {
-      if (err) {
-        console.error('Error al guardar sesión en registro:', err);
-        req.flash('message', 'Error al iniciar sesión automáticamente.');
-        return res.redirect('/signin');
-      }
-
-      req.flash('message', 'Usuario registrado con éxito');
-      res.redirect('/home');
+    // Renderizar la misma página con SweetAlert
+    return res.render('auth/signup', {
+      title: 'Registro | InventarioApp',
+      titulo: 'Registro',
+      message: 'Tu registro está en revisión. Espera la aprobación.'
     });
 
   } catch (error) {
-    console.error('Error en registro:', error);
-    req.flash('message', 'Error en el registro');
-    res.redirect('/signup');
+    console.error(error);
+    return res.render('auth/signup', {
+      title: 'Registro | InventarioApp',
+      titulo: 'Registro',
+      message: 'Error en el registro'
+    });
   }
 });
+
+
 
 // Mostrar formulario signin
 router.get('/signin', isNotAuthenticated, (req, res) => {
@@ -73,54 +79,55 @@ router.get('/signin', isNotAuthenticated, (req, res) => {
 // Procesar formulario signin
 router.post('/signin', isNotAuthenticated, async (req, res) => {
   const { correo, password } = req.body;
-  const trimmedPassword = password.trim();
-
-  console.log('------------------------------------------------');
-  console.log('📬 Intento de login con correo:', correo);
-  console.log('🔑 Contraseña recibida (visible para debug):', trimmedPassword);
 
   try {
     const user = await User.findOne({ correo });
     if (!user) {
-      console.log('❌ Usuario no encontrado');
+      const pending = await RegisterUser.findOne({ correo });
+      if (pending) {
+        req.flash('message', 'Tu cuenta está en revisión. Espera la aprobación.');
+        return res.redirect('/signin');
+      }
       req.flash('message', 'Usuario no encontrado');
       return res.redirect('/signin');
     }
 
-    console.log('✅ Usuario encontrado:', user.correo);
-    console.log('🔐 Hash almacenado en DB:', user.password);
+    
+    console.log('--- LOGIN ---');
+    console.log('Correo:', correo);
+    console.log('Password ingresado:', password);
+    console.log('Password en DB:', user.password);
 
-    const isMatch = await bcrypt.compare(trimmedPassword, user.password);
-    console.log('matchCondition:', isMatch);
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Resultado compare:', isMatch);
 
     if (!isMatch) {
-      console.log('❌ ¡Contraseña NO coincide!');
       req.flash('message', 'Contraseña incorrecta');
       return res.redirect('/signin');
     }
 
-    console.log('🎉 ¡Login exitoso!');
+    if (!user.active) {
+  req.flash('message', 'Tu cuenta está deshabilitada. Contacta al administrador.');
+  return res.redirect('/signin');
+}
+
     req.session.user = {
       id: user._id,
       nombre: user.nombre,
-      correo: user.correo
+      correo: user.correo,
+      role: user.role
     };
 
-    req.session.save((err) => {
-      if (err) {
-        console.error('Error al guardar sesión:', err);
-        req.flash('message', 'Error interno. Intente nuevamente.');
-        return res.redirect('/signin');
-      }
-      res.redirect('/home');
-    });
+    res.redirect('/home');
 
   } catch (error) {
-    console.error('💥 Error en login:', error);
-    req.flash('message', 'Error en el login');
+    console.error(error);
+    req.flash('message', 'Error en login');
     res.redirect('/signin');
   }
 });
+
+
 
 // Logout
 router.get('/logout', (req, res) => {

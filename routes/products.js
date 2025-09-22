@@ -1,28 +1,27 @@
+// routes/product.js (fragmentos)
 const express = require('express');
 const router = express.Router();
-const Product = require('../models/Product'); // Ruta correcta al modelo
+const Product = require('../models/Product');
 
-// Ruta para agregar producto
+// POST /add
 router.post('/add', async (req, res) => {
   try {
-    // Verificar si el producto ya existe
-    const productoExistente = await Product.findOne({ producto: req.body.producto });
+    const userId = req.session.user.id;
+
+    // evita duplicados por usuario
+    const productoExistente = await Product.findOne({
+      producto: req.body.producto,
+      user: userId
+    });
 
     if (productoExistente) {
-      req.flash('success', 'El producto ya existe, no se puede agregar duplicado.');
+      req.flash('error', 'El producto ya existe, no se puede agregar duplicado.');
       return res.redirect('/products');
     }
 
-    // Asegurar que categoria y estado sean strings (en caso de arrays)
-    const categoria = Array.isArray(req.body.categoria)
-      ? req.body.categoria.filter(Boolean)[0]
-      : req.body.categoria;
+    const categoria = Array.isArray(req.body.categoria) ? req.body.categoria.filter(Boolean)[0] : req.body.categoria;
+    const estado = Array.isArray(req.body.estado) ? req.body.estado.filter(Boolean)[0] : req.body.estado;
 
-    const estado = Array.isArray(req.body.estado)
-      ? req.body.estado.filter(Boolean)[0]
-      : req.body.estado;
-
-    // Crear nuevo producto
     const nuevoProducto = new Product({
       producto: req.body.producto,
       categoria,
@@ -31,12 +30,12 @@ router.post('/add', async (req, res) => {
       cantidad: parseInt(req.body.cantidad) || 0,
       precio: parseFloat(req.body.precio) || 0,
       hora: req.body.hora,
+      user: userId
     });
 
     await nuevoProducto.save();
     req.flash('success', 'Producto agregado correctamente');
     res.redirect('/products');
-
   } catch (err) {
     console.error('Error al guardar producto:', err);
     req.flash('error', 'Error al guardar el producto.');
@@ -44,65 +43,58 @@ router.post('/add', async (req, res) => {
   }
 });
 
-
-
+// GET /delete/:id (solo dueño puede borrar)
 router.get('/delete/:id', async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
-    req.flash('success', 'Producto Eliminado');
+    const userId = req.session.user.id;
+    // Borra solo si es del usuario
+    const deleted = await Product.findOneAndDelete({ _id: req.params.id, user: userId });
+    if (!deleted) {
+      req.flash('error', 'Producto no encontrado o no pertenece al usuario');
+      return res.redirect('/products');
+    }
+    req.flash('success', 'Producto eliminado correctamente');
     res.redirect('/products');
   } catch (err) {
     console.error('Error al eliminar producto:', err);
-    req.flash('success', 'Error al eliminar el producto.');
+    req.flash('error', 'Error al eliminar el producto.');
     res.redirect('/products');
   }
 });
 
 
+// POST /update/:id (solo actualizar si es del usuario)
 router.post('/update/:id', async (req, res) => {
   const id = req.params.id;
+  const userId = req.session.user.id;
   const { producto, categoria, estado, cantidad, precio, hora } = req.body;
 
   try {
-    await Product.findByIdAndUpdate(id, {
-      producto,
-      categoria,
-      estado,
-      cantidad,
-      precio,
-      hora,
-    });
-
+    await Product.findOneAndUpdate(
+      { _id: id, user: userId },
+      { producto, categoria, estado, cantidad, precio, hora }
+    );
     req.flash('success', 'Producto actualizado correctamente');
     res.redirect('/products');
   } catch (err) {
     console.error('Error al actualizar el producto:', err);
-    req.flash('success', 'Error al actualizar el producto.');
+    req.flash('error', 'Error al actualizar el producto.');
     res.redirect('/products');
   }
 });
 
-
-// GET /update/:id
+// GET /update/:id (solo si es dueño)
 router.get('/update/:id', async (req, res) => {
   const id = req.params.id;
+  const userId = req.session.user.id;
   try {
-    const data = await Product.findById(id);
-    res.render('editProduct', { data, 
-
-      title: 'Editar Producto',
-      currentOption: "/products",
-      imageUrl: null,
-      user: req.session.user,
-      titleMain: "Editar Producto",
-     });
+    const data = await Product.findOne({ _id: id, user: userId });
+    if (!data) return res.status(404).send('Producto no encontrado');
+    res.render('editProduct', { data, title: 'Keku Inventory || Editar Producto', currentOption: "/products", imageUrl: null, user: req.session.user, titleMain: "Editar Producto" });
   } catch (err) {
     console.error('Error al cargar el producto:', err);
     res.status(500).send('Error al cargar el producto');
   }
 });
-
-
-
 
 module.exports = router;

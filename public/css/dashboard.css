@@ -860,17 +860,17 @@ button, select {
     justify-content: space-between;
     align-items: center;
 }
+.status-button{
+    margin-top: -7px !important;
+}
+
 .status-button.open {
     text-decoration: none;
     background: none;
     color: var(--button-inactive);
     border: 1px solid var(--button-inactive);
 }
-.status-button {
-    font-size: 15px;
-    margin-top: 0;
-    padding: 6px 24px;
-}
+
 .content-button {
     background-color: #f96057;
     border: none;
@@ -930,7 +930,7 @@ td.product-cell.tituloProduct.padd {
 .noData .noDataDiv {
     flex-direction: column;
     display: flex;
-    width: 500px;
+    width: 100%;
     position: relative;
     height: auto;
     background: var(--app-content-secondary-color);

@@ -1,6 +1,53 @@
 <style>
 
+.contenedor-ventas{
+  min-height: initial !important;
+  padding: 30px 0px !important;
+}
+.app-content-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 4px;
+}
 
+@media(max-width: 768px){
+  .app-content-actions {
+      flex-direction: column;
+  }
+}
+
+@media(max-width: 466px){
+  .contenedor-ventas{
+    margin-bottom: 100px;
+  }
+}
+.search-bar {
+    background-color: var(--app-content-secondary-color);
+    border: 1px solid var(--app-content-secondary-color);
+    color: var(--app-content-main-color);
+    font-size: 14px;
+    line-height: 24px;
+    border-radius: 4px;
+    padding: 0px 10px 0px 32px;
+    height: 32px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-search'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+    width: 100%;
+    max-width: 320px;
+    transition: 0.2s;
+}
+.search-bar:hover {
+    border-color: var(--action-color-hover);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236291fd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-search'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+}
+.search-bar:focus {
+    outline: none;
+    border-color: var(--action-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232869ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-search'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+}
 </style>
 <%- include('./partials/header/layout') %>
 
@@ -8,8 +55,27 @@
 </div>
 
 <% if (user && !hasSeenWelcomeAnimation) { %>
+<audio id="sound-welcome" src="/sounds/click.mp3" preload="auto"></audio>
+
 <script>
   const lottiePath = '/Lottie/welcome-animation.json';
+     const sonido = document.getElementById('sound-welcome');
+    let sonidoReproducido = false;
+    const reproducirSonidoBienvenida = () => {
+      if (!sonidoReproducido && sonido) {
+        sonido.play().then(() => {
+          sonidoReproducido = true;
+          console.log("✅ Sonido de bienvenida reproducido.");
+        }).catch(error => {
+          console.warn("⚠️ Error al reproducir sonido:", error);
+        });
+      }
+
+      // Eliminar el listener después del primer intento
+      document.removeEventListener("click", reproducirSonidoBienvenida);
+    };
+    document.addEventListener("click", reproducirSonidoBienvenida);
+
   Swal.fire({
     title: '¡Bienvenido!',
     html: `<h2 style="color:#22d358f7;"> <%= user.nombre %></h2><div class="lottie-animation" style="height: 230px; overflow:hidden;" data-animation-path="/Lottie/welcome-animation.json"></div>`,
@@ -19,28 +85,119 @@
 </script>
 <% hasSeenWelcomeAnimation=true; %>
 <% } %>
+<div class="app-content-actions">
+  <div></div>
+  <h3 style="color:var(--app-content-main-color);">Ultimas Ventas
+    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="icon">
+      <path d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z" />
+    </svg>
+  </h3>
+  <input class="search-bar" placeholder="Buscar..." type="number" id="buscadorCodigo">
+
+</div>
 <div class="app-content-inicio">
   <div class="contenedor-ventas">
-    <div class="cont-producto">
-      <h3>Ultimas Ventas
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="icon">
-          <path d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z" />
+    <div class="cont-producto cont-card">
+<div class="parent">
+<% if (ventas && ventas.length > 0) { %>
+  <% ventas.forEach((v, index) => { 
+       const partesFecha = v.fechaa.split(' - ');
+       const soloFecha = partesFecha[0];
+       const soloHora = partesFecha[1];
+  %>
+    <a href="/receipt_page/<%= v._id %>" 
+       class="card-link"
+       data-codigo="<%= v.codigo %>">
+      <div class="div card">
+        <p class="medio">Medio: <%= v.medio %></p>
+        <div class="fecha-container">
+          <span class="fecha-dia total"><%= soloFecha %></span>
+          <span class="fecha-hora total"><%= soloHora %></span>
+        </div>
+        <svg class="barcode" 
+             jsbarcode-value="<%= v.codigo %>" 
+             jsbarcode-textmargin="0" 
+             jsbarcode-fontoptions="bold" 
+             jsbarcode-height="50"
+             id="barcode-<%= index %>">
         </svg>
-      </h3>
-      <div class="contcard">
-        <div class="card">
-          <h2>Producto 1</h2>
-        </div>
-        <div class="card">
-          <h2>Producto 1</h2>
-        </div>
-        <div class="card">
-          <h2>Producto 1</h2>
-        </div>
-        <div class="card">
-          <h2>Producto 1</h2>
-        </div>
+        <p class="total">Total: <%= v.total.toLocaleString() %> COP</p>
       </div>
+    </a>
+  <% }) %>
+<% } %>
+</div>
+
+<% if (!(ventas && ventas.length > 0)) { %>
+  <div style="text-align:center; margin-top:15px; width: 100%;">
+    <p style="color:#ff4d4d; font-weight:bold;">No hay ventas recientes</p>
+      <lottie-player 
+      src="/Lottie/No_receipts2.0.json"  
+      background="transparent"  
+      speed="1"  
+      style="width: 225px; height: 225px; margin: 0 auto;"  
+      loop  
+      autoplay>
+  </lottie-player>
+  </div>
+<% } %>
+
+
+<div id="noResultados" style="display:none; text-align:center; margin-top:15px;">
+  <p style="color:#ff4d4d; font-weight:bold;">No se encontraron ventas con ese código.</p>
+  <lottie-player 
+      src="/Lottie/No_Receipts.json"  
+      background="transparent"  
+      speed="1"  
+      style="width: 50%; height: 100%; margin: 0 auto;"  
+      loop  
+      autoplay>
+  </lottie-player>
+</div>
     </div>
+    
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  JsBarcode(".barcode").init();
+
+  const buscador = document.getElementById('buscadorCodigo');
+  const cards = document.querySelectorAll('.card-link');
+  const noResultados = document.getElementById('noResultados');
+
+  // Si no hay cards desde el inicio, no usar buscador
+  if (cards.length === 0) {
+    noResultados.style.display = 'none';
+    noResultados.style.display = 'none';
+
+    return;
+  }
+
+  buscador.addEventListener('input', function () {
+    const filtro = this.value.toLowerCase();
+    let visibles = 0;
+
+    cards.forEach(card => {
+      const codigoAttr = card.getAttribute('data-codigo');
+      const codigo = codigoAttr ? codigoAttr.toLowerCase() : '';
+      if (codigo.includes(filtro)) {
+         card.style.display = '';
+        visibles++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Mostrar Lottie solo cuando hay ventas pero no hay coincidencias
+    if (visibles === 0 && filtro !== '') {
+      noResultados.style.display = 'block';
+    } else {
+      noResultados.style.display = 'none';
+    }
+  });
+});
+</script>
+
+

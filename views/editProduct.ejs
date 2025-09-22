@@ -1,31 +1,32 @@
 <style>
-.contenedor-ventas{
+  .contenedor-ventas {
     overflow: scroll !important;
-}
-    .contenedor-ventas .cont-from-ventas .from-ventas{
-        padding: 10px 0px;
-    }
+  }
+
+  .contenedor-ventas .cont-from-ventas .from-ventas {
+    padding: 10px 0px;
+  }
 </style>
 
 <%- include('./partials/header/layout') %>
 
 
 <body>
-    <%- include('./partials/navigation/navigation'); %>
+  <%- include('./partials/navigation/navigation'); %>
 
-        </div>
-        <%- include('./partials/container-edit-product/container-edit-product'); %>
+  </div>
+  <%- include('./partials/container-edit-product/container-edit-product'); %>
 
-            <script>
-                const lottieContainer = document.querySelector('.lottie-animation');
-                const animationPath = lottieContainer.getAttribute('data-animation-path');
-                lottie.loadAnimation({
-                    container: lottieContainer,
-                    path: animationPath,
-                    renderer: 'svg',
-                    loop: true,
-                    autoplay: true,
-                    duration: 2,
-                    delay: 1
-                });
-            </script>
+  <script>
+    const lottieContainer = document.querySelector('.lottie-animation');
+    const animationPath = lottieContainer.getAttribute('data-animation-path');
+    lottie.loadAnimation({
+      container: lottieContainer,
+      path: animationPath,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      duration: 2,
+      delay: 1
+    });
+  </script>

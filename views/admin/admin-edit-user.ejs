@@ -1,0 +1,52 @@
+
+<style>
+  .cont-from-ventas{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: scroll;
+  }
+  .app-content-inicio{
+    flex-direction: initial;
+    justify-content: center;
+  }
+  .form-edit-user{
+    border: 1px solid var(--sidebar-active-link);
+    background: var(--app-content-secondary-color);
+        display: flex;
+    align-items: center;
+    border-radius: 5px;
+    flex-direction: column;
+    padding: 20px;
+
+  }
+.imgcaja {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 10px solid rgba(0, 0, 0, 0.25);
+}
+
+ .imgcaja img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style>
+
+<%- include('../partials/header/layout') %>
+
+<%- include('../partials/navigation/navigation'); %>
+</div>
+
+<%- include('../partials/admin/admin-edit-user/admin-edit-user'); %>
+
+</div>
+
+

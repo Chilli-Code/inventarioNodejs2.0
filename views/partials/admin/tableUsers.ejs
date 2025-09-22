@@ -1,0 +1,239 @@
+<style>
+  .container-table-users {
+    margin-top: auto;
+  }
+
+  .Menu-opciones-articulos-eliminar {
+    margin-bottom: 0px;
+  }
+
+  .buttonEditProfile {
+    background: var(--app-content-secondary-color);
+    border: 1px solid var(--sidebar-active-link);
+    color: var(--app-content-main-color);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1px;
+    cursor: pointer;
+  }
+
+  .iconsTableUsers {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .Menu-opciones-articulos-eliminar svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .buttonInfoProfile {
+    background-color: var(--action-color);
+    border: 1px solid var(--sidebar-active-link);
+    color: var(--app-content-main-color);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1px;
+    cursor: pointer;
+
+  }
+
+  .btnHover:hover {
+    transform: scale(0.976651);
+  }
+.filter-menu.active {
+    visibility: visible;
+    opacity: 1;
+    top: calc(100% + 8px);
+}
+@media screen and (max-width: 520px){
+  .filter-menu.active{
+    right: 0;
+    left: 50px;
+  }
+}
+
+@media (max-width:323px){
+  .filter-menu.active{
+    left: -8px;
+
+  }
+}
+
+@media (max-width:208px){
+  .info-productos div{
+    justify-content: center;
+    gap: 10px;
+  }
+}
+
+</style>
+
+<div class="app-content-actions">
+  <h2>
+    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"
+      class="icon">
+      <path
+        d="M240-320q-33 0-56.5-23.5T160-400q0-33 23.5-56.5T240-480q33 0 56.5 23.5T320-400q0 33-23.5 56.5T240-320Zm480 0q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm-240-40q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM284-120q14-69 68.5-114.5T480-280q73 0 127.5 45.5T676-120H284Zm-204 0q0-66 47-113t113-47q17 0 32 3t29 9q-30 29-50 66.5T224-120H80Zm656 0q-7-44-27-81.5T659-268q14-6 29-9t32-3q66 0 113 47t47 113H736ZM88-480l-48-64 440-336 160 122v-82h120v174l160 122-48 64-392-299L88-480Z" />
+    </svg>
+    Usuarios Aprobados
+  </h2>
+  <div style="display: flex; gap: 10px;">
+    <div class="filter-button-wrapper">
+        <button class="action-button filter jsFilter" type="button">
+          <span>Filtrar</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+        </button>
+  
+        <div class="filter-menu">
+          <label>Estado</label>
+          <select id="filtro-estado">Estado
+            <option value="">Todos</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+          <label>Ordenar por:</label>
+          <select id="filtro-orden">
+            <option value="">Ninguno</option>
+            <option value="product-asc">Productos (Menor a Mayor)</option>
+            <option value="product-desc">Productos (Mayor a Menor)</option>
+          </select>
+  
+          <div class="filter-menu-buttons">
+            <button class="filter-button reset" type="button" onclick="resetFilters()">Reset</button>
+            <button class="filter-button apply" type="button" onclick="aplicarFiltrosCompletos()">Aplicar</button>
+          </div>
+        </div>
+      </div>
+      <input class="search-bar" placeholder="Buscar..." type="text" id="searchUsers">
+  </div>
+</div>
+<div class="container-table-users products-area-wrapper tableView direction ssssss">
+  <table id="tableUsers">
+    <thead class="products-header">
+      <tr>
+        <th class="product-cell padding color: var(--app-content-main-color);">N°</th>
+        <th class="product-cell padding color: var(--app-content-main-color);">Nombre</th>
+        <th class="product-cell padding color: var(--app-content-main-color);">Correo</th>
+        <th class="product-cell padding color: var(--app-content-main-color);">Rol</th>
+        <th class="product-cell padding color: var(--app-content-main-color);">Productos</th>
+        <th class="product-cell padding color: var(--app-content-main-color);">Estado</th>
+        <th class="product-cell padding color: var(--app-content-main-color);">Accion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach((user, index)=> { %>
+        <tr class="products-row articulo busquedaExitosa">
+          <td class="product-cell tituloProduct ">
+            <%= index + 1 %>
+          </td>
+          <td class="product-cell tituloProduct nombre">
+            <%= user.nombre %>
+          </td>
+          <td class="product-cell tituloProduct correo">
+            <%= user.correo %>
+          </td>
+          <td class="product-cell category">
+            <%= user.role %>
+          </td>
+          <td class="product-cell">
+            <%= productCounts[user._id] || 0 %>
+          </td>
+          <td class="product-cell product-cell status-cell">
+            <span class="status <%= user.active ? 'active' : 'disabled' %>">
+              <%= user.active ? 'Activo' : 'Inactivo' %>
+            </span>
+          </td>
+          <td class="product-cell iconsTableUsers">
+            <a class="buttonInfoProfile btnHover">
+              <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px"
+                fill="#e3e3e3">
+                <path
+                  d="M400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-8 18-13.5 37.5T404-360h-4q-71 0-127.5 18T180-306q-9 5-14.5 14t-5.5 20v32h252q6 21 16 41.5t22 38.5H80Zm560 40-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80Zm40-120q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-560q33 0 56.5-23.5T480-640q0-33-23.5-56.5T400-720q-33 0-56.5 23.5T320-640q0 33 23.5 56.5T400-560Zm0-80Zm12 400Z" />
+              </svg>
+            </a>
+            <a class="buttonEditProfile btnHover" href="/listUsers/edit/<%= user._id %>">
+              <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px"
+                fill="currentColor" class="icon">
+                <path
+                  d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z" />
+              </svg>
+            </a>
+            <a class="Menu-opciones-articulos-eliminar btnHover" data-id="<%= user._id %>">
+              <svg id="Layer_1" data-name="Layer 1" height="24px" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 105.16 122.88">
+                <defs>
+                  <style>
+                    .cls-1 {
+                      fill-rule: evenodd;
+                    }
+                  </style>
+                </defs>
+                <title>Eliminar</title>
+                <path class="cls-1"
+                  d="M11.17,37.16H94.65a8.4,8.4,0,0,1,2,.16,5.93,5.93,0,0,1,2.88,1.56,5.43,5.43,0,0,1,1.64,3.34,7.65,7.65,0,0,1-.06,1.44L94,117.31v0l0,.13,0,.28v0a7.06,7.06,0,0,1-.2.9v0l0,.06v0a5.89,5.89,0,0,1-5.47,4.07H17.32a6.17,6.17,0,0,1-1.25-.19,6.17,6.17,0,0,1-1.16-.48h0a6.18,6.18,0,0,1-3.08-4.88l-7-73.49a7.69,7.69,0,0,1-.06-1.66,5.37,5.37,0,0,1,1.63-3.29,6,6,0,0,1,3-1.58,8.94,8.94,0,0,1,1.79-.13ZM5.65,8.8H37.12V6h0a2.44,2.44,0,0,1,0-.27,6,6,0,0,1,1.76-4h0A6,6,0,0,1,43.09,0H62.46l.3,0a6,6,0,0,1,5.7,6V6h0V8.8h32l.39,0a4.7,4.7,0,0,1,4.31,4.43c0,.18,0,.32,0,.5v9.86a2.59,2.59,0,0,1-2.59,2.59H2.59A2.59,2.59,0,0,1,0,23.62V13.53H0a1.56,1.56,0,0,1,0-.31v0A4.72,4.72,0,0,1,3.88,8.88,10.4,10.4,0,0,1,5.65,8.8Zm42.1,52.7a4.77,4.77,0,0,1,9.49,0v37a4.77,4.77,0,0,1-9.49,0v-37Zm23.73-.2a4.58,4.58,0,0,1,5-4.06,4.47,4.47,0,0,1,4.51,4.46l-2,37a4.57,4.57,0,0,1-5,4.06,4.47,4.47,0,0,1-4.51-4.46l2-37ZM25,61.7a4.46,4.46,0,0,1,4.5-4.46,4.58,4.58,0,0,1,5,4.06l2,37a4.47,4.47,0,0,1-4.51,4.46,4.57,4.57,0,0,1-5-4.06l-2-37Z">
+                </path>
+              </svg>
+            </a>
+          </td>
+        </tr>
+        <% }) %>
+
+    </tbody>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // selecciona todos los botones eliminar
+      const deleteButtons = document.querySelectorAll('.Menu-opciones-articulos-eliminar');
+
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const userId = button.dataset.id; // toma el id del data-id
+
+          Swal.fire({
+            title: '¿Eliminar este usuario?',
+            text: 'Se eliminará el usuario y todos sus productos y sus ventas',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              fetch(`/listUsers/users/${userId}`, {
+                method: 'DELETE'
+              })
+                .then(res => res.json())
+                .then(data => {
+                  Swal.fire(
+                    'Eliminado',
+                    data.message,
+                    'success'
+                  )
+                  // opcional: eliminar fila de la tabla sin recargar
+                  button.closest('tr').remove();
+                })
+                .catch(err => {
+                  Swal.fire(
+                    'Error',
+                    'No se pudo eliminar el usuario',
+                    'error'
+                  )
+                });
+            }
+          });
+        });
+      });
+    });
+  </script>
+
+
+

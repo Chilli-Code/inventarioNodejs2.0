@@ -12,7 +12,7 @@
 }
 .swal2-title{
     margin:5px 0px .4em !important;
-    color:var(--popup-color);
+    color:var(--popup-color) !important;
 }
 .swal2-popup{
     background:var(--EliminarLG) !important;
@@ -21,7 +21,7 @@
     color: var(--sidebar) !important;
 }
 .swal2-title{
-    color:var(--popup-color);
+    color:var(--popup-color) !important;
 }
                               
 body {

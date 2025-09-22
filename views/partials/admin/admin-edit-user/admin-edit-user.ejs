@@ -1,0 +1,25 @@
+<div class="app-content-inicio">
+  <div class="cont-from-ventas">
+    <form class="form-edit-user" action="/listUsers/update/<%= user._id %>" method="POST">
+      <div class="imgcaja">
+        <img src="<%= imageUrl %>" alt="Imagen del usuario" loading="lazy" draggable="false">
+        <%=  user.nombre %>
+      </div>
+      <label>Nombre</label>
+      <input type="text" name="nombre" value="<%= user.nombre %>">
+  
+      <label>Correo</label>
+      <input type="email" name="correo" value="<%= user.correo %>">
+  
+      <label>Contraseña</label>
+      <input type="password" name="password" placeholder="Nueva contraseña">
+  
+      <label>Estado</label>
+      <select name="status">
+        <option value="activo" <%= user.status === 'activo' ? 'selected' : '' %>>Activo</option>
+        <option value="Inactivo" <%= user.status === 'Inactivo' ? 'selected' : '' %>>Inactivo</option>
+      </select>
+  
+      <button class="add-to-cart filter-button filter-buttoon apply agregaar" type="submit">Guardar cambios</button>
+    </form>
+  </div>

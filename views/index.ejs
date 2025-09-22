@@ -2,116 +2,117 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keku Inventory - Gestión de Inventario y Ventas</title>
-      <!-- Cargar GSAP y ScrollTrigger desde CDN -->
- <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keku Inventory - Gestión de Inventario y Ventas</title>
+  <!-- Cargar GSAP y ScrollTrigger desde CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js" defer></script>
 
-    <%- include ('./partials/header/header'); %>
-        <link rel="stylesheet" href="/css/Landing.min.css">
+  <%- include ('./partials/header/header'); %>
+  <link rel="stylesheet" href="/css/Landing.min.css">
 
-        <style>
-
+  <style>
     .violet-storm-bg {
       position: absolute;
       inset: 0;
       background: #fff;
       z-index: 0;
-      background-image:  linear-gradient(to right, rgba(71,85,105,0.3) 1px, transparent 1px),
-       linear-gradient(to bottom, rgba(71,85,105,0.3) 1px, transparent 1px),
-       radial-gradient(circle at 50% 50%, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0.1) 40%, transparent 80%);
+      background-image: linear-gradient(to right, rgba(71, 85, 105, 0.3) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(71, 85, 105, 0.3) 1px, transparent 1px),
+        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 80%);
       background-size: "32px 32px, 32px 32px, 100% 100%";
 
     }
-        </style>
+  </style>
 </head>
 
 <body>
-    <div class="relative violet-storm-wrapper flex h-auto min-h-screen w-full flex-col">
-        <div class="layout-container violet-storm-bg flex h-full grow flex-col">
-            <%- include ('./partials/Landing/HeaderLanding'); %>
-            <main>
-                <%- include ('./partials/Landing/HeroSection'); %>
-                <%- include ('./partials/Landing/FeactureSection'); %>
-                <%- include ('./partials/Landing/TestimonialSection'); %>
-                <%- include ('./partials/Landing/PricingSection'); %>
-                <%- include ('./partials/Landing/CtaSection'); %>
-                <%- include ('./partials/Landing/FooterSection'); %>
-              </main>
-            </div>
+  <div class="relative violet-storm-wrapper flex h-auto min-h-screen w-full flex-col">
+    <div class="layout-container violet-storm-bg flex h-full grow flex-col">
+      <%- include ('./partials/Landing/HeaderLanding'); %>
+      <main>
+        <%- include ('./partials/Landing/HeroSection'); %>
+        <%- include ('./partials/Landing/FeactureSection'); %>
+        <%- include ('./partials/Landing/TestimonialSection'); %>
+        <%- include ('./partials/Landing/PricingSection'); %>
+        <%- include ('./partials/Landing/CtaSection'); %>
+        <%- include ('./partials/Landing/FooterSection'); %>
+      </main>
     </div>
+  </div>
 
-    <section>
-        <div>
-            <h2>Inicar Session</h2>
-            <a href="/signin">Aqui</a>
-        </div>
-
-        <div>
-            <h2>Registrate</h2>
-            <a href="/signup">Aqui</a>
-        </div>
-    </section>
-
-<script src="/js/vanilla-tilt.min.js"></script>
-<script>
-      document.addEventListener("DOMContentLoaded", () => {
-    VanillaTilt.init(document.querySelectorAll(".tilt-card"), {
-      max: 15,            // máximo ángulo
-      speed: 400,         // velocidad animación
-      glare: true,        // brillo opcional
-      "max-glare": 0.2,
-      scale: 1.05         // zoom leve
+  <script src="/js/vanilla-tilt.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      VanillaTilt.init(document.querySelectorAll(".tilt-card"), {
+        max: 15,            // máximo ángulo
+        speed: 400,         // velocidad animación
+        glare: true,        // brillo opcional
+        "max-glare": 0.2,
+        scale: 1.05         // zoom leve
+      });
+      VanillaTilt.init(document.querySelectorAll(".tilt-wrapper"), {
+        max: 15,          // ángulo máximo
+        speed: 400,       // velocidad de animación
+        glare: true,      // efecto de brillo
+        "max-glare": 0.2, // intensidad de brillo
+        scale: 1.05       // leve zoom para dar profundidad
+      });
     });
-        VanillaTilt.init(document.querySelectorAll(".tilt-wrapper"), {
-      max: 15,          // ángulo máximo
-      speed: 400,       // velocidad de animación
-      glare: true,      // efecto de brillo
-      "max-glare": 0.2, // intensidad de brillo
-      scale: 1.05       // leve zoom para dar profundidad
+  </script>
+
+  <script>
+    // Agregar interactividad básica
+    document.addEventListener('DOMContentLoaded', function () {
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+          const targetId = this.getAttribute('href'); // ej: #pricing
+          if (targetId.startsWith('#')) {
+            e.preventDefault();
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+              targetElement.scrollIntoView({
+                behavior: 'smooth'
+              });
+            }
+          }
+        });
+      });
+      // Efectos de hover para las tarjetas
+      // Funcionalidad para los botones
+      const buttons = document.querySelectorAll('.btn');
+      buttons.forEach(button => {
+        button.addEventListener('click', function () {
+          // Agregar efecto de click
+          this.style.transform = 'scale(0.98)';
+          setTimeout(() => {
+            this.style.transform = 'scale(1)';
+          }, 150);
+        });
+      });
+    });
+  </script>
+
+  <script>
+  // Script para ocultar/mostrar header según scroll
+  document.addEventListener('DOMContentLoaded', () => {
+    let lastScrollTop = 0;
+    const header = document.getElementById('header');
+
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop > lastScrollTop) {
+        // Bajando
+        header.classList.add('hide');
+      } else {
+        // Subiendo
+        header.classList.remove('hide');
+      }
+
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     });
   });
 </script>
-
-        <script>
-        // Agregar interactividad básica
-document.addEventListener('DOMContentLoaded', function() {
-  const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      const targetId = this.getAttribute('href'); // ej: #pricing
-      if (targetId.startsWith('#')) { 
-        e.preventDefault();
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          targetElement.scrollIntoView({
-            behavior: 'smooth'
-          });
-        }
-      }
-    });
-  });
-
-
-
-
-            
-            // Efectos de hover para las tarjetas
-
-
-
-            // Funcionalidad para los botones
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Agregar efecto de click
-                    this.style.transform = 'scale(0.98)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1)';
-                    }, 150);
-                });
-            });
-        });
-    </script>

@@ -1,0 +1,457 @@
+<!-- Controles mejorados con tu estilo -->
+<div class="controls-container">
+    <div class="controls-row">
+        <div class="control-group">
+            <label for="userFilter">Filtrar Usuario:</label>
+            <select id="userFilter">
+                <option value="">Todos</option>
+                <% (allUsers || []).forEach(function(u){ %>
+                    <option value="<%= u._id %>"><%= u.nombre %></option>
+                <% }) %>
+            </select>
+        </div>
+                <div class="control-group">
+            <label for="statusUser" >Estado de Usuario:</label>
+            <select id="statusUser"> 
+                <option value="">Todos</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="chartType" >Tipo de Gráfica:</label>
+            <select id="chartType"> 
+                <option value="bar">Barras</option>
+                <option value="horizontalBar">Barras Horizontales</option>
+                <option value="pie">Pastel</option>
+                <option value="doughnut">Dona</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="sortOrder" >Ordenar por:</label>
+            <select id="sortOrder"> 
+                <option value="desc">Mayor a Menor</option>
+                <option value="asc">Menor a Mayor</option>
+                <option value="name">Por Nombre (A-Z)</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="itemsPerPage" >Por página:</label>
+            <select id="itemsPerPage"> 
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="-1">Todos</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="minSales" >Ventas mínimas:</label>
+            <input type="number" id="minSales" placeholder="0" min="0"> 
+        </div>
+    </div>
+</div>
+
+<!-- Cards de estadísticas con tu estilo -->
+<div class="stats-summary" >
+    <!-- Card de Usuarios Activos -->
+    <div class="stat-card">
+        <div class="stat-overlay"></div>
+        <div class="stat-content" >
+            <div class="stat-title">👥 Usuarios Activos</div>
+            <div class="stat-value" id="totalUsers">0</div>
+            <div style="font-size: 0.8em; opacity: 0.8;">Vendedores registrados</div>
+        </div>
+    </div>
+
+    <!-- Card de Ventas Totales -->
+    <div class="stat-card">
+        <div class="stat-overlay"></div>
+        <div class="stat-content" >
+            <div class="stat-title">💰 Ventas Totales</div>
+            <div class="stat-value" id="totalSales">$0</div>
+            <div style="font-size: 0.8em; opacity: 0.8;">Ingresos acumulados</div>
+        </div>
+    </div>
+
+    <!-- Card de Promedio por Usuario -->
+    <div class="stat-card">
+        <div class="stat-overlay" ></div>
+        <div class="stat-content" >
+            <div class="stat-title">📊 Valor promedio por recibo</div>
+            <div class="stat-value" id="averageSales" style="color: #333;">$0</div>
+            <div style="font-size: 0.8em; opacity: 0.7; color: #666;">Venta promedio</div>
+        </div>
+    </div>
+
+    <!-- Card de Mejor Vendedor -->
+    <div class="stat-card">
+        <div class="stat-overlay"></div>
+        <div class="stat-content" >
+            <div class="stat-title">🏆 Mejor Vendedor</div>
+            <div class="stat-value" id="topSeller" style="color: #333;">-</div>
+            <div style="font-size: 0.8em; opacity: 0.7; color: #666;">Mejores resultados</div>
+        </div>
+    </div>
+</div>
+
+<!-- Controles de paginación -->
+<div class="pagination-controls">
+    <button id="prevPage">
+        <span style="font-size: 1.1em;">←</span>
+    </button>
+    <div class="pagination-info" id="pageInfo">Página 1 de 1</div>
+    <button id="nextPage">
+         <span style="font-size: 1.1em;">→</span>
+    </button>
+</div>
+
+<!-- Contenedor del gráfico -->
+<div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
+    <canvas id="salesChart" width="400" height="200"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const rawData = <%- JSON.stringify(salesByUser || []) %>;
+const safeData = Array.isArray(rawData) ? rawData : [];
+
+// Variables globales - agregadas a tu lógica original
+let chart;
+let filteredData = [...safeData];
+let currentPage = 1;
+let itemsPerPage = 10;
+
+// Tu función original mejorada
+function getChartData(arr) {
+  return {
+    labels: arr.map(item =>
+      item.user && item.user.nombre 
+        ? item.user.nombre 
+        : `Usuario ${item._id.slice(0,6)}...`),
+    data: arr.map(item => Number(item.totalVentas) || 0)
+  }
+}
+
+// Función para obtener datos paginados
+function getPaginatedData() {
+  if (itemsPerPage === -1) return filteredData;
+  
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return filteredData.slice(startIndex, endIndex);
+}
+
+// Función mejorada para crear/actualizar el chart
+function createOrUpdateChart() {
+  const paginatedData = getPaginatedData();
+  const chartType = document.getElementById('chartType').value;
+  const {labels, data} = getChartData(paginatedData);
+  
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  
+  if (chart) {
+    // Si ya existe el chart, solo actualizamos los datos
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = data;
+    chart.data.datasets[0].backgroundColor = generateGradientColors(ctx, data.length, chartType);
+    
+    // Si cambió el tipo de gráfica, destruimos y creamos nuevo
+    if (chart.config.type !== chartType) {
+      chart.destroy();
+      chart = createNewChart(ctx, chartType, labels, data);
+    } else {
+      chart.update();
+    }
+  } else {
+    // Crear nuevo chart
+    chart = createNewChart(ctx, chartType, labels, data);
+  }
+}
+
+// Función para crear un nuevo chart
+function createNewChart(ctx, chartType, labels, data) {
+  return new Chart(ctx, {
+    type: chartType,
+    data: {
+      labels,
+      datasets: [{
+        label: 'Ventas por usuario',
+        data,
+        backgroundColor: generateGradientColors(ctx, data.length, chartType),
+        borderColor: '#667eea',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: chartType === 'pie' || chartType === 'doughnut',
+          labels: {
+            color: '#333',
+            font: {
+              size: 12,
+              weight: '600'
+            }
+          }
+        }
+      },
+      scales: chartType === 'bar' || chartType === 'horizontalBar' ? {
+        y: { 
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value.toLocaleString();
+            },
+            color: '#666',
+            font: {
+              weight: '600'
+            }
+          },
+          grid: {
+            color: 'rgba(102, 126, 234, 0.1)'
+          }
+        },
+        x: {
+          ticks: {
+            color: '#666',
+            font: {
+              weight: '600'
+            }
+          },
+          grid: {
+            color: 'rgba(102, 126, 234, 0.1)'
+          }
+        }
+      } : {}
+    }
+  });
+}
+
+// Función para generar gradientes
+function generateGradientColors(ctx, count, chartType) {
+  const gradients = [];
+  const baseColors = [
+    ['#667eea', '#764ba2'],
+    ['#f093fb', '#f5576c'],
+    ['#4facfe', '#00f2fe'],
+    ['#43e97b', '#38f9d7'],
+    ['#fa709a', '#fee140'],
+    ['#a8edea', '#fed6e3'],
+    ['#ffecd2', '#fcb69f'],
+    ['#ff9a9e', '#fecfef'],
+    ['#fecfef', '#fecfef'],
+    ['#96fbc4', '#f9f586']
+  ];
+  
+  for (let i = 0; i < count; i++) {
+    const colorPair = baseColors[i % baseColors.length];
+    
+    if (chartType === 'pie' || chartType === 'doughnut') {
+      gradients.push(colorPair[0]);
+    } else {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, colorPair[0]);
+      gradient.addColorStop(1, colorPair[1]);
+      gradients.push(gradient);
+    }
+  }
+  
+  return gradients;
+}
+
+// Función para aplicar filtros (mejorada)
+function applyFilters() {
+  const selected = document.getElementById('userFilter').value;
+  const sortOrder = document.getElementById('sortOrder').value;
+  const minSales = parseFloat(document.getElementById('minSales').value) || 0;
+
+  // Tu lógica original de filtro por usuario
+  filteredData = selected
+    ? safeData.filter(item => (item.user && item.user._id) === selected || item._id === selected)
+    : [...safeData];
+
+  // Filtrar por ventas mínimas
+  filteredData = filteredData.filter(item => (Number(item.totalVentas) || 0) >= minSales);
+
+  // Ordenar
+  filteredData.sort((a, b) => {
+    switch(sortOrder) {
+      case 'asc':
+        return (Number(a.totalVentas) || 0) - (Number(b.totalVentas) || 0);
+      case 'desc':
+        return (Number(b.totalVentas) || 0) - (Number(a.totalVentas) || 0);
+      case 'name':
+        const nameA = a.user?.nombre || `Usuario ${a._id}`;
+        const nameB = b.user?.nombre || `Usuario ${b._id}`;
+        return nameA.localeCompare(nameB);
+      default:
+        return (Number(b.totalVentas) || 0) - (Number(a.totalVentas) || 0);
+    }
+  });
+
+  currentPage = 1;
+  createOrUpdateChart();
+  updateStats();
+  updatePagination();
+}
+
+// Función para actualizar estadísticas
+function updateStats() {
+  const totalUsers = filteredData.length;
+  const totalSales = filteredData.reduce((sum, item) => sum + (Number(item.totalVentas) || 0), 0);
+  const totalRecibos = filteredData.reduce((sum, item) => sum + (Number(item.cantidadVentas) || 0), 0);
+  const averageSales = totalRecibos > 0 ? totalSales / totalRecibos : 0;
+  
+  // CAMBIO: Filtrar solo usuarios que tengan la propiedad 'user'
+  const validUsers = safeData.filter(item => item.user && item.user.nombre);
+  
+  let topSeller = '-';
+  if (validUsers.length > 0) {
+    const bestUser = validUsers.reduce((top, current) => 
+      (Number(current.totalVentas) || 0) > (Number(top.totalVentas) || 0) ? current : top
+    );
+    topSeller = bestUser.user.nombre;
+  }
+
+  animateValue('totalUsers', 0, totalUsers, 1000);
+  animateValue('totalSales', 0, totalSales, 1000, '$');
+  animateValue('averageSales', 0, Math.round(averageSales), 1000, '$');
+  document.getElementById('topSeller').textContent = topSeller;
+}
+
+// Función para animar valores
+function animateValue(elementId, start, end, duration, prefix = '') {
+  const element = document.getElementById(elementId);
+  const startTime = performance.now();
+  
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    const current = Math.floor(start + (end - start) * progress);
+    element.textContent = prefix + current.toLocaleString();
+    
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  
+  requestAnimationFrame(update);
+}
+
+// Función para actualizar paginación
+function updatePagination() {
+  if (itemsPerPage === -1) {
+    document.querySelector('.pagination-controls').style.display = 'none';
+    return;
+  }
+
+  document.querySelector('.pagination-controls').style.display = 'flex';
+  
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  
+  document.getElementById('pageInfo').textContent = 
+    `Página ${currentPage} de ${totalPages} (${filteredData.length} usuarios)`;
+  
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  
+  prevBtn.disabled = currentPage <= 1;
+  nextBtn.disabled = currentPage >= totalPages;
+  
+  // Actualizar estilos
+  if (prevBtn.disabled) {
+    prevBtn.style.background = 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)';
+    prevBtn.style.cursor = 'not-allowed';
+  } else {
+    prevBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    prevBtn.style.cursor = 'pointer';
+  }
+  
+  if (nextBtn.disabled) {
+    nextBtn.style.background = 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)';
+    nextBtn.style.cursor = 'not-allowed';
+  } else {
+    nextBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    nextBtn.style.cursor = 'pointer';
+  }
+}
+
+// Función para cambiar página
+function changePage(direction) {
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  currentPage += direction;
+  
+  if (currentPage < 1) currentPage = 1;
+  if (currentPage > totalPages) currentPage = totalPages;
+  
+  createOrUpdateChart();
+  updatePagination();
+}
+
+// Inicialización (tu código original mejorado)
+const ctx = document.getElementById('salesChart').getContext('2d');
+filteredData = [...safeData];
+createOrUpdateChart();
+updateStats();
+updatePagination();
+
+// Tus event listeners originales + los nuevos
+document.getElementById('userFilter').addEventListener('change', applyFilters);
+document.getElementById('chartType').addEventListener('change', createOrUpdateChart);
+document.getElementById('sortOrder').addEventListener('change', applyFilters);
+document.getElementById('itemsPerPage').addEventListener('change', function() {
+  itemsPerPage = parseInt(this.value);
+  currentPage = 1;
+  createOrUpdateChart();
+  updatePagination();
+});
+document.getElementById('minSales').addEventListener('input', applyFilters);
+document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+
+// Agregar efectos hover para las cards
+document.querySelectorAll('.stat-card').forEach(card => {
+  card.addEventListener('mouseenter', function() {
+    this.style.transform = 'translateY(-5px) scale(1.02)';
+  });
+  card.addEventListener('mouseleave', function() {
+    this.style.transform = 'translateY(0) scale(1)';
+  });
+});
+
+// Efectos hover para botones
+document.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('mouseenter', function() {
+    if (!this.disabled) {
+      this.style.transform = 'translateY(-2px)';
+      this.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+    }
+  });
+  btn.addEventListener('mouseleave', function() {
+    this.style.transform = 'translateY(0)';
+    this.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)';
+  });
+});
+
+// Estilos CSS adicionales
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+  select:focus, input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  #salesChart {
+    height: 400px !important;
+  }
+</style>
+`);
+</script>

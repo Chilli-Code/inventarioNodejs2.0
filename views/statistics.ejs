@@ -37,20 +37,26 @@
 
     <%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
   </div>
-    <%- include('./partials/statistics/statistics'); %>
-<div class="swapy-container">
-  <%- include('./partials/statistics/charts/productos') %>
-  <%- include('./partials/statistics/charts/categorias') %>
-  <%- include('./partials/statistics/charts/clientes') %>
-</div>
+  <div style="padding: 1rem 2rem; overflow: auto;">
+<% if (user?.role === 'admin') { %>
+<div class="alert alert-success" style="background: #00330020; color: #00c853; margin-bottom:10px;">
+  Estás viendo <strong>estadísticas globales</strong> (toda la base de datos).
+  </div>
+  <%- include('./partials/admin/statistics/chartProduct', {salesByUser, allUsers}) %>
 
+
+<% } else { %>
+<div class="alert alert-info" style="background: #00002010; color: #29b6f6; border: 1px solid #29b6f6;">
+  Estás viendo <strong>tus estadísticas personales</strong>.
+</div>
+<% } %>
+</div>
 
 
 
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // EJS data
   const productosLabels = <%- JSON.stringify(topProductosNombres || []) %>;
   const productosData = <%- JSON.stringify(topProductosCantidades || []) %>;
 
@@ -60,8 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const clientesLabels = <%- JSON.stringify(clientLabels || []) %>;
   const clientesData = <%- JSON.stringify(clientData || []) %>;
 
-
-  // Restaurar orden si existe
   const container = document.querySelector(".swapy-container");
   const savedOrder = JSON.parse(localStorage.getItem("chartOrder") || "null");
 
@@ -73,10 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
       slotsMap[key] = el;
     });
 
-    // Limpia el container y reordena
-    Object.values(slotsMap).forEach(slot => {
-  container.appendChild(slot);
-});
     for (const key of Object.keys(savedOrder)) {
       const slot = savedOrder[key];
       if (slotsMap[slot]) {
@@ -85,30 +85,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Renderizar gráficas
   renderBarChart("#chart-productos", productosLabels, productosData, "Productos");
   renderBarChart("#chart-categorias", categoriasLabels, categoriasData, "Categorías");
   renderBarChart("#chart-clientes", clientesLabels, clientesData, "Clientes");
 
-  // Iniciar Swapy con drag solo desde el handle
   if (container && Swapy?.createSwapy) {
     const swapy = Swapy.createSwapy(container, {
       swapMode: "hover",
       animation: "dynamic",
       draggable: true,
-      handle: "[data-swapy-handle]"  // Solo permite mover desde el handle
+      handle: "[data-swapy-handle]"
     });
 
-    // Guardar orden en localStorage al mover
     swapy.onSwapEnd(event => {
       const order = event.slotItemMap.asObject;
-      console.log("Nuevo orden:", order);
       localStorage.setItem("chartOrder", JSON.stringify(order));
     });
   }
 });
 
-  // Crear gráficas
 function renderBarChart(selector, labels, data, title = "Cantidad") {
   const element = document.querySelector(selector);
   if (!element) {
@@ -116,18 +111,15 @@ function renderBarChart(selector, labels, data, title = "Cantidad") {
     return;
   }
 
-  // Limpia contenido previo
   element.innerHTML = "";
 
-  // ⚠️ Mostrar mensaje si no hay datos
   if (!labels.length || !data.length || data.every(val => val === 0)) {
     element.innerHTML = `
-  <div style="text-align:center; color:#ccc; padding: 30px;">
-    <div style="font-size:40px;">📉</div>
-    <div>No hay datos disponibles</div>
-  </div>
-`;
-
+      <div style="text-align:center; color:#ccc; padding: 30px;">
+        <div style="font-size:40px;">📉</div>
+        <div>No hay datos disponibles</div>
+      </div>
+    `;
     return;
   }
 
@@ -146,55 +138,57 @@ function renderBarChart(selector, labels, data, title = "Cantidad") {
   const chart = new ApexCharts(element, options);
   chart.render();
 }
-
 </script>
 
-
-
+<!-- Filtro para productos -->
 <script>
-  document.getElementById("filtrar-productos").addEventListener("click", () => {
-  const desde = document.getElementById("filtro-fecha-inicio").value;
-  const hasta = document.getElementById("filtro-fecha-fin").value;
-  const categoria = document.getElementById("filtro-categoria").value;
-  const top = document.getElementById("filtro-top").value;
-
-  fetch(`/api/grafica-productos?desde=${desde}&hasta=${hasta}&categoria=${categoria}&top=${top}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.labels && data.data) {
-        renderBarChart("#chart-productos", data.labels, data.data, "Productos");
-      }
-    })
-    .catch(err => console.error("Error al filtrar productos:", err));
-});
-
-</script>
-
-<script>
-document.getElementById("filtrar-categorias").addEventListener("click", () => {
-  const categoria = document.getElementById("filtro-categoria-especifica").value;
-
-  const url = categoria === "todas"
-    ? `/api/grafica-categorias`
-    : `/api/grafica-categorias?categoria=${encodeURIComponent(categoria)}`;
-
-  fetch(url)
-  .then(res => res.json())
-  .then(data => {
-    if (Array.isArray(data.labels) && Array.isArray(data.data)) {
-      renderBarChart("#chart-categorias", data.labels, data.data, "Categorías");
-    } else {
-      console.warn("Datos inválidos recibidos");
-    }
-  })
-  .catch(err => {
-    console.error("Error al filtrar categorías:", err);
-    const chartElement = document.querySelector("#chart-categorias");
-    if (chartElement) {
-      chartElement.innerHTML = "<p style='text-align:center; color:red;'>Error al cargar datos.</p>";
-    }
+const btnFiltrarProd = document.getElementById("filtrar-productos");
+if (btnFiltrarProd) {
+  btnFiltrarProd.addEventListener("click", () => {
+const desde = document.getElementById("filtro-fecha-inicio")?.value;
+const hasta = document.getElementById("filtro-fecha-fin")?.value;
+const categoria = document.getElementById("filtro-categoria")?.value;
+const top = document.getElementById("filtro-top")?.value;
+const usuario = document.getElementById("filtro-usuario")?.value; 
+console.log({ desde, hasta, categoria, top, usuario });
+    fetch(`/api/grafica-productos?desde=${desde}&hasta=${hasta}&categoria=${categoria}&top=${top}&usuario=${usuario}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.labels && data.data) {
+          renderBarChart("#chart-productos", data.labels, data.data, "Productos");
+        }
+      })
+      .catch(err => console.error("Error al filtrar productos:", err));
   });
+}
+</script>
 
-});
+<!-- Filtro para categorías -->
+<script>
+const btnFiltrarCat = document.getElementById("filtrar-categorias");
+if (btnFiltrarCat) {
+  btnFiltrarCat.addEventListener("click", () => {
+    const categoria = document.getElementById("filtro-categoria-especifica")?.value;
+    const url = categoria === "todas"
+      ? `/api/grafica-categorias`
+      : `/api/grafica-categorias?categoria=${encodeURIComponent(categoria)}`;
 
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data.labels) && Array.isArray(data.data)) {
+          renderBarChart("#chart-categorias", data.labels, data.data, "Categorías");
+        } else {
+          console.warn("Datos inválidos recibidos");
+        }
+      })
+      .catch(err => {
+        console.error("Error al filtrar categorías:", err);
+        const chartElement = document.querySelector("#chart-categorias");
+        if (chartElement) {
+          chartElement.innerHTML = "<p style='text-align:center; color:red;'>Error al cargar datos.</p>";
+        }
+      });
+  });
+}
 </script>

@@ -1,0 +1,65 @@
+<%- include('../../partials/header/layout') %>
+
+<%- include('../../partials/navigation/navigation'); %>
+</div>
+
+<div class="app-content-inicio">
+
+  <div class="accordion">
+    <% groupedArray.forEach(group => { %>
+      <div class="accordion-item">
+        <button class="accordion-header">
+          👤 <%= group.parent.nombre %> (<%= group.parent.correo %>)
+        </button>
+        <div class="accordion-content">
+          <ul>
+            <% group.subusers.forEach(sub => { %>
+              <li>
+                <strong><%= sub.nombre %></strong> - <%= sub.tipo %>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<style>
+.accordion-item {
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.accordion-header {
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  background: #f4f4f4;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+}
+.accordion-content {
+  display: none;
+  padding: 10px;
+  background: #fff;
+}
+.accordion-item.active .accordion-content {
+  display: block;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const item = header.parentElement;
+      item.classList.toggle('active');
+    });
+  });
+});
+</script>
+

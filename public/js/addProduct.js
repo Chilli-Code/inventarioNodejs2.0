@@ -2,6 +2,10 @@ $(".jsFilter").click(function () {
   $(".filter-menu").toggleClass("active");
 });
 
+$(".jsFilterUsers").click(function () {
+  $(".filter-menu").toggleClass("active");
+});
+
 
 $(".filter-product").click(function () {
   $(".filter-agregar-from").toggleClass("active");
@@ -43,6 +47,7 @@ $(function () {
   $(".pop-up").removeClass("visible");
  });
 
+ 
 
 // $(document).ready(function() {
 //   $('.del-btn').on('click', function() {
