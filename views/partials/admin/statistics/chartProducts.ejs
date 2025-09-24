@@ -1,0 +1,189 @@
+<!-- Nueva gráfica de productos por usuario -->
+<%- include('./chartSellUsers/contentProducts', {productsByUser, allUsers, isMobile}) %>
+
+<script>
+// Datos para gráfica de productos
+const productsData = <%- JSON.stringify(productsByUser || []) %>;
+
+// Variables para la gráfica de productos
+let productsChart;
+
+// Variables de paginación
+let productsCurrentPage = 1;
+let productsItemsPerPage  = 5; // Cambia según cuántos productos quieres mostrar por página
+
+// Obtener datos paginados
+function getPaginatedProductsData() {
+    const startIndex = (productsCurrentPage - 1) * productsItemsPerPage ;
+    const endIndex = startIndex + productsItemsPerPage ;
+    return productsData.slice(startIndex, endIndex);
+}
+
+// Actualizar gráfica de productos con paginación
+function updateProductsChart() {
+    function getMetricLabel(metric) {
+    switch(metric) {
+        case 'totalProductos':
+            return 'Total de Productos';
+        case 'productosActivos':
+            return 'Productos Activos';
+        case 'totalVentas':
+            return 'Ventas Realizadas';
+        case 'valorInventario':
+            return 'Valor de Inventario';
+        default:
+            return 'Métrica desconocida';
+    }
+}
+
+    const userFilter = document.getElementById('productUserFilter').value;
+    const chartType = document.getElementById('productChartType').value;
+    const metric = document.getElementById('productMetric').value;
+    const searchInput = document.getElementById('productSearch');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+    // Filtrar datos por usuario y búsqueda
+    let filteredData = userFilter 
+        ? productsData.filter(item => item.user && item.user._id === userFilter)
+        : [...productsData];
+
+    filteredData = filteredData.filter(item => {
+        const hasValidUser = item.user && item.user.nombre;
+        if (!hasValidUser) return false;
+        if (searchTerm) {
+            return item.user.nombre.toLowerCase().includes(searchTerm);
+        }
+        return true;
+    });
+
+    // Paginación
+    const totalPages = Math.ceil(filteredData.length / productsItemsPerPage );
+
+    // Asegurar que productsCurrentPage esté dentro del rango
+    if (productsCurrentPage > totalPages) productsCurrentPage = totalPages || 1;
+    if (productsCurrentPage < 1) productsCurrentPage = 1;
+
+    // Obtener datos paginados
+    const paginatedData = filteredData.slice((productsCurrentPage - 1) * productsItemsPerPage , productsCurrentPage * productsItemsPerPage );
+
+    const labels = paginatedData.map(item => item.user?.nombre || `Usuario ${item._id.slice(0,6)}...`);
+    const data = paginatedData.map(item => item[metric] || 0);
+    const label = getMetricLabel(metric);
+
+    const ctx = document.getElementById('productsChart').getContext('2d');
+    if (productsChart) {
+        productsChart.destroy();
+    }
+
+    let actualChartType = chartType;
+    let indexAxis = 'x';
+    if (chartType === 'bar-horizontal') {
+        actualChartType = 'bar';
+        indexAxis = 'y';
+    }
+
+    productsChart = new Chart(ctx, {
+        type: actualChartType,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: generateProductColors(ctx, data.length, actualChartType),
+                borderColor: '#667eea',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            indexAxis: indexAxis,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: actualChartType === 'pie' || actualChartType === 'doughnut',
+                    labels: { color: '#333', font: { size: 12, weight: '600' } }
+                }
+            },
+            scales: actualChartType === 'bar' ? {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return metric === 'valorInventario' ? '$' + value.toLocaleString() : value.toLocaleString();
+                        },
+                        color: '#666',
+                        font: { weight: '600' }
+                    },
+                    grid: { color: 'rgba(102, 126, 234, 0.1)' }
+                },
+                x: {
+                    ticks: { color: '#666', font: { weight: '600' } },
+                    grid: { color: 'rgba(102, 126, 234, 0.1)' }
+                }
+            } : {}
+        }
+    });
+
+    // Actualizar controles de paginación
+    updateProductsPagination(filteredData.length, totalPages);
+}
+
+// Función para actualizar controles de paginación (botones y texto)
+function updateProductsPagination(totalItems, totalPages) {
+    const paginationInfo = document.getElementById('productsPaginationInfo');
+    const prevBtn = document.getElementById('productsPrevPage');
+    const nextBtn = document.getElementById('productsNextPage');
+
+    if (!paginationInfo || !prevBtn || !nextBtn) return;
+
+    paginationInfo.textContent = `Página ${productsCurrentPage} de ${totalPages}`;
+
+    prevBtn.disabled = productsCurrentPage <= 1;
+    nextBtn.disabled = productsCurrentPage >= totalPages;
+
+    prevBtn.style.cursor = prevBtn.disabled ? 'not-allowed' : 'pointer';
+    nextBtn.style.cursor = nextBtn.disabled ? 'not-allowed' : 'pointer';
+}
+
+// Funciones para cambiar página
+function productsChangePage(direction) {
+    productsCurrentPage += direction;
+    updateProductsChart();
+}
+
+
+
+function generateProductColors(ctx, count, chartType) {
+    const colors = [
+        '#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a',
+        '#a8edea', '#ffecd2', '#ff9a9e', '#fecfef', '#96fbc4'
+    ];
+    
+    if (chartType === 'pie' || chartType === 'doughnut') {
+        return colors.slice(0, count);
+    }
+    
+    // REMOVER ESTA PARTE QUE ESTABA MAL UBICADA
+    return colors.slice(0, count).map(color => {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(1, color + '80');
+        return gradient;
+    });
+}
+// Event listeners para controles de paginación
+document.getElementById('productsPrevPage').addEventListener('click', () => productsChangePage(-1));
+document.getElementById('productsNextPage').addEventListener('click', () => productsChangePage(1));
+
+// Event listeners para filtros y demás controles (como antes)
+document.getElementById('productUserFilter').addEventListener('change', () => { productsCurrentPage = 1; updateProductsChart(); });
+document.getElementById('productChartType').addEventListener('change', updateProductsChart);
+document.getElementById('productMetric').addEventListener('change', () => { productsCurrentPage = 1; updateProductsChart(); });
+document.getElementById('productSearch').addEventListener('input', () => { productsCurrentPage = 1; updateProductsChart(); });
+
+// Inicializar gráfica con paginación
+updateProductsChart();
+
+</script>
+
+

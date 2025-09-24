@@ -42,6 +42,7 @@ body {
     }
 
     .violet-storm-bg {
+        overflow-x: hidden;
       position: absolute;
       inset: 0;
       background: #ffffff;

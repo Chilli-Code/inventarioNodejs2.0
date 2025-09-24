@@ -38,9 +38,11 @@
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <% } %>
   <% if (currentOption==='/statistics' ) { %>
-  <link rel="stylesheet" href="/css/statistics.css">
+
+  <link rel="stylesheet" href="/css/statistics.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
   <script src="/js/swapy.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" ></script>
   <% } %>
 
 
@@ -67,9 +69,13 @@
 <script src="https://unpkg.com/swapy@latest/dist/swapy.min.js"></script>
 
 <% } %>
-  <% if (currentOption==='/home') { %>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<% if (currentOption==='/home') { %>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="/js/lottie-player.js" defer></script>
+    
+    <% if (user && user.role === 'admin') { %>
+        <link rel="stylesheet" href="/css/adminHome.css">
+    <% } %>
 <% } %>
   <% if (currentOption==='/receipt_page') { %>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>

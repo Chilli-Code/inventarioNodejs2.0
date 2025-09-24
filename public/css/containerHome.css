@@ -8,6 +8,34 @@
     display: flex;
     flex-direction: column;
 }
+.card-info-preview{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+}
+
+.card-info-preview div{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+}
+
+.card-info-preview div span{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    gap:5px;
+}
+
+.card-info-preview div span svg{
+    width: 20px;
+    bottom: 4px;
+    height: 20px;
+    position: relative;
+}
+
 .parent {
   display: grid;
   /* grid dinámico y responsivo */
@@ -15,6 +43,11 @@
   gap: 15px;
   width: 100%;
 }
+
+.parent .card.cardAdmin {
+    height: auto;
+}
+
  .parent .card:hover {
   transform: scale(1.05);
 }   
@@ -33,7 +66,8 @@
   .card-link {
   text-decoration: none;
   color: inherit; /* hereda color del texto */
-  display: block; /* que ocupe todo */
+  display: flex; /* que ocupe todo */
+  flex-direction: column-reverse;
 }
 
 .card-link .card {
@@ -50,7 +84,7 @@
 }
 .fecha-dia {
   display: block;
-  font-size: 1rem;
+  font-size: 0.8rem;
   color: var(--app-content-main-color);
 }
 

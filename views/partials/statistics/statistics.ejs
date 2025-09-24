@@ -5,12 +5,11 @@
 
 </style>
 
-<div class="app-content-inicio">
   <div class="main-cards">
 
     <div class="card">
       <div class="card-inner">
-        <h3>Productos</h3>
+        <h3 style="color: #fff;">Productos</h3>
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
           class="feather feather-shopping-bag icon">
@@ -19,14 +18,14 @@
           <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
       </div>
-      <h1>
+      <h1 style="color: #fff;">
         <%= totalProductos %>
       </h1>
     </div>
 
     <div class="card">
       <div class="card-inner">
-        <h3>Categorias</h3>
+        <h3 style="color: #fff;">Categorias</h3>
         <svg xmlns="http://www.w3.org/2000/svg" 
         height="24px" 
         width="24px" 
@@ -38,14 +37,14 @@
             d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Zm580-60q42 0 71-29t29-71q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 42 29 71t71 29Zm-500-20h160v-160H200v160Zm202-420h156l-78-126-78 126Zm78 0ZM360-340Zm340 80Z" />
         </svg>
       </div>
-      <h1>
+      <h1 style="color:#fff;">
         <%= totalCategorias %>
       </h1>
     </div>
 
     <div class="card">
       <div class="card-inner">
-        <h3>Clientes</h3>
+        <h3 style="color: #fff;">Clientes</h3>
        <svg 
   xmlns="http://www.w3.org/2000/svg" 
   width="24px" 
@@ -57,7 +56,7 @@
 </svg>
 
       </div>
-      <h1>
+      <h1 style="color: #fff;">
         <%= totalClientes %>
       </h1>
     </div>
@@ -66,7 +65,7 @@
   <a href="/subusers" style="text-decoration:none; color:inherit;">
     <div class="card" style="cursor:pointer;">
       <div class="card-inner">
-        <h3>Sub Usuarios</h3>
+        <h3 style="color: #fff;">Sub Usuarios</h3>
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
           width="24px" 
@@ -77,14 +76,14 @@
           <path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780Zm-455-80h311q-10-20-55.5-35T480-370q-55 0-100.5 15T325-320ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Zm0-80q17 0 28.5-11.5T520-600q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600q0 17 11.5 28.5T480-560Zm1 240Zm-1-280Z"/>
         </svg>
       </div>
-      <h1><%= totalSubUsuarios %></h1>
+      <h1 style="color: #fff;"><%= totalSubUsuarios %></h1>
     </div>
   </a>
 <% } else { %>
   <!-- Card no clickable para usuarios normales -->
   <div class="card">
     <div class="card-inner">
-      <h3>Sub Usuarios</h3>
+      <h3 style="color: #fff;">Sub Usuarios</h3>
       <svg 
         xmlns="http://www.w3.org/2000/svg" 
         width="24px" 
@@ -95,7 +94,7 @@
         <path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780Zm-455-80h311q-10-20-55.5-35T480-370q-55 0-100.5 15T325-320ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Zm0-80q17 0 28.5-11.5T520-600q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600q0 17 11.5 28.5T480-560Zm1 240Zm-1-280Z"/>
       </svg>
     </div>
-    <h1><%= totalSubUsuarios %></h1>
+    <h1 style="color: #fff;"><%= totalSubUsuarios %></h1>
   </div>
 <% } %>
 

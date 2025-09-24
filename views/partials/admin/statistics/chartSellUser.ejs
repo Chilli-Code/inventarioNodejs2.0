@@ -1,123 +1,16 @@
-<!-- Controles mejorados con tu estilo -->
-<div class="controls-container">
-    <div class="controls-row">
-        <div class="control-group">
-            <label for="userFilter">Filtrar Usuario:</label>
-            <select id="userFilter">
-                <option value="">Todos</option>
-                <% (allUsers || []).forEach(function(u){ %>
-                    <option value="<%= u._id %>"><%= u.nombre %></option>
-                <% }) %>
-            </select>
-        </div>
-                <div class="control-group">
-            <label for="statusUser" >Estado de Usuario:</label>
-            <select id="statusUser"> 
-                <option value="">Todos</option>
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="chartType" >Tipo de Gráfica:</label>
-            <select id="chartType"> 
-                <option value="bar">Barras</option>
-                <option value="horizontalBar">Barras Horizontales</option>
-                <option value="pie">Pastel</option>
-                <option value="doughnut">Dona</option>
-            </select>
-        </div>
-        
-        <div class="control-group">
-            <label for="sortOrder" >Ordenar por:</label>
-            <select id="sortOrder"> 
-                <option value="desc">Mayor a Menor</option>
-                <option value="asc">Menor a Mayor</option>
-                <option value="name">Por Nombre (A-Z)</option>
-            </select>
-        </div>
-        
-        <div class="control-group">
-            <label for="itemsPerPage" >Por página:</label>
-            <select id="itemsPerPage"> 
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="-1">Todos</option>
-            </select>
-        </div>
-        
-        <div class="control-group">
-            <label for="minSales" >Ventas mínimas:</label>
-            <input type="number" id="minSales" placeholder="0" min="0"> 
-        </div>
-    </div>
-</div>
 
-<!-- Cards de estadísticas con tu estilo -->
-<div class="stats-summary" >
-    <!-- Card de Usuarios Activos -->
-    <div class="stat-card">
-        <div class="stat-overlay"></div>
-        <div class="stat-content" >
-            <div class="stat-title">👥 Usuarios Activos</div>
-            <div class="stat-value" id="totalUsers">0</div>
-            <div style="font-size: 0.8em; opacity: 0.8;">Vendedores registrados</div>
-        </div>
-    </div>
 
-    <!-- Card de Ventas Totales -->
-    <div class="stat-card">
-        <div class="stat-overlay"></div>
-        <div class="stat-content" >
-            <div class="stat-title">💰 Ventas Totales</div>
-            <div class="stat-value" id="totalSales">$0</div>
-            <div style="font-size: 0.8em; opacity: 0.8;">Ingresos acumulados</div>
-        </div>
-    </div>
+<%- include('./chartSellUsers/contentHeader', {salesByUser, allUsers, isMobile}) %>
 
-    <!-- Card de Promedio por Usuario -->
-    <div class="stat-card">
-        <div class="stat-overlay" ></div>
-        <div class="stat-content" >
-            <div class="stat-title">📊 Valor promedio por recibo</div>
-            <div class="stat-value" id="averageSales" style="color: #333;">$0</div>
-            <div style="font-size: 0.8em; opacity: 0.7; color: #666;">Venta promedio</div>
-        </div>
-    </div>
 
-    <!-- Card de Mejor Vendedor -->
-    <div class="stat-card">
-        <div class="stat-overlay"></div>
-        <div class="stat-content" >
-            <div class="stat-title">🏆 Mejor Vendedor</div>
-            <div class="stat-value" id="topSeller" style="color: #333;">-</div>
-            <div style="font-size: 0.8em; opacity: 0.7; color: #666;">Mejores resultados</div>
-        </div>
-    </div>
-</div>
-
-<!-- Controles de paginación -->
-<div class="pagination-controls">
-    <button id="prevPage">
-        <span style="font-size: 1.1em;">←</span>
-    </button>
-    <div class="pagination-info" id="pageInfo">Página 1 de 1</div>
-    <button id="nextPage">
-         <span style="font-size: 1.1em;">→</span>
-    </button>
-</div>
-
-<!-- Contenedor del gráfico -->
-<div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
-    <canvas id="salesChart" width="400" height="200"></canvas>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const rawData = <%- JSON.stringify(salesByUser || []) %>;
 const safeData = Array.isArray(rawData) ? rawData : [];
+
+
+const productsRawData = <%- JSON.stringify(productsByUser || []) %>;
+const productsDataUser = Array.isArray(productsRawData) ? productsRawData : [];
+
 
 // Variables globales - agregadas a tu lógica original
 let chart;
@@ -147,11 +40,17 @@ function getPaginatedData() {
 
 // Función mejorada para crear/actualizar el chart
 function createOrUpdateChart() {
+    const canvasEl = document.getElementById('salesChart');
+  if (!canvasEl) {
+    console.warn('Canvas #salesChart no encontrado. El chart no se inicializará.');
+    return;
+  }
   const paginatedData = getPaginatedData();
-  const chartType = document.getElementById('chartType').value;
+ const chartType = document.getElementById('chartType')?.value || 'bar'; 
   const {labels, data} = getChartData(paginatedData);
   
-  const ctx = document.getElementById('salesChart').getContext('2d');
+  // const ctx = document.getElementById('salesChart').getContext('2d');
+   const ctx = canvasEl.getContext('2d');
   
   if (chart) {
     // Si ya existe el chart, solo actualizamos los datos
@@ -270,6 +169,7 @@ function applyFilters() {
   const selected = document.getElementById('userFilter').value;
   const sortOrder = document.getElementById('sortOrder').value;
   const minSales = parseFloat(document.getElementById('minSales').value) || 0;
+  const statusFilter = document.getElementById('statusFilter').value;
 
   // Tu lógica original de filtro por usuario
   filteredData = selected
@@ -278,7 +178,11 @@ function applyFilters() {
 
   // Filtrar por ventas mínimas
   filteredData = filteredData.filter(item => (Number(item.totalVentas) || 0) >= minSales);
-
+  // AGREGAR ESTE FILTRO POR ESTADO:
+  if (statusFilter !== '') {
+    const isActive = statusFilter === 'true';
+    filteredData = filteredData.filter(item => item.active === isActive);
+  }
   // Ordenar
   filteredData.sort((a, b) => {
     switch(sortOrder) {
@@ -301,15 +205,42 @@ function applyFilters() {
   updatePagination();
 }
 
+
+// NUEVA FUNCIÓN: Calcular total de productos vendidos (unidades) basado en filteredData
+function calculateTotalProductosVendidos() {
+  // Obtener IDs de usuarios en el filtro actual
+  const userIdsInFilter = filteredData.map(item => item._id).filter(id => id);
+  
+  if (userIdsInFilter.length === 0) {
+    // Si no hay filtro, usar total global
+return 0;  
+}
+  
+  // Filtrar productsDataUser por usuarios en filteredData (ej. solo Carlos)
+  const filteredProducts = productsDataUser.filter(item => 
+    userIdsInFilter.includes(item._id.toString())
+  );
+  
+  // Sumar totalVentas (unidades vendidas por usuario)
+  return filteredProducts.reduce((sum, item) => sum + (Number(item.totalVentas) || 0), 0);
+}
+
+
+
 // Función para actualizar estadísticas
 function updateStats() {
   const totalUsers = filteredData.length;
   const totalSales = filteredData.reduce((sum, item) => sum + (Number(item.totalVentas) || 0), 0);
-  const totalRecibos = filteredData.reduce((sum, item) => sum + (Number(item.cantidadVentas) || 0), 0);
-  const averageSales = totalRecibos > 0 ? totalSales / totalRecibos : 0;
-  
+  const averageSales = totalUsers > 0 ? totalSales / totalUsers : 0;  // Cambié a totalUsers para promedio por usuario
+
+
+    // NUEVO: Total de productos vendidos (unidades), filtrado o global
+  const totalProductosVendidos = calculateTotalProductosVendidos();  // Ej. 45 si filtras Carlos
+
+
   // CAMBIO: Filtrar solo usuarios que tengan la propiedad 'user'
   const validUsers = safeData.filter(item => item.user && item.user.nombre);
+  
   
   let topSeller = '-';
   if (validUsers.length > 0) {
@@ -322,6 +253,8 @@ function updateStats() {
   animateValue('totalUsers', 0, totalUsers, 1000);
   animateValue('totalSales', 0, totalSales, 1000, '$');
   animateValue('averageSales', 0, Math.round(averageSales), 1000, '$');
+  animateValue('totalVentas', 0, totalProductosVendidos, 1000);
+
   document.getElementById('topSeller').textContent = topSeller;
 }
 
@@ -357,7 +290,7 @@ function updatePagination() {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   
   document.getElementById('pageInfo').textContent = 
-    `Página ${currentPage} de ${totalPages} (${filteredData.length} usuarios)`;
+    `Página ${currentPage} de ${totalPages}`;
   
   const prevBtn = document.getElementById('prevPage');
   const nextBtn = document.getElementById('nextPage');
@@ -415,7 +348,7 @@ document.getElementById('itemsPerPage').addEventListener('change', function() {
 document.getElementById('minSales').addEventListener('input', applyFilters);
 document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
 document.getElementById('nextPage').addEventListener('click', () => changePage(1));
-
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
 // Agregar efectos hover para las cards
 document.querySelectorAll('.stat-card').forEach(card => {
   card.addEventListener('mouseenter', function() {
@@ -454,4 +387,43 @@ document.head.insertAdjacentHTML('beforeend', `
   }
 </style>
 `);
+</script>
+
+
+<script>
+  // Función para detectar móvil (simple con matchMedia)
+  function isMobile() {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  const toggleBtn = document.getElementById('toggleFiltersBtn');
+  const filtersDiv = document.getElementById('filtersDiv');
+
+  function setupFiltersToggle() {
+    if (isMobile()) {
+      // En móvil: ocultamos filtros y mostramos botón
+      filtersDiv.style.display = 'none';
+      toggleBtn.style.display = 'inline-block';
+
+      toggleBtn.textContent = 'Mostrar filtros';
+
+      toggleBtn.onclick = () => {
+        if (filtersDiv.style.display === 'none') {
+          filtersDiv.style.display = 'block';
+          toggleBtn.textContent = 'Ocultar filtros';
+        } else {
+          filtersDiv.style.display = 'none';
+          toggleBtn.textContent = 'Mostrar filtros';
+        }
+      };
+    } else {
+      // En desktop: siempre mostrar filtros y ocultar botón
+      filtersDiv.style.display = 'flex';
+      toggleBtn.style.display = 'none';
+    }
+  }
+  // Ejecutar al cargar la página
+  setupFiltersToggle();
+  // También ajustar si cambian el tamaño de ventana (opcional)
+  window.addEventListener('resize', setupFiltersToggle);
 </script>

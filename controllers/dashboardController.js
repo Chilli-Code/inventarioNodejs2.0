@@ -138,20 +138,70 @@ async function getDashboardData(req, res) {
             as: 'user' // *** CAMBIO: usar 'user' en lugar de 'userInfo' ***
           }
         },
-        { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } } // *** CAMBIO: usar 'user' ***
+        { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } }, // *** CAMBIO: usar 'user' ***
+            {
+      $addFields: {
+        'active': '$user.active'
+      }
+    }
       ]);
     }
 
     // 9. Lista de usuarios (para admin)
     const usuarios = await User.find({ role: 'user' }).lean();
 
+
+    
     // Animación de bienvenida
     const hasSeenWelcomeAnimation = req.session.hasSeenWelcomeAnimation || false;
     req.session.hasSeenWelcomeAnimation = true;
 
+    
     const categoriasDisponibles = await Product.distinct('categoria', productoFilter);
     const allUsers = await User.find({ role: 'user' }).lean();
+  const isMobile = /mobile|android|iphone|ipad/i.test(req.headers['user-agent']);
     
+
+    //obtner el total de productos
+    // 9. Usuarios con más productos (solo admin)
+let productsByUser = [];
+if (isAdmin) {
+// En dashboardController.js
+productsByUser = await Product.aggregate([
+  {
+    $lookup: {
+      from: 'users',
+      localField: 'user',
+      foreignField: '_id',
+      as: 'user'
+    }
+  },
+  { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+  // AGREGAR: Filtrar solo usuarios con rol 'user'
+  {
+    $match: {
+      'user.role': 'user'
+    }
+  },
+  {
+    $group: {
+      _id: '$user._id',
+      user: { $first: '$user' },
+      totalProductos: { $sum: 1 },
+      productosActivos: { 
+        $sum: { $cond: [{ $eq: ['$estado', 'Activo'] }, 1, 0] } 
+      },
+      productosAgotados: { 
+        $sum: { $cond: [{ $eq: ['$estado', 'Agotado'] }, 1, 0] } 
+      },
+      totalVentas: { $sum: '$ventas' },
+      valorInventario: { $sum: { $multiply: ['$cantidad', '$precio'] } }
+    }
+  },
+  { $sort: { totalProductos: -1 } }
+]);
+}
+
     req.session.save(err => {
       if (err) console.error('Error saving session:', err);
 
@@ -177,6 +227,8 @@ async function getDashboardData(req, res) {
         totalSubUsuarios,
         salesByUser,
         allUsers,
+        isMobile,
+        productsByUser
       });
     });
 

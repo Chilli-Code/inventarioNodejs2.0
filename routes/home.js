@@ -5,7 +5,7 @@ const { isAuthenticated } = require('../middleware/auth');
 const Venta = require('../models/Sell'); // Asegúrate que la ruta al modelo esté bien
 const { getDashboardData } = require('../controllers/dashboardController');
 const SubUser = require('../models/subUsuers'); 
-
+const User = require('../models/User');
 
 
 // Ruta protegida /home
@@ -18,13 +18,34 @@ router.get('/home', isAuthenticated, async (req, res) => {
 
   const hasSeenWelcomeAnimation = req.session.hasSeenWelcomeAnimation || false;
   req.session.hasSeenWelcomeAnimation = true;
-
+  
   try {
-    // 🔹 Obtener las últimas 4 ventas del usuario actual
+    let allUsers = [];
+    let allReceipts = []; // AGREGAR ESTA LÍNEA
+    
+    if (req.session.user && req.session.user.role === 'admin') {
+      // Obtener usuarios
+      allUsers = await User.find({ role: 'user' }).lean();
+      
+      // AGREGAR: Obtener TODOS los recibos para admin
+      allReceipts = await Venta.aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+        { $sort: { fechaa: -1 } }
+      ]);
+    }
+
+    // Obtener las últimas ventas del usuario actual (para usuarios no-admin)
     const ventas = await Venta.find({ user: req.session.user.id })
       .sort({ fechaa: -1 })
-      // .limit(4)
-      .populate('productos.productoVenta') // trae info del producto
+      .populate('productos.productoVenta')
       .lean();
 
     req.session.save((err) => {
@@ -37,13 +58,15 @@ router.get('/home', isAuthenticated, async (req, res) => {
         titleMain: "Inicio",
         user: req.session.user,
         username: req.session.user.nombre,
+        allUsers, 
+        allReceipts, // AGREGAR ESTA LÍNEA
         hasSeenWelcomeAnimation: hasSeenWelcomeAnimation,
-        ventas // 👈 pasamos ventas a la vista
+        ventas
       });
     });
   } catch (err) {
-    console.error('Error cargando ventas:', err);
-    res.status(500).send('Error al cargar ventas');
+    console.error('Error cargando datos:', err);
+    res.status(500).send('Error al cargar la página');
   }
 });
 
@@ -196,12 +219,20 @@ router.post('/receipt_page', isAuthenticated, async (req, res) => {
 router.get('/receipt_page/:idVenta', isAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user.id;
-const ventaConProducto = await Venta.findOne({ _id: req.params.idVenta, user: userId })
-  .populate('productos.productoVenta')
-  .populate('vendedor')  // <-- esto trae el subusuario vendedor completo
-  .lean();
+    const isAdmin = req.session.user.role === 'admin';
+    
+    // Si es admin, puede ver cualquier recibo. Si no, solo sus propios recibos
+    const query = isAdmin 
+      ? { _id: req.params.idVenta } 
+      : { _id: req.params.idVenta, user: userId };
+    
+    const ventaConProducto = await Venta.findOne(query)
+      .populate('productos.productoVenta')
+      .populate('vendedor')
+      .lean();
 
     if (!ventaConProducto) return res.status(404).send('Recibo no encontrado');
+    
     res.render('receipt_page', {
       title: 'Recibo || Pago',
       venta: ventaConProducto,
@@ -237,9 +268,47 @@ router.get('/api/productos/activos', isAuthenticated, async (req, res) => {
 });
 
 
+// DELETE /user/receipts/:id -> solo el dueño puede eliminar
+router.delete('/user/receipts/:id', isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const receipt = await Venta.findById(id);
+    if (!receipt) return res.status(404).json({ message: 'Recibo no encontrado' });
+
+    // Solo el dueño puede borrar
+    if (receipt.user.toString() !== req.session.user.id) {
+      return res.status(403).json({ message: 'No tienes permiso para eliminar este recibo' });
+    }
+
+    await receipt.deleteOne();
+    res.json({ message: 'Recibo eliminado correctamente' });
+
+  } catch (err) {
+    console.error('Error al eliminar recibo:', err);
+    res.status(500).json({ message: 'Error interno al eliminar el recibo' });
+  }
+});
 
 
+router.get('/notifications', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const success = req.flash("success"); // Asegúrate de declarar success
 
+    res.render('notifications', {
+      title: 'Keku Inventory || Notificaciones',
+      titleMain: "Notificaciones",
+      success: success.length ? success[0] : null,
+      currentOption: "/notifications",
+      imageUrl: null,
+      user: req.session.user,
+    });
+  } catch (err) {
+    console.error('Error obteniendo notificaciones:', err);
+    res.status(500).json({ error: 'Error obteniendo notificaciones' });
+  }
+});
 
 router.get('/statistics', isAuthenticated, getDashboardData);
 

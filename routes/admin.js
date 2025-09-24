@@ -7,8 +7,8 @@ const RegisterUser = require('../models/RegisterUser');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const { deleteUserController } = require('../controllers/userController'); 
-const Sale = require('../models/Sell');
 
+const Venta = require('../models/Sell');
 // Listado de usuarios pendientes
 router.get('/pending', isAdmin, async (req, res) => {
   try {
@@ -174,6 +174,9 @@ router.post('/update/:id', isAdmin, async (req, res) => {
 });
 
 
+
+
+
 router.get('/statistics-admin', isAdmin, async (req, res) => {
   try {
     const salesByUser = await Sale.aggregate([
@@ -186,7 +189,7 @@ router.get('/statistics-admin', isAdmin, async (req, res) => {
       },
       {
         $lookup: {
-          from: 'users',
+          from: 'users', // nombre real de la colección
           localField: '_id',
           foreignField: '_id',
           as: 'user'
@@ -197,17 +200,58 @@ router.get('/statistics-admin', isAdmin, async (req, res) => {
 
     const allUsers = await User.find().lean();
 
-    res.render('admin/statistics/chartProduct', {
+    res.render('admin/statistics/chartSellUser', {
       title: 'Dashboard Ventas',
       salesByUser,
       allUsers,
-      currentOption: '/stadistics'
+      currentOption: '/statistics-admin'
     });
   } catch (err) {
     console.error('Error al cargar dashboard:', err);
     res.status(500).send('Error al cargar dashboard');
   }
 });
+
+
+
+// En tu archivo de rutas de admin
+router.get('/receipts-management', isAdmin, async (req, res) => {
+  try {
+    // Obtener todos los recibos con información del usuario
+    const allReceipts = await Venta.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      { $sort: { fechaa: -1 } } // Ordenar por fecha descendente
+    ]);
+
+    // Obtener todos los usuarios
+    const allUsers = await User.find({ role: 'user' }).lean();
+
+    res.render('home', {
+      title: 'Gestión de Recibos - Admin',
+      allReceipts,
+      allUsers,
+      user: req.session.user
+    });
+  } catch (error) {
+    console.error('Error loading receipts:', error);
+    res.status(500).send('Error al cargar los recibos');
+  }
+});
+
+
+
+
+
+
+
 
 router.delete('/users/:userId', isAdmin, deleteUserController);
 

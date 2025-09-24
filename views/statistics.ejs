@@ -37,17 +37,27 @@
 
     <%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
   </div>
-  <div style="padding: 1rem 2rem; overflow: auto;">
+  <%- include('./partials/statistics/statistics'); %>
+
+  <div class="container-mobile" style="padding: 1rem 2rem; overflow: auto;">
 <% if (user?.role === 'admin') { %>
+  <h2 style=" color: #00c853;">Grafica de Ventas</h2>
 <div class="alert alert-success" style="background: #00330020; color: #00c853; margin-bottom:10px;">
   Estás viendo <strong>estadísticas globales</strong> (toda la base de datos).
-  </div>
-  <%- include('./partials/admin/statistics/chartProduct', {salesByUser, allUsers}) %>
+  
+</div>
+  <%- include('./partials/admin/statistics/chartSellUser', {salesByUser, allUsers, isMobile}) %>
 
+  <%- include('./partials/admin/statistics/chartProducts', {productsByUser, allUsers, isMobile}) %>
 
 <% } else { %>
 <div class="alert alert-info" style="background: #00002010; color: #29b6f6; border: 1px solid #29b6f6;">
   Estás viendo <strong>tus estadísticas personales</strong>.
+</div>
+  <div class="swapy-container">
+  <%- include('./partials/statistics/charts/productos') %>
+  <%- include('./partials/statistics/charts/categorias') %>
+  <%- include('./partials/statistics/charts/clientes') %>
 </div>
 <% } %>
 </div>

@@ -1,0 +1,203 @@
+
+<!-- Filtros -->
+<div class="filters-container">
+    <div class="filter-group">
+        <label for="userFilter">Usuario:</label>
+        <select id="userFilter">
+            <option value="">Todos los usuarios</option>
+            <% (allUsers || []).forEach(function(u){ %>
+                <option value="<%= u._id %>"><%= u.nombre %></option>
+            <% }) %>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="medioFilter">Medio de pago:</label>
+        <select id="medioFilter">
+            <option value="">Todos</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="itemsPerPage">Por página:</label>
+        <select id="itemsPerPage">
+            <option value="12">12</option>
+            <option value="24" selected>24</option>
+            <option value="48">48</option>
+            <option value="-1">Todos</option>
+        </select>
+    </div>
+    <!-- Agregar después de los filtros existentes -->
+<div class="filter-group">
+    <label for="fechaDesde">Fecha desde:</label>
+    <input type="date" id="fechaDesde" style="padding: 8px 12px; border: 1px solid var(--app-content-secondary-color); border-radius: 4px; background-color: var(--app-content-secondary-color); color: var(--app-content-main-color); font-size: 14px;">
+</div>
+<div class="filter-group">
+    <label for="fechaHasta">Fecha hasta:</label>
+    <input type="date" id="fechaHasta" style="padding: 8px 12px; border: 1px solid var(--app-content-secondary-color); border-radius: 4px; background-color: var(--app-content-secondary-color); color: var(--app-content-main-color); font-size: 14px;">
+</div>
+<div class="filter-group">
+    <label>&nbsp;</label> <!-- Para alineación -->
+    <button onclick="limpiarFiltros()" style="padding: 8px 10px; background: var(--action-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-520h80v-280q0-17-11.5-28.5T480-840q-17 0-28.5 11.5T440-800v280ZM200-360h560v-80H200v80Zm-58 240h98v-80q0-17 11.5-28.5T280-240q17 0 28.5 11.5T320-200v80h120v-80q0-17 11.5-28.5T480-240q17 0 28.5 11.5T520-200v80h120v-80q0-17 11.5-28.5T680-240q17 0 28.5 11.5T720-200v80h98l-40-160H182l-40 160Zm676 80H142q-39 0-63-31t-14-69l55-220v-80q0-33 23.5-56.5T200-520h160v-280q0-50 35-85t85-35q50 0 85 35t35 85v280h160q33 0 56.5 23.5T840-440v80l55 220q13 38-11.5 69T818-40Zm-58-400H200h560Zm-240-80h-80 80Z"/></svg>
+    </button>
+</div>
+</div>
+
+<!-- Estadísticas -->
+<div class="stats-header">
+    <div class="stat-item">
+        <div class="stat-value" id="totalReceipts">0</div>
+        <div class="stat-label">Total Recibos</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="totalAmount">$0</div>
+        <div class="stat-label">Monto Total</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="averageAmount">$0</div>
+        <div class="stat-label">Promedio</div>
+    </div>
+</div>
+
+<!-- Lista de recibos -->
+<div class="contenedor-ventas" style="height: 100%;">
+    <div id="receiptsContainer" class="parent"></div>
+    <div id="noResultados" class="no-results" style="display:none;">
+        <p>No se encontraron recibos con los filtros aplicados.</p>
+        <lottie-player src="/Lottie/No_Receipts.json" background="transparent" speed="1"
+            style="width: 50%; height: 50%; margin: 0 auto; position: relative;" loop autoplay>
+        </lottie-player>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="editModal close" onclick="closeModal()">x</span>
+        <h3 >Editar Recibo</h3>
+        <form id="editForm">
+            <input type="hidden" id="editReceiptId">
+            <div class="form-group">
+                <label for="editTotal">Total:</label>
+                <input type="number" id="editTotal" required>
+            </div>
+            <div class="form-group">
+                <label for="editMedio">Medio de pago:</label>
+                <select id="editMedio" required>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Transferencia">Transferencia</option>
+                    <option value="Tarjeta">Tarjeta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editCliente">Nombre del cliente:</label>
+                <input type="text" id="editCliente">
+            </div>
+            <button type="submit" class="btn-save">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+// Pasar datos del servidor al JavaScript
+window.allReceipts = <%- JSON.stringify(allReceipts || []) %>;
+window.allUsers = <%- JSON.stringify(allUsers || []) %>;
+</script>
+<script src="/js/admin-receipts.js"></script>
+
+<script>
+// Función igual a la del usuario normal
+document.addEventListener("DOMContentLoaded", function () {
+    const buscadorAdmin = document.getElementById('buscadorCodigoAdmin');
+    const noResultados = document.getElementById('noResultados');
+
+    if (buscadorAdmin) {
+        buscadorAdmin.addEventListener('input', function () {
+            const filtro = this.value.toLowerCase();
+            const cards = document.querySelectorAll('.card[data-receipt-id]');
+            let visibles = 0;
+
+            cards.forEach(card => {
+                // Buscar en el texto de la card
+                const cardText = card.textContent.toLowerCase();
+                if (cardText.includes(filtro)) {
+                    card.style.display = '';
+                    visibles++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Mostrar mensaje si no hay resultados
+            if (visibles === 0 && filtro !== '') {
+                noResultados.style.display = 'block';
+            } else {
+                noResultados.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+
+<script>
+// Esto escucha el submit del formulario
+document.getElementById('editForm').addEventListener('submit', saveEdit);
+
+function saveEdit(e) {
+  e.preventDefault(); // ahora sí funciona
+
+  const receiptId = document.getElementById('editReceiptId').value;
+const updatedData = {
+  total: parseFloat(document.getElementById('editTotal').value),
+  medio: document.getElementById('editMedio').value,
+  nombrecliente: document.getElementById('editCliente').value
+};
+
+fetch(`/admin/receipts/${receiptId}`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(updatedData)
+})
+  .then(response => {
+    if (response.ok) {
+      // Actualizar localmente
+      const receipt = allReceipts.find(r => r._id === receiptId);
+      if (receipt) Object.assign(receipt, updatedData);
+
+      applyFilters(); // re-renderiza sin recargar
+      closeModal();
+
+      Swal.fire({
+        title: 'Recibo actualizado correctamente',
+        html: '<div id="lottie-container" style="width:150px;height:150px;margin:0 auto;"></div>',
+        showConfirmButton: false,
+        timer: 4000,
+        didOpen: () => {
+          lottie.loadAnimation({
+            container: document.getElementById('lottie-container'),
+            renderer: 'svg',
+            loop: false,
+            autoplay: true,
+            path: '/Lottie/update.json'
+          });
+        }
+      });
+
+    } else {
+      Swal.fire('Error', 'Error al actualizar el recibo', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    Swal.fire('Error', 'Error al actualizar el recibo', 'error');
+  });
+}
+
+</script>
+
+
+

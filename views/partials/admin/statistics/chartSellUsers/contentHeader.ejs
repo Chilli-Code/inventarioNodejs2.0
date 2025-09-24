@@ -1,0 +1,165 @@
+<style>
+    .app-content {
+        overflow: auto;
+    }
+  .puntos-perfil.is-active ul{
+    left: -86px !important;
+  }
+    /* Estilos específicos para la nueva card */
+  .stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  }
+  
+  .stat-card:nth-child(3) .stat-content {
+    color: white !important;
+  }
+  
+  .stat-card:nth-child(3) .stat-value {
+    color: white !important;
+  }
+
+  @media (max-width: 1200px) {
+.stats-summary > :nth-child(5) {
+    grid-column: span 2;
+}
+}
+
+
+/* En pantallas pequeñas, que no cause desbordes */
+@media (max-width: 600px) {
+    .stats-summary > :nth-child(5) {
+        grid-column: span 1;
+    }
+}
+
+
+</style>
+<!-- Controles mejorados con tu estilo -->
+ <button id="toggleFiltersBtn" class="mobile-filter-btn" style="display:none; margin-bottom:10px;">
+  filtros
+</button>
+<div class="controls-container" id="filtersDiv">
+    <div class="controls-row">
+        <div class="control-group">
+            <label for="userFilter">Filtrar Usuario:</label>
+            <select id="userFilter">
+                <option value="">Todos</option>
+                <% (allUsers || []).forEach(function(u){ %>
+                    <option value="<%= u._id %>"><%= u.nombre %></option>
+                <% }) %>
+            </select>
+        </div>
+                <div class="control-group">
+            <label for="statusFilter" >Estado de Usuario:</label>
+            <select id="statusFilter"> 
+                <option value="">Todos</option>
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="chartType" >Tipo de Gráfica:</label>
+            <select id="chartType"> 
+                <option value="bar">Barras</option>
+                <option value="horizontalBar">Barras Horizontales</option>
+                <option value="pie">Pastel</option>
+                <option value="doughnut">Dona</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="sortOrder" >Ordenar por:</label>
+            <select id="sortOrder"> 
+                <option value="desc">Mayor a Menor</option>
+                <option value="asc">Menor a Mayor</option>
+                <option value="name">Por Nombre (A-Z)</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="itemsPerPage" >Por página:</label>
+            <select id="itemsPerPage"> 
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="-1">Todos</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="minSales" >Ventas mínimas:</label>
+            <input type="number" id="minSales" placeholder="0" min="0"> 
+        </div>
+    </div>
+</div>
+
+<!-- Cards de estadísticas con tu estilo -->
+<div class="stats-summary" >
+    <!-- Card de Usuarios Activos -->
+    <div class="stat-card">
+        <div class="stat-overlay"></div>
+        <div class="stat-content" >
+            <div class="stat-title">👥 Usuarios Activos</div>
+            <div class="stat-value" id="totalUsers">0</div>
+            <div style="font-size: 0.8em; opacity: 0.8;">Vendedores registrados</div>
+        </div>
+    </div>
+
+    <!-- Card de Ventas Totales -->
+    <div class="stat-card">
+        <div class="stat-overlay"></div>
+        <div class="stat-content" >
+            <div class="stat-title">💰 Ventas Totales</div>
+            <div class="stat-value" id="totalSales">$0</div>
+            <div style="font-size: 0.8em; opacity: 0.8;">Ingresos acumulados</div>
+        </div>
+    </div>
+<div class="stat-card">
+    <div class="stat-overlay"></div>
+    <div class="stat-content">
+        <div class="stat-title">📦 Productos Vendidos</div>
+        <div class="stat-value" id="totalVentas">0</div>
+        <div style="font-size: 0.8em; opacity: 0.8;">Productos vendidos</div>
+    </div>
+</div>
+
+    <!-- Card de Promedio por Usuario -->
+    <div class="stat-card">
+        <div class="stat-overlay" ></div>
+        <div class="stat-content" >
+            <div class="stat-title">📊 Valor promedio por recibo</div>
+            <div class="stat-value" id="averageSales" style="color: #333;">$0</div>
+            <div style="font-size: 0.8em; opacity: 0.7; color: #666;">Venta promedio</div>
+        </div>
+    </div>
+
+
+    <!-- Card de Mejor Vendedor -->
+    <div class="stat-card">
+        <div class="stat-overlay"></div>
+        <div class="stat-content" >
+            <div class="stat-title">🏆 Mejor Vendedor</div>
+            <div class="stat-value" id="topSeller" style="color: #333;">-</div>
+            <div style="font-size: 0.8em; opacity: 0.7; color: #666;">Mejores resultados</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Controles de paginación -->
+<div class="pagination-controls">
+    <button id="prevPage">
+        <span style="font-size: 1.1em;">←</span>
+    </button>
+    <div class="pagination-info" id="pageInfo">Página 1 de 1</div>
+    <button id="nextPage">
+         <span style="font-size: 1.1em;">→</span>
+    </button>
+</div>
+
+<!-- Contenedor del gráfico -->
+<div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
+    <canvas id="salesChart" width="400" height="200"></canvas>
+</div>
+

@@ -15,6 +15,8 @@ const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/settings');
 const compression = require('compression');
 const subUserRoutes = require('./routes/subusers');
+
+
 dotenv.config();
 
 const app = express();
@@ -43,6 +45,8 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 
 // Middlewares
+app.use(express.json()); // ← esto permite recibir JSON
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('layout', 'layout');
@@ -79,11 +83,12 @@ app.use('/api', apiRoutes);
 app.use('/listUsers', adminRoutes);
 app.use('/subusers', subUserRoutes);
 app.use('/settings', profileRoutes);
+app.use('/admin', adminRoutes);
+app.use('/admin', require('./routes/adminReceipts'));
 
 // Ruta raíz
 app.get('/', (req, res) => {
   const isMobile = /mobile|android|iphone|ipad/i.test(req.headers['user-agent']);
-  
   res.render('index', { 
     title: "Inicio",  
     currentOption: req.path,

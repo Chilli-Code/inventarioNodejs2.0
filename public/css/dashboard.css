@@ -790,7 +790,9 @@ button, select {
     align-items: center;
     word-break:break-word;
 }
-
+.filter-group button{
+    transform: scale(0.976651);
+}
 
 .tableView .sort-button {
     padding: 0;

@@ -154,6 +154,11 @@ header {
     min-height: 100vh;
     background-color: transparent;
 }
+@media (max-width: 1024px) {
+    .hero-section{
+        padding: 5rem 0rem;
+    }
+}
 
 .hero-grid {
     display: grid;
@@ -166,6 +171,8 @@ header {
     .hero-grid {
         grid-template-columns: 1fr 1fr;
     }
+
+    
 }
 
 .hero-content {

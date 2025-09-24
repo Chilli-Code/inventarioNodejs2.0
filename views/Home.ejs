@@ -1,28 +1,29 @@
 <style>
+  .contenedor-ventas {
+    min-height: initial !important;
+    padding: 30px 0px !important;
+  }
 
-.contenedor-ventas{
-  min-height: initial !important;
-  padding: 30px 0px !important;
-}
-.app-content-actions {
+  .app-content-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 16px 4px;
-}
+  }
 
-@media(max-width: 768px){
-  .app-content-actions {
+  @media(max-width: 768px) {
+    .app-content-actions {
       flex-direction: column;
+    }
   }
-}
 
-@media(max-width: 466px){
-  .contenedor-ventas{
-    margin-bottom: 100px;
+  @media(max-width: 466px) {
+    .contenedor-ventas {
+      margin-bottom: 100px;
+    }
   }
-}
-.search-bar {
+
+  .search-bar {
     background-color: var(--app-content-secondary-color);
     border: 1px solid var(--app-content-secondary-color);
     color: var(--app-content-main-color);
@@ -38,166 +39,283 @@
     width: 100%;
     max-width: 320px;
     transition: 0.2s;
-}
-.search-bar:hover {
+  }
+
+  .search-bar:hover {
     border-color: var(--action-color-hover);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236291fd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-search'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-}
-.search-bar:focus {
+  }
+
+  .search-bar:focus {
     outline: none;
     border-color: var(--action-color);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232869ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-search'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-}
+  }
+
+  .btnDelete {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    align-items: center;
+    background: rgb(230 5 54 / 58%);
+    padding:5px 5px;
+    margin: 2px 3px;
+    border-radius: 4px;
+    color: #fff;
+    border: none;
+
+  }
+  .card-info-preview{
+    padding: 0px 3px;
+  }
 </style>
 <%- include('./partials/header/layout') %>
 
-<%- include('./partials/navigation/navigation'); %>
-</div>
-
-<% if (user && !hasSeenWelcomeAnimation) { %>
-<audio id="sound-welcome" src="/sounds/click.mp3" preload="auto"></audio>
-
-<script>
-  const lottiePath = '/Lottie/welcome-animation.json';
-     const sonido = document.getElementById('sound-welcome');
-    let sonidoReproducido = false;
-    const reproducirSonidoBienvenida = () => {
-      if (!sonidoReproducido && sonido) {
-        sonido.play().then(() => {
-          sonidoReproducido = true;
-          console.log("✅ Sonido de bienvenida reproducido.");
-        }).catch(error => {
-          console.warn("⚠️ Error al reproducir sonido:", error);
-        });
-      }
-
-      // Eliminar el listener después del primer intento
-      document.removeEventListener("click", reproducirSonidoBienvenida);
-    };
-    document.addEventListener("click", reproducirSonidoBienvenida);
-
-  Swal.fire({
-    title: '¡Bienvenido!',
-    html: `<h2 style="color:#22d358f7;"> <%= user.nombre %></h2><div class="lottie-animation" style="height: 230px; overflow:hidden;" data-animation-path="/Lottie/welcome-animation.json"></div>`,
-    confirmButtonText: 'Cerrar',
-    timerProgressBar: true,
-  });
-</script>
-<% hasSeenWelcomeAnimation=true; %>
-<% } %>
-<div class="app-content-actions">
-  <div></div>
-  <h3 style="color:var(--app-content-main-color);">Ultimas Ventas
-    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="icon">
-      <path d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z" />
-    </svg>
-  </h3>
-  <input class="search-bar" placeholder="Buscar..." type="number" id="buscadorCodigo">
-
-</div>
-<div class="app-content-inicio">
-  <div class="contenedor-ventas">
-    <div class="cont-producto cont-card">
-<div class="parent">
-<% if (ventas && ventas.length > 0) { %>
-  <% ventas.forEach((v, index) => { 
-       const partesFecha = v.fechaa.split(' - ');
-       const soloFecha = partesFecha[0];
-       const soloHora = partesFecha[1];
-  %>
-    <a href="/receipt_page/<%= v._id %>" 
-       class="card-link"
-       data-codigo="<%= v.codigo %>">
-      <div class="div card">
-        <p class="medio">Medio: <%= v.medio %></p>
-        <div class="fecha-container">
-          <span class="fecha-dia total"><%= soloFecha %></span>
-          <span class="fecha-hora total"><%= soloHora %></span>
-        </div>
-        <svg class="barcode" 
-             jsbarcode-value="<%= v.codigo %>" 
-             jsbarcode-textmargin="0" 
-             jsbarcode-fontoptions="bold" 
-             jsbarcode-height="50"
-             id="barcode-<%= index %>">
-        </svg>
-        <p class="total">Total: <%= v.total.toLocaleString() %> COP</p>
-      </div>
-    </a>
-  <% }) %>
-<% } %>
-</div>
-
-<% if (!(ventas && ventas.length > 0)) { %>
-  <div style="text-align:center; margin-top:15px; width: 100%;">
-    <p style="color:#ff4d4d; font-weight:bold;">No hay ventas recientes</p>
-      <lottie-player 
-      src="/Lottie/No_receipts2.0.json"  
-      background="transparent"  
-      speed="1"  
-      style="width: 225px; height: 225px; margin: 0 auto;"  
-      loop  
-      autoplay>
-  </lottie-player>
-  </div>
-<% } %>
-
-
-<div id="noResultados" style="display:none; text-align:center; margin-top:15px;">
-  <p style="color:#ff4d4d; font-weight:bold;">No se encontraron ventas con ese código.</p>
-  <lottie-player 
-      src="/Lottie/No_Receipts.json"  
-      background="transparent"  
-      speed="1"  
-      style="width: 50%; height: 100%; margin: 0 auto;"  
-      loop  
-      autoplay>
-  </lottie-player>
-</div>
+  <%- include('./partials/navigation/navigation'); %>
     </div>
-    
-  </div>
-</div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  JsBarcode(".barcode").init();
+    <% if (user && !hasSeenWelcomeAnimation) { %>
+      <audio id="sound-welcome" src="/sounds/click.mp3" preload="auto"></audio>
+      <script>
+        const lottiePath = '/Lottie/welcome-animation.json';
+        const sonido = document.getElementById('sound-welcome');
+        let sonidoReproducido = false;
+        const reproducirSonidoBienvenida = () => {
+          if (!sonidoReproducido && sonido) {
+            sonido.play().then(() => {
+              sonidoReproducido = true;
+              console.log("✅ Sonido de bienvenida reproducido.");
+            }).catch(error => {
+              console.warn("⚠️ Error al reproducir sonido:", error);
+            });
+          }
 
-  const buscador = document.getElementById('buscadorCodigo');
-  const cards = document.querySelectorAll('.card-link');
-  const noResultados = document.getElementById('noResultados');
+          // Eliminar el listener después del primer intento
+          document.removeEventListener("click", reproducirSonidoBienvenida);
+        };
+        document.addEventListener("click", reproducirSonidoBienvenida);
 
-  // Si no hay cards desde el inicio, no usar buscador
-  if (cards.length === 0) {
-    noResultados.style.display = 'none';
-    noResultados.style.display = 'none';
+        Swal.fire({
+          title: '¡Bienvenido!',
+          html: `<h2 style="color:#22d358f7;"> <%= user.nombre %></h2><div class="lottie-animation" style="height: 230px; overflow:hidden;" data-animation-path="/Lottie/welcome-animation.json"></div>`,
+          confirmButtonText: 'Cerrar',
+          timerProgressBar: true,
+        });
+      </script>
+      <% hasSeenWelcomeAnimation=true; %>
+        <% } %>
+          <div class="app-content-actions">
 
-    return;
-  }
+            <div></div>
+            <% if (user && user.role==='admin' ) { %>
+              <h3 style="color:var(--app-content-main-color);">
+                Gestión de Recibos - Admin
+              </h3>
+              <input class="search-bar" placeholder="Buscar por código..." type="number" id="buscadorCodigoAdmin">
+              <% } else { %>
+                <!-- aquí tu contenido normal -->
+                <h3 style="color:var(--app-content-main-color);">Ultimas Ventas
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="currentColor" class="icon">
+                    <path
+                      d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z" />
+                  </svg>
+                </h3>
+                <input class="search-bar" placeholder="Buscar..." type="number" id="buscadorCodigo">
+                <% } %>
 
-  buscador.addEventListener('input', function () {
-    const filtro = this.value.toLowerCase();
-    let visibles = 0;
+          </div>
+          <div class="app-content-inicio">
+            <% if (user.role==='admin' ) { %>
+              <div>
+                <%- include('./partials/admin/home/homeAdmin'); %>
+              </div>
+              <% } else { %>
+                <!-- MOVER TODO EL CONTENIDO DE RECIBOS AQUÍ -->
+                <div class="contenedor-ventas">
+                  <div class="cont-producto cont-card">
+                    <div class="parent">
+                      <% if (ventas && ventas.length> 0) { %>
+                        <% ventas.forEach((v, index)=> {
+                          const partesFecha = v.fechaa.split(' - ');
+                          const soloFecha = partesFecha[0];
+                          const soloHora = partesFecha[1];
+                          %>
+                          <div class="card-link">
+                            <button class="btn-action btnDelete" style="position: absolute; z-index: 2;"
+                              onclick="deleteReceiptUser('<%= v._id %>')">
+                              <svg id="Layer_1" data-name="Layer 1" height="18px" fill="#fff"
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 105.16 122.88">
+                                <defs>
+                                  <style>
+                                    .cls-1 {
+                                      fill-rule: evenodd;
+                                    }
+                                  </style>
+                                </defs>
+                                <title>Eliminar</title>
+                                <path class="cls-1"
+                                  d="M11.17,37.16H94.65a8.4,8.4,0,0,1,2,.16,5.93,5.93,0,0,1,2.88,1.56,5.43,5.43,0,0,1,1.64,3.34,7.65,7.65,0,0,1-.06,1.44L94,117.31v0l0,.13,0,.28v0a7.06,7.06,0,0,1-.2.9v0l0,.06v0a5.89,5.89,0,0,1-5.47,4.07H17.32a6.17,6.17,0,0,1-1.25-.19,6.17,6.17,0,0,1-1.16-.48h0a6.18,6.18,0,0,1-3.08-4.88l-7-73.49a7.69,7.69,0,0,1-.06-1.66,5.37,5.37,0,0,1,1.63-3.29,6,6,0,0,1,3-1.58,8.94,8.94,0,0,1,1.79-.13ZM5.65,8.8H37.12V6h0a2.44,2.44,0,0,1,0-.27,6,6,0,0,1,1.76-4h0A6,6,0,0,1,43.09,0H62.46l.3,0a6,6,0,0,1,5.7,6V6h0V8.8h32l.39,0a4.7,4.7,0,0,1,4.31,4.43c0,.18,0,.32,0,.5v9.86a2.59,2.59,0,0,1-2.59,2.59H2.59A2.59,2.59,0,0,1,0,23.62V13.53H0a1.56,1.56,0,0,1,0-.31v0A4.72,4.72,0,0,1,3.88,8.88,10.4,10.4,0,0,1,5.65,8.8Zm42.1,52.7a4.77,4.77,0,0,1,9.49,0v37a4.77,4.77,0,0,1-9.49,0v-37Zm23.73-.2a4.58,4.58,0,0,1,5-4.06,4.47,4.47,0,0,1,4.51,4.46l-2,37a4.57,4.57,0,0,1-5,4.06,4.47,4.47,0,0,1-4.51-4.46l2-37ZM25,61.7a4.46,4.46,0,0,1,4.5-4.46,4.58,4.58,0,0,1,5,4.06l2,37a4.47,4.47,0,0,1-4.51,4.46,4.57,4.57,0,0,1-5-4.06l-2-37Z">
+                                </path>
+                              </svg>
+                            </button>
+                            <a href="/receipt_page/<%= v._id %>" data-codigo="<%= v.codigo %>"
+                              style="text-decoration:none;">
+                              <div class="div card" data-receipt-id="<%= v._id %>">
+                                <div class="card-info-preview">
+                                  <div>
+                                    <p class="medio">Medio:</p>
+                                    <p><%= v.medio %></p>
+                                  </div>
+                                  <div class="fecha-container">
+                                    <span class="fecha-dia total">
+                                      <%= soloFecha %>
+                                    </span>
+                                    <span class="fecha-hora total">
+                                      <%= soloHora %>
+                                    </span>
+                                  </div>
+                                  </div>
+                                  <svg class="barcode" jsbarcode-value="<%= v.codigo %>" jsbarcode-textmargin="0"
+                                    jsbarcode-fontoptions="bold" jsbarcode-height="50" id="barcode-<%= index %>">
+                                  </svg>
+                                  <p class="total">Total: <%= v.total.toLocaleString() %> COP</p>
+                                
+                                  </div>
+                            </a>
 
-    cards.forEach(card => {
-      const codigoAttr = card.getAttribute('data-codigo');
-      const codigo = codigoAttr ? codigoAttr.toLowerCase() : '';
-      if (codigo.includes(filtro)) {
-         card.style.display = '';
-        visibles++;
-      } else {
-        card.style.display = 'none';
-      }
-    });
+                          </div>
+                          <% }) %>
+                            <% } %>
+                    </div>
 
-    // Mostrar Lottie solo cuando hay ventas pero no hay coincidencias
-    if (visibles === 0 && filtro !== '') {
-      noResultados.style.display = 'block';
-    } else {
-      noResultados.style.display = 'none';
-    }
-  });
-});
-</script>
+                    <% if (!(ventas && ventas.length> 0)) { %>
+                      <div style="text-align:center; margin-top:15px; width: 100%;">
+                        <p style="color:#ff4d4d; font-weight:bold;">No hay ventas recientes</p>
+                        <lottie-player src="/Lottie/No_receipts2.0.json" background="transparent" speed="1"
+                          style="width: 225px; height: 225px; margin: 0 auto;" loop autoplay>
+                        </lottie-player>
+                      </div>
+                      <% } %>
 
+                        <div id="noResultados" style="display:none; text-align:center; margin-top:15px;">
+                          <p style="color:#ff4d4d; font-weight:bold;">No se encontraron ventas con ese código.</p>
+                          <lottie-player src="/Lottie/No_Receipts.json" background="transparent" speed="1"
+                            style="width: 50%; height: 100%; margin: 0 auto;" loop autoplay>
+                          </lottie-player>
+                        </div>
+                  </div>
+                </div>
+                <% } %>
+          </div>
+          <% if (user.role==='admin' ) { %>
+            <div class="pagination-controls" id="paginationControls">
+              <button id="prevPage">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                  fill="currentColor" class="icon">
+                  <path
+                    d="m480-320 56-56-64-64h168v-80H472l64-64-56-56-160 160 160 160Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                </svg>
+              </button>
+              <div class="pagination-info" id="pageInfo">1 de 1</div>
+              <button id="nextPage">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                  fill="currentColor" class="icon">
+                  <path
+                    d="m480-320 160-160-160-160-56 56 64 64H320v80h168l-64 64 56 56Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                </svg>
+              </button>
+            </div>
+            <% } %>
+              <% if (user.role !=='admin' ) { %>
+                <script>
+                  document.addEventListener("DOMContentLoaded", function () {
+                    JsBarcode(".barcode").init();
 
+                    const buscador = document.getElementById('buscadorCodigo');
+                    const cards = document.querySelectorAll('.card-link');
+                    const noResultados = document.getElementById('noResultados');
+
+                    // Si no hay cards desde el inicio, no usar buscador
+                    if (cards.length === 0) {
+                      noResultados.style.display = 'none';
+                      noResultados.style.display = 'none';
+
+                      return;
+                    }
+
+                    buscador.addEventListener('input', function () {
+                      const filtro = this.value.toLowerCase();
+                      let visibles = 0;
+
+                      cards.forEach(card => {
+                        const codigoAttr = card.getAttribute('data-codigo');
+                        const codigo = codigoAttr ? codigoAttr.toLowerCase() : '';
+                        if (codigo.includes(filtro)) {
+                          card.style.display = '';
+                          visibles++;
+                        } else {
+                          card.style.display = 'none';
+                        }
+                      });
+
+                      // Mostrar Lottie solo cuando hay ventas pero no hay coincidencias
+                      if (visibles === 0 && filtro !== '') {
+                        noResultados.style.display = 'block';
+                      } else {
+                        noResultados.style.display = 'none';
+                      }
+                    });
+                  });
+                </script>
+                <script>
+                  function deleteReceiptUser(id) {
+                    Swal.fire({
+                      title: '¿Estás seguro?',
+                      text: 'Esta acción eliminará tu recibo permanentemente',
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: 'Sí, eliminar',
+                      cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        fetch(`/user/receipts/${id}`, {
+                          method: 'DELETE'
+                        }) // <-- URL corregida
+                          .then(res => res.json())
+                          .then(data => {
+                            if (data.message) {
+                              Swal.fire({
+                                title: 'Recibo eliminado',
+                                html: '<div id="lottie-container" style="width:150px;height:150px;margin:0 auto;"></div>',
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                timer: 3000,
+                                didOpen: () => {
+                                  lottie.loadAnimation({
+                                    container: document.getElementById('lottie-container'),
+                                    renderer: 'svg',
+                                    loop: true,
+                                    autoplay: true,
+                                    path: '/Lottie/delete.json'
+                                  });
+                                }
+                              });
+
+            setTimeout(() => {
+              location.reload();
+            }, 3000);
+
+                            } else {
+                              Swal.fire('Error', 'No se pudo eliminar el recibo', 'error');
+                            }
+                          })
+                          .catch(() => {
+                            Swal.fire('Error', 'Hubo un problema al eliminar el recibo', 'error');
+                          });
+                      }
+                    });
+                  }
+                </script>
+
+                <% } %>

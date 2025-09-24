@@ -1,0 +1,68 @@
+
+  <div style="margin-top: 30px; padding: 25px 12px; background-color: var(--app-content-secondary-color); border: 1px solid var(--sidebar-active-link); border-radius: 15px;">
+    <h2 style=" color: #00c853;">Grafica de Prodcutos</h2>
+        <!-- Controles para productos -->
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+        <div class="control-group">
+            <label for="productUserFilter" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Usuario:</label>
+            <select id="productUserFilter" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+                <option value=""  style="color:#000">Todos los usuarios</option>
+                <% (allUsers || []).forEach(function(u){ %>
+                    <option style="color:#000" value="<%= u._id %>"><%= u.nombre %></option>
+                <% }) %>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="productChartType" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Tipo de gráfica:</label>
+            <select id="productChartType" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+                <option value="bar"style="color:#000" >Barras</option>
+                <option value="bar-horizontal"style="color:#000" >Barras Horizontales</option>
+                <option value="pie"style="color:#000" >Pastel</option>
+                <option value="doughnut"style="color:#000" >Dona</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="productMetric" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Métrica:</label>
+            <select id="productMetric" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+                <option value="totalProductos"style="color:#000" >Total de Productos</option>
+                <option value="productosActivos"style="color:#000" >Productos Activos</option>
+                <option value="totalVentas"style="color:#000" >Ventas Realizadas</option>
+                <option value="valorInventario"style="color:#000" >Valor de Inventario</option>
+            </select>
+        </div>
+<div class="control-group">
+    <label for="productsItemsPerPage">Por página:</label>
+    <select id="productsItemsPerPage" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+        <option value="4" style="color: #000;">4</option>
+        <option value="24" selected style="color: #000;">24</option>
+        <option value="48" style="color: #000;">48</option>
+        <option value="-1" style="color: #000;">Todos</option>
+    </select>
+</div>
+    </div>
+    <!-- Agregar en los controles -->
+    <div class="control-group">
+        <label for="productSearch" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Buscar usuario:</label>
+        <input type="text" id="productSearch" placeholder="Nombre del usuario..." style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+    </div>
+
+    
+  </div>
+
+<div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin: 30px 0; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
+    <div style="position: relative; height: 400px;">
+        <canvas id="productsChart"></canvas>
+    </div>
+</div>
+<!-- Controles de paginación -->
+<div class="pagination-controls">
+    <button id="productsPrevPage">
+        <span style="font-size: 1.1em;">←</span>
+    </button>
+    <div class="pagination-info" id="productsPaginationInfo">Página 1 de 1</div>
+    <button id="productsNextPage">
+         <span style="font-size: 1.1em;">→</span>
+    </button>
+</div>
