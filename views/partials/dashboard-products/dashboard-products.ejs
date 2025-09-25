@@ -115,7 +115,9 @@
             </svg>
           </a>
 </div>
-<a href="/products/delete/<%= data[i]._id %>" class="Menu-opciones-articulos-eliminar del-btn" onclick="event.preventDefault(); Swal.fire({
+<a href="#" class="Menu-opciones-articulos-eliminar del-btn" 
+   onclick="event.preventDefault();
+    Swal.fire({
         title: '¿Estás seguro de que quieres eliminar este elemento?',
         icon: 'warning',
         showCancelButton: true,
@@ -125,7 +127,45 @@
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = '/products/delete/<%= data[i]._id %>';
+            fetch('/products/<%= data[i]._id %>', {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // 🔹 aquí mostramos el Swal con Lottie
+                    Swal.fire({
+                      title: `<span style='color:#2ba972;'>${data.message}</span>`,
+                      icon: '',
+                      html: `<div class='lottie-animation' style='height: 140px; overflow: hidden;'
+                              data-animation-path='/Lottie/delete.json'></div>`,
+                      confirmButtonText: 'Cerrar',
+                      timerProgressBar: true,
+                      timer: 2000
+                    }).then(() => {
+                      location.reload();
+                    });
+
+                    // inicializar Lottie (si usas bodymovin)
+                    if (window.bodymovin) {
+                      const container = document.querySelector('.swal2-html-container .lottie-animation');
+                      bodymovin.loadAnimation({
+                        container: container,
+                        renderer: 'svg',
+                        loop: false,
+                        autoplay: true,
+                        path: '/Lottie/delete.json'
+                      });
+                    }
+
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error', 'Hubo un problema al eliminar el producto', 'error');
+            });
         }
     })">
 

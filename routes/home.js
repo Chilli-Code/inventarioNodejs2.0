@@ -269,6 +269,7 @@ router.get('/api/productos/activos', isAuthenticated, async (req, res) => {
 
 
 // DELETE /user/receipts/:id -> solo el dueño puede eliminar
+// DELETE /user/receipts/:id
 router.delete('/user/receipts/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params;
@@ -281,14 +282,31 @@ router.delete('/user/receipts/:id', isAuthenticated, async (req, res) => {
       return res.status(403).json({ message: 'No tienes permiso para eliminar este recibo' });
     }
 
+    // 🔹 Revertir las ventas de cada producto
+    for (const item of receipt.productos) {
+      if (item.productoVenta) {
+        await Product.findByIdAndUpdate(
+          item.productoVenta,
+          {
+            $inc: {
+              ventas: -item.cantidadVenta, // restar ventas
+              cantidad: +item.cantidadVenta // devolver stock si quieres
+            }
+          }
+        );
+      }
+    }
+
     await receipt.deleteOne();
-    res.json({ message: 'Recibo eliminado correctamente' });
+
+    res.json({ message: 'Recibo eliminado y ventas actualizadas correctamente' });
 
   } catch (err) {
     console.error('Error al eliminar recibo:', err);
     res.status(500).json({ message: 'Error interno al eliminar el recibo' });
   }
 });
+
 
 
 router.get('/notifications', isAuthenticated, async (req, res) => {

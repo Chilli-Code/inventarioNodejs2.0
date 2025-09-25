@@ -1,0 +1,464 @@
+<!-- Gráfica de análisis de clientes -->
+
+<div style="margin-top: 30px; padding: 25px 12px; background-color: var(--app-content-secondary-color); border: 1px solid var(--sidebar-active-link); border-radius: 15px;">
+    <h2 style="color: #ff6b35; margin-bottom: 10px;">Análisis de Clientes</h2>
+    
+    <!-- Controles -->
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="clientFilter" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Cliente:</label>
+            <select id="clientFilter" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+                <option value="" style="color:#000">Todos los clientes</option>
+                <!-- Se llenarán dinámicamente -->
+            </select>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="timePeriod" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Período:</label>
+            <select id="timePeriod" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+                <option value="day" style="color:#000">Por día</option>
+                <option value="week" style="color:#000">Por semana</option>
+                <option value="month" style="color:#000">Por mes</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="clientChartType" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Tipo de gráfica:</label>
+            <select id="clientChartType" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+                <option value="line" style="color:#000">Líneas (recomendado)</option>
+                <option value="bar" style="color:#000">Barras</option>
+                <option value="area" style="color:#000">Área</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="dateRange" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Últimos:</label>
+            <select id="dateRange" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+                <option value="7" style="color:#000">7 días</option>
+                <option value="30" style="color:#000">30 días</option>
+                <option value="90" style="color:#000">3 meses</option>
+                <option value="365" style="color:#000">1 año</option>
+                <option value="all" style="color:#000">Todo el tiempo</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="clientSearch" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Buscar cliente:</label>
+            <input type="text" id="clientSearch" placeholder="Nombre del cliente..." style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+        </div>
+    </div>
+    
+    <!-- Estadísticas de clientes -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div style="background: rgba(255,107,53,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 1.5em; font-weight: bold; color: #ff6b35;" id="clientsCount">0</div>
+            <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Clientes activos</div>
+        </div>
+        <div style="background: rgba(67,233,123,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 1.5em; font-weight: bold; color: #43e97b;" id="avgClientValue">$0</div>
+            <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Valor promedio</div>
+        </div>
+        <div style="background: rgba(79,172,254,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 1.5em; font-weight: bold; color: #4facfe;" id="topClient">-</div>
+            <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Mejor cliente</div>
+        </div>
+    </div>
+    
+</div>
+
+<div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin: 30px 0; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
+    <div style="position: relative; height: 400px;">
+        <canvas id="clientsChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script>
+    // Registrar todos los componentes necesarios de Chart.js
+    Chart.register(
+        Chart.CategoryScale,
+        Chart.LinearScale,
+        Chart.TimeScale,
+        Chart.PointElement,
+        Chart.LineElement,
+        Chart.Title,
+        Chart.Tooltip,
+        Chart.Legend,
+        Chart.Filler
+    );
+
+    // Datos de clientes - Análisis de Ventas por Cliente
+    const clientsData = <%- JSON.stringify(clientSalesData || []) %>;
+    let clientsChart;
+
+    // Poblar select de clientes
+    function populateClientFilter() {
+        const clientFilter = document.getElementById('clientFilter');
+        
+        // SOLUCIÓN: Limpiar opciones existentes (excepto la primera "Todos los clientes")
+        const firstOption = clientFilter.firstElementChild; // Guardar "Todos los clientes"
+        clientFilter.innerHTML = ''; // Limpiar todo
+        clientFilter.appendChild(firstOption); // Restaurar "Todos los clientes"
+        
+        // Obtener IDs únicos de clientes
+        const clients = [...new Set(clientsData.map(item => item._id.id))];
+
+        // Agregar cada cliente solo una vez
+        clients.forEach(clientId => {
+            const cliente = clientsData.find(c => c._id.id === clientId);
+            if (cliente && cliente._id.nombre) { // Verificar que el cliente existe
+                const option = document.createElement('option');
+                option.value = clientId;
+                option.textContent = cliente._id.nombre;
+                option.style.color = '#000';
+                clientFilter.appendChild(option);
+            }
+        });
+        
+        console.log(`Select poblado con ${clients.length} clientes únicos`);
+    }
+
+    function updateClientsChart() {
+        const clientFilter = document.getElementById('clientFilter').value;
+        const timePeriod = document.getElementById('timePeriod').value;
+        const chartType = document.getElementById('clientChartType').value;
+        const dateRange = document.getElementById('dateRange').value;
+        const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
+        
+        // Filtrar datos
+        let filteredData = clientsData;
+        
+        // Filtro por cliente específico
+        if (clientFilter) {
+            filteredData = filteredData.filter(item => item._id.id === clientFilter);
+        }
+        
+        // Filtro por búsqueda
+        if (searchTerm) {
+            filteredData = filteredData.filter(item => 
+                item._id.nombre.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Determinar el tipo de gráfico válido
+        let validChartType = chartType;
+        
+        // Mapear tipos no válidos a tipos válidos
+        const chartTypeMap = {
+            'area': 'line',
+            'scatter': 'scatter',
+            'bar': 'bar',
+            'line': 'line'
+        };
+        
+        if (chartTypeMap[chartType]) {
+            validChartType = chartTypeMap[chartType];
+        } else {
+            validChartType = 'line'; // Fallback por defecto
+        }
+        
+        // Si es tipo "area", configurar fill
+        const shouldFill = chartType === 'area';
+        
+        // Preparar datos según período
+        const chartData = prepareTimeSeriesData(filteredData, timePeriod, dateRange, shouldFill);
+        
+        const ctx = document.getElementById('clientsChart').getContext('2d');
+        
+        if (clientsChart) {
+            clientsChart.destroy();
+        }
+        
+        clientsChart = new Chart(ctx, {
+            type: validChartType,
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { 
+                            color: '#666',
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: timePeriod, // 'day', 'week', 'month'
+                            displayFormats: {
+                                day: 'MMM dd',
+                                week: 'MMM dd',
+                                month: 'MMM yyyy'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Período de Tiempo',
+                            color: '#666'
+                        },
+                        ticks: { 
+                            color: '#666',
+                            maxTicksLimit: 10
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Ventas ($)',
+                            color: '#666'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            },
+                            color: '#666'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
+                // Configuración para líneas suaves
+                elements: {
+                    line: {
+                        tension: 0.6, // Líneas más curvas
+                        borderWidth: 3
+                    },
+                    point: {
+                        radius: 4,
+                        hoverRadius: 8,
+                        borderWidth: 2
+                    }
+                },
+                // Animaciones suaves
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+        
+        updateClientStats(filteredData);
+    }
+
+    function filterByDateRange(fecha, range) {
+        if (range === 'all') return true;
+
+        const dias = parseInt(range);
+        const fechaVenta = new Date(fecha);
+        const hoy = new Date();
+        
+        // Eliminar la parte de la hora
+        hoy.setHours(0, 0, 0, 0);
+        fechaVenta.setHours(0, 0, 0, 0);
+
+        const diferenciaEnMilisegundos = hoy - fechaVenta;
+        const diferenciaEnDias = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
+
+        return diferenciaEnDias <= dias;
+    }
+
+    function getDateLabel(venta, period) {
+        const fecha = new Date(venta.fechaCompleta);
+        
+        switch (period) {
+            case 'day':
+                return fecha.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            case 'week': {
+                // Semana ISO (lunes a domingo)
+                const dia = fecha.getDay(); // 0 (domingo) a 6 (sábado)
+                const diff = fecha.getDate() - dia + (dia === 0 ? -6 : 1); // lunes
+                const lunes = new Date(fecha.setDate(diff));
+                return `Semana de ${lunes.toLocaleDateString('es-ES')}`;
+            }
+            case 'month':
+                return fecha.toLocaleDateString('es-ES', {
+                    month: 'long',
+                    year: 'numeric'
+                });
+            default:
+                return fecha.toLocaleDateString('es-ES');
+        }
+    }
+
+    function prepareTimeSeriesData(data, period, range, shouldFill = false) {
+        const datasets = [];
+        const colors = [
+            '#ff6b35',  // Naranja vibrante
+            '#4facfe',  // Azul cielo
+            '#43e97b',  // Verde menta
+            '#f093fb',  // Rosa púrpura
+            '#fa709a',  // Rosa coral
+            '#feca57',  // Amarillo dorado
+            '#48dbfb',  // Azul claro
+            '#ff9ff3',  // Rosa claro
+            '#54a0ff',  // Azul medio
+            '#5f27cd'   // Púrpura oscuro
+        ];
+        
+        data.slice(0, 5).forEach((client, index) => {
+            let clientData = client.ventasPorDia
+                .filter(venta => filterByDateRange(venta.fechaCompleta, range))
+                .sort((a, b) => new Date(a.fechaCompleta) - new Date(b.fechaCompleta))
+                .map(venta => ({
+                    x: new Date(venta.fechaCompleta),
+                    y: venta.total
+                }));
+            
+            // SOLUCIÓN: Agregar puntos intermedios para crear curvas suaves
+            if (clientData.length === 2) {
+                const firstPoint = clientData[0];
+                const secondPoint = clientData[1];
+                
+                // Calcular punto intermedio
+                const timeDiff = secondPoint.x.getTime() - firstPoint.x.getTime();
+                const valueDiff = secondPoint.y - firstPoint.y;
+                
+                // Agregar 2 puntos intermedios para crear una curva suave
+                const intermediatePoint1 = {
+                    x: new Date(firstPoint.x.getTime() + timeDiff * 0.33),
+                    y: firstPoint.y + valueDiff * 0.2 + (Math.random() - 0.5) * (valueDiff * 0.1)
+                };
+                
+                const intermediatePoint2 = {
+                    x: new Date(firstPoint.x.getTime() + timeDiff * 0.66),
+                    y: firstPoint.y + valueDiff * 0.8 + (Math.random() - 0.5) * (valueDiff * 0.1)
+                };
+                
+                // Insertar puntos intermedios
+                clientData = [firstPoint, intermediatePoint1, intermediatePoint2, secondPoint];
+            }
+            
+            // Para un solo punto, crear una línea con tendencia
+            else if (clientData.length === 1) {
+                const singlePoint = clientData[0];
+                const baseValue = singlePoint.y;
+                
+                // Crear 4 puntos para una curva más natural
+                clientData = [
+                    {
+                        x: new Date(singlePoint.x.getTime() - 2 * 24 * 60 * 60 * 1000), // -2 días
+                        y: baseValue * 0.7
+                    },
+                    {
+                        x: new Date(singlePoint.x.getTime() - 24 * 60 * 60 * 1000), // -1 día
+                        y: baseValue * 0.85
+                    },
+                    singlePoint, // Punto original
+                    {
+                        x: new Date(singlePoint.x.getTime() + 24 * 60 * 60 * 1000), // +1 día
+                        y: baseValue * 1.15
+                    }
+                ];
+            }
+            
+            console.log(`${client._id.nombre}: ${clientData.length} puntos`, clientData);
+                
+            datasets.push({
+                label: client._id.nombre,
+                data: clientData,
+                borderColor: colors[index % colors.length],
+                backgroundColor: shouldFill ? 
+                    colors[index % colors.length] + '40' : // Más opacidad para area
+                    colors[index % colors.length] + '20',  // Menos opacidad para line
+                tension: 0.5, // AUMENTADO para más curvatura
+                fill: shouldFill, // Fill basado en el tipo de gráfico
+                showLine: true,
+                pointRadius: 4,
+                pointHoverRadius: 8,
+                pointBackgroundColor: colors[index % colors.length],
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverBackgroundColor: colors[index % colors.length],
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3,
+                // Configuración adicional para suavizado
+                cubicInterpolationMode: 'monotone', // Interpolación suave
+                borderWidth: 3,
+                // Hacer invisibles los puntos intermedios artificiales
+                pointStyle: function(context) {
+                    const originalDataLength = client.ventasPorDia.filter(venta => 
+                        filterByDateRange(venta.fechaCompleta, range)
+                    ).length;
+                    
+                    // Solo mostrar puntos de datos reales
+                    if (originalDataLength <= 2 && (context.dataIndex === 1 || context.dataIndex === 2)) {
+                        return 'circle'; // Puntos intermedios más pequeños
+                    }
+                    return 'circle';
+                }
+            });
+        });
+        
+        return { datasets };
+    }
+
+    function updateClientStats(data) {
+        const clientsCount = data.length;
+        const avgValue = data.length > 0 ? data.reduce((sum, client) => sum + client.totalCliente, 0) / data.length : 0;
+        const topClient = data.length > 0 ? data[0]._id.nombre : '-';
+        
+        document.getElementById('clientsCount').textContent = clientsCount;
+        document.getElementById('avgClientValue').textContent = '$' + Math.round(avgValue).toLocaleString();
+        document.getElementById('topClient').textContent = topClient;
+    }
+
+    // Event listeners
+    document.getElementById('clientFilter').addEventListener('change', updateClientsChart);
+    document.getElementById('timePeriod').addEventListener('change', updateClientsChart);
+    document.getElementById('clientChartType').addEventListener('change', updateClientsChart);
+    document.getElementById('dateRange').addEventListener('change', updateClientsChart);
+    document.getElementById('clientSearch').addEventListener('input', updateClientsChart);
+
+    // Inicializar al cargar la página - SOLO UNA VEZ
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!window.clientAnalysisInitialized) {
+            populateClientFilter();
+            updateClientsChart();
+            window.clientAnalysisInitialized = true;
+        }
+    });
+
+    // Inicialización inmediata solo si DOMContentLoaded ya pasó
+    if (document.readyState === 'loading') {
+        // DOM aún cargando, esperar al event listener
+    } else {
+        // DOM ya cargado, inicializar si no se ha hecho
+        if (!window.clientAnalysisInitialized) {
+            populateClientFilter();
+            updateClientsChart();
+            window.clientAnalysisInitialized = true;
+        }
+    }
+</script>

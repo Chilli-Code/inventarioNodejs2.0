@@ -68,8 +68,6 @@ async function getDashboardData(req, res) {
       };
     });
 
-    const topProductosNombres = topProductos.map(p => p.nombre);
-    const topProductosCantidades = topProductos.map(p => p.cantidad);
 
     // 6. Gráfico por categorías
     const categoriaVentas = await Venta.aggregate([
@@ -166,6 +164,7 @@ async function getDashboardData(req, res) {
     // 9. Usuarios con más productos (solo admin)
 let productsByUser = [];
 if (isAdmin) {
+  
 // En dashboardController.js
 productsByUser = await Product.aggregate([
   {
@@ -202,9 +201,105 @@ productsByUser = await Product.aggregate([
 ]);
 }
 
+
+
+
+// En dashboardController.js - Datos de clientes por tiempo
+clientSalesData = await Venta.aggregate([
+  {
+    $lookup: {
+      from: 'users',
+      localField: 'user',
+      foreignField: '_id',
+      as: 'usuario'
+    }
+  },
+  {
+    $unwind: {
+      path: '$usuario',
+      preserveNullAndEmptyArrays: false
+    }
+  },
+  {
+    $match: {
+      'usuario.role': 'user'
+    }
+  },
+  {
+    $addFields: {
+      fechaParsed: {
+        $dateFromString: {
+          dateString: {
+            $concat: [
+              { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 2] }, 0, 4] },
+              "-",
+              { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 1] }, 0, 2] },
+              "-",
+              { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 0] }, 0, 2] }
+            ]
+          },
+          onError: new Date()
+        }
+      }
+    }
+  },
+  {
+    $group: {
+      _id: {
+        clienteId: "$usuario._id",
+        nombre: "$usuario.nombre",
+        fecha: {
+          $dateToString: {
+            format: "%Y-%m-%d",
+            date: "$fechaParsed"
+          }
+        },
+        semana: {
+          $dateToString: {
+            format: "%Y-W%U",
+            date: "$fechaParsed"
+          }
+        },
+        mes: {
+          $dateToString: {
+            format: "%Y-%m",
+            date: "$fechaParsed"
+          }
+        }
+      },
+      totalVentas: { $sum: "$total" },
+      cantidadCompras: { $sum: 1 },
+      fechaCompleta: { $first: "$fechaParsed" }
+    }
+  },
+  {
+    $group: {
+      _id: {
+        id: "$_id.clienteId",
+        nombre: "$_id.nombre"
+      },
+      ventasPorDia: {
+        $push: {
+          fecha: "$_id.fecha",
+          semana: "$_id.semana",
+          mes: "$_id.mes",
+          total: "$totalVentas",
+          compras: "$cantidadCompras",
+          fechaCompleta: "$fechaCompleta"
+        }
+      },
+      totalCliente: { $sum: "$totalVentas" },
+      totalCompras: { $sum: "$cantidadCompras" }
+    }
+  },
+  { $sort: { totalCliente: -1 } },
+  { $limit: 50 }
+]);
+
+
+
     req.session.save(err => {
       if (err) console.error('Error saving session:', err);
-
       res.render('statistics', {
         title: "Inventario || Estadísticas",
         currentOption: "/statistics",
@@ -216,8 +311,6 @@ productsByUser = await Product.aggregate([
         totalProductos,
         totalCategorias,
         totalClientes,
-        topProductosNombres,
-        topProductosCantidades,
         catLabels,
         catData,
         clientLabels,
@@ -228,7 +321,8 @@ productsByUser = await Product.aggregate([
         salesByUser,
         allUsers,
         isMobile,
-        productsByUser
+        productsByUser,
+        clientSalesData
       });
     });
 

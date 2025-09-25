@@ -44,44 +44,23 @@ router.post('/add', async (req, res) => {
 });
 
 // GET /delete/:id (solo dueño puede borrar)
-router.get('/delete/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const userId = req.session.user.id;
-    // Borra solo si es del usuario
     const deleted = await Product.findOneAndDelete({ _id: req.params.id, user: userId });
+
     if (!deleted) {
-      req.flash('error', 'Producto no encontrado o no pertenece al usuario');
-      return res.redirect('/products');
+      return res.status(404).json({ success: false, message: 'Producto no encontrado o no pertenece al usuario' });
     }
-    req.flash('success', 'Producto eliminado correctamente');
-    res.redirect('/products');
+
+    return res.json({ success: true, message: 'Producto eliminado correctamente' });
   } catch (err) {
     console.error('Error al eliminar producto:', err);
-    req.flash('error', 'Error al eliminar el producto.');
-    res.redirect('/products');
+    return res.status(500).json({ success: false, message: 'Error al eliminar el producto' });
   }
 });
 
 
-// POST /update/:id (solo actualizar si es del usuario)
-router.post('/update/:id', async (req, res) => {
-  const id = req.params.id;
-  const userId = req.session.user.id;
-  const { producto, categoria, estado, cantidad, precio, hora } = req.body;
-
-  try {
-    await Product.findOneAndUpdate(
-      { _id: id, user: userId },
-      { producto, categoria, estado, cantidad, precio, hora }
-    );
-    req.flash('success', 'Producto actualizado correctamente');
-    res.redirect('/products');
-  } catch (err) {
-    console.error('Error al actualizar el producto:', err);
-    req.flash('error', 'Error al actualizar el producto.');
-    res.redirect('/products');
-  }
-});
 
 // GET /update/:id (solo si es dueño)
 router.get('/update/:id', async (req, res) => {
@@ -94,6 +73,30 @@ router.get('/update/:id', async (req, res) => {
   } catch (err) {
     console.error('Error al cargar el producto:', err);
     res.status(500).send('Error al cargar el producto');
+  }
+});
+
+// POST /products/update/:id
+router.post('/update/:id', async (req, res) => {
+  const id = req.params.id;
+  const userId = req.session.user.id;
+  const { producto, categoria, estado, cantidad, precio, hora } = req.body;
+
+  try {
+    const updated = await Product.findOneAndUpdate(
+      { _id: id, user: userId },
+      { producto, categoria, estado, cantidad, precio, hora },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+
+    // si quieres redirigir al listado después
+    req.flash('success', 'Articulo Actualizado Correctamente');
+    res.redirect('/products');
+  } catch (err) {
+    console.error('Error al actualizar el producto:', err);
+    req.flash('error', 'Error al actualizar el producto.');
+    res.redirect('/products');
   }
 });
 
