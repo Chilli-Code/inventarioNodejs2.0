@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { isAdmin } = require('../middleware/auth');
 const Venta = require('../models/Sell');
+const Product = require('../models/Product'); // <--- FALTA ESTA LÍNEA
 
 
 // Actualizar recibo (PUT /admin/receipts/:id)
@@ -41,18 +42,34 @@ router.delete('/receipts/delete/:id', isAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedReceipt = await Venta.findByIdAndDelete(id);
+    const receipt = await Venta.findById(id);
+    if (!receipt) return res.status(404).json({ message: 'Recibo no encontrado' });
 
-    if (!deletedReceipt) {
-      return res.status(404).json({ message: 'Recibo no encontrado' });
+    // 🔹 Revertir las ventas de cada producto (igual que en usuario)
+    for (const item of receipt.productos) {
+      if (item.productoVenta) {
+        await Product.findByIdAndUpdate(
+          item.productoVenta,
+          {
+            $inc: {
+              ventas: -item.cantidadVenta, // restar ventas
+              cantidad: +item.cantidadVenta // devolver stock
+            }
+          }
+        );
+      }
     }
 
-    // Responder con JSON
-    res.json({ message: 'Recibo eliminado correctamente' });
+    // 🔹 Borrar recibo
+    await receipt.deleteOne();
+
+    res.json({ message: 'Recibo eliminado y ventas actualizadas correctamente' });
   } catch (error) {
     console.error('Error deleting receipt:', error);
     res.status(500).json({ message: 'Error al eliminar el recibo' });
   }
 });
+
+
 
 module.exports = router;

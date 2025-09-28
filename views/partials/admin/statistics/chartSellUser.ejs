@@ -7,7 +7,27 @@
 const rawData = <%- JSON.stringify(salesByUser || []) %>;
 const safeData = Array.isArray(rawData) ? rawData : [];
 
+function populateUserFilter() {
+  const select = document.getElementById('userFilter');
+  if (!select) return;
 
+  select.innerHTML = '<option value="">Todos los usuarios</option>'; // opción por defecto
+
+  safeData.forEach(item => {
+    const nombre = item.user?.nombre || 'Usuario desconocido';
+    const negocio = item.businessName || 'Sin negocio';
+    const value = item.user?._id || item._id;
+
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = `${nombre} (${negocio})`;
+
+    select.appendChild(option);
+  });
+}
+
+// Llamas a esta función después de tener safeData
+populateUserFilter();
 const productsRawData = <%- JSON.stringify(productsByUser || []) %>;
 const productsDataUser = Array.isArray(productsRawData) ? productsRawData : [];
 
@@ -241,21 +261,22 @@ function updateStats() {
   // CAMBIO: Filtrar solo usuarios que tengan la propiedad 'user'
   const validUsers = safeData.filter(item => item.user && item.user.nombre);
   
-  
   let topSeller = '-';
-  if (validUsers.length > 0) {
-    const bestUser = validUsers.reduce((top, current) => 
-      (Number(current.totalVentas) || 0) > (Number(top.totalVentas) || 0) ? current : top
-    );
-    topSeller = bestUser.user.nombre;
-  }
+if (validUsers.length > 0) {
+  const bestUser = validUsers.reduce((top, current) => 
+    (Number(current.totalVentas) || 0) > (Number(top.totalVentas) || 0) ? current : top
+  );
+  topSeller = `${bestUser.user.nombre}<br><small>${bestUser.businessName || 'Sin negocio'}</small>`;
+}
+
+
 
   animateValue('totalUsers', 0, totalUsers, 1000);
   animateValue('totalSales', 0, totalSales, 1000, '$');
   animateValue('averageSales', 0, Math.round(averageSales), 1000, '$');
   animateValue('totalVentas', 0, totalProductosVendidos, 1000);
 
-  document.getElementById('topSeller').textContent = topSeller;
+  document.getElementById('topSeller').innerHTML = topSeller;
 }
 
 // Función para animar valores

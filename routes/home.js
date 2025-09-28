@@ -218,27 +218,31 @@ router.post('/receipt_page', isAuthenticated, async (req, res) => {
 // GET: Mostrar la página de recibo con el id de la venta
 router.get('/receipt_page/:idVenta', isAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.user.id;
-    const isAdmin = req.session.user.role === 'admin';
-    
-    // Si es admin, puede ver cualquier recibo. Si no, solo sus propios recibos
-    const query = isAdmin 
-      ? { _id: req.params.idVenta } 
+    const sessionUser = req.session.user;
+    const userId = sessionUser.id || sessionUser._id;
+    const isAdmin = sessionUser.role === 'admin';
+
+    const query = isAdmin
+      ? { _id: req.params.idVenta }
       : { _id: req.params.idVenta, user: userId };
-    
+
     const ventaConProducto = await Venta.findOne(query)
       .populate('productos.productoVenta')
       .populate('vendedor')
+      .populate('user') // 🔥 importante
       .lean();
 
     if (!ventaConProducto) return res.status(404).send('Recibo no encontrado');
-    
+
+    // 🔥 Aquí usamos el user dueño de la venta
+    const userDueño = ventaConProducto.user;
+
     res.render('receipt_page', {
       title: 'Recibo || Pago',
       venta: ventaConProducto,
       currentOption: '/sell',
       imageUrl: null,
-      user: req.session.user,
+      user: userDueño, // ✅ usuario correcto
       titleMain: 'Recibo Pago',
       success: null
     });
@@ -269,7 +273,6 @@ router.get('/api/productos/activos', isAuthenticated, async (req, res) => {
 
 
 // DELETE /user/receipts/:id -> solo el dueño puede eliminar
-// DELETE /user/receipts/:id
 router.delete('/user/receipts/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params;

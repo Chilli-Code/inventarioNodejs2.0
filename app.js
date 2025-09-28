@@ -15,7 +15,7 @@ const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/settings');
 const compression = require('compression');
 const subUserRoutes = require('./routes/subusers');
-
+const notificacionesMiddleware = require('./middleware/notificaciones');
 
 dotenv.config();
 
@@ -75,6 +75,7 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg')[0] || null;
   next();
 });
+app.use(require('./middleware/notificaciones'));
 // Rutas
 app.use('/', authRoutes); // Primero las rutas de autenticación
 app.use('/', homeRoutes); // Luego las rutas protegidas

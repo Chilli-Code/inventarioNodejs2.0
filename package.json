@@ -23,6 +23,7 @@
     "express": "^5.1.0",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.2",
+    "method-override": "^3.0.0",
     "mongoose": "^8.18.0",
     "swapy": "^1.0.5",
     "toastify-js": "^1.12.0",

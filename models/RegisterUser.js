@@ -7,7 +7,8 @@ const registerUserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['admin','user'], default: 'user' },
   status: { type: String, enum: ['pendiente','aprobado','rechazado'], default: 'pendiente' },
-  codigoUser: { type: String, unique: true } // ✅ código único
+  codigoUser: { type: String, unique: true },
+  businessName: { type: String, default: 'keku Inventory' }
 });
 
 // Generar código único antes de guardar

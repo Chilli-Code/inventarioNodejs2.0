@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
   correo: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin','user'], default: 'user' },
-  active: { type: Boolean, default: true } // 🔹 nuevo campo
+  active: { type: Boolean, default: true },
+  businessName: { type: String, default: 'keku Inventory' }
 });
 
 userSchema.pre('save', async function(next) {

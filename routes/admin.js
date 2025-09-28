@@ -124,7 +124,8 @@ router.post('/update/:id', isAdmin, async (req, res) => {
           correo: userPending.correo,
           password: userPending.password,
           role: 'user',
-          active: true
+          active: true,
+          businessName: 'keku Inventory'
         });
         await RegisterUser.findByIdAndDelete(userId);
         console.log('✅ Usuario aprobado con contraseña correcta');

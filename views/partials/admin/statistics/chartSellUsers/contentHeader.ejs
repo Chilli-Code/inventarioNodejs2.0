@@ -48,10 +48,6 @@
         <div class="control-group">
             <label for="userFilter">Filtrar Usuario:</label>
             <select id="userFilter">
-                <option value="">Todos</option>
-                <% (allUsers || []).forEach(function(u){ %>
-                    <option value="<%= u._id %>"><%= u.nombre %></option>
-                <% }) %>
             </select>
         </div>
                 <div class="control-group">
@@ -153,6 +149,13 @@
 
 
 <!-- Controles de paginación -->
+
+
+<!-- Contenedor del gráfico -->
+<div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
+    <canvas id="salesChart" width="400" height="200"></canvas>
+</div>
+
 <div class="pagination-controls">
     <button id="prevPage">
         <span style="font-size: 1.1em;">←</span>
@@ -162,9 +165,3 @@
          <span style="font-size: 1.1em;">→</span>
     </button>
 </div>
-
-<!-- Contenedor del gráfico -->
-<div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
-    <canvas id="salesChart" width="400" height="200"></canvas>
-</div>
-

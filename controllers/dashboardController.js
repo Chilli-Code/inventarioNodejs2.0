@@ -60,13 +60,6 @@ async function getDashboardData(req, res) {
       ...productoFilter
     });
 
-    const topProductos = topVentas.map(venta => {
-      const producto = productosConNombre.find(p => p._id.toString() === venta._id.toString());
-      return {
-        nombre: producto ? producto.producto : 'Desconocido',
-        cantidad: venta.totalCantidad
-      };
-    });
 
 
     // 6. Gráfico por categorías
@@ -139,7 +132,8 @@ async function getDashboardData(req, res) {
         { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } }, // *** CAMBIO: usar 'user' ***
             {
       $addFields: {
-        'active': '$user.active'
+        'active': '$user.active',
+        businessName: '$user.businessName',
       }
     }
       ]);
@@ -202,8 +196,8 @@ productsByUser = await Product.aggregate([
 }
 
 
-
-
+let clientSalesData = [];
+if (isAdmin) {
 // En dashboardController.js - Datos de clientes por tiempo
 clientSalesData = await Venta.aggregate([
   {
@@ -211,34 +205,30 @@ clientSalesData = await Venta.aggregate([
       from: 'users',
       localField: 'user',
       foreignField: '_id',
-      as: 'usuario'
+      as: 'user'
     }
   },
   {
     $unwind: {
-      path: '$usuario',
+      path: '$user',
       preserveNullAndEmptyArrays: false
     }
   },
   {
     $match: {
-      'usuario.role': 'user'
+      'user.role': 'user'
     }
   },
   {
     $addFields: {
       fechaParsed: {
-        $dateFromString: {
-          dateString: {
-            $concat: [
-              { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 2] }, 0, 4] },
-              "-",
-              { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 1] }, 0, 2] },
-              "-",
-              { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 0] }, 0, 2] }
-            ]
-          },
-          onError: new Date()
+        $dateFromParts: {
+          year: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 2] }, 0, 4] } },
+          month: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 1] }, 0, 2] } },
+          day: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 0] }, 0, 2] } },
+          hour: 12,
+          minute: 0,
+          second: 0
         }
       }
     }
@@ -246,8 +236,9 @@ clientSalesData = await Venta.aggregate([
   {
     $group: {
       _id: {
-        clienteId: "$usuario._id",
-        nombre: "$usuario.nombre",
+        clienteId: "$user._id",
+        nombre: "$user.nombre",
+        businessName: "$user.businessName",
         fecha: {
           $dateToString: {
             format: "%Y-%m-%d",
@@ -275,9 +266,10 @@ clientSalesData = await Venta.aggregate([
   {
     $group: {
       _id: {
-        id: "$_id.clienteId",
-        nombre: "$_id.nombre"
+        id: "$_id.clienteId"  // solo el ID en _id
       },
+      nombre: { $first: "$_id.nombre" },            // 🔸 nombre fuera de _id
+      businessName: { $first: "$_id.businessName" },// 🔸 businessName fuera de _id
       ventasPorDia: {
         $push: {
           fecha: "$_id.fecha",
@@ -296,6 +288,8 @@ clientSalesData = await Venta.aggregate([
   { $limit: 50 }
 ]);
 
+
+}
 
 
     req.session.save(err => {

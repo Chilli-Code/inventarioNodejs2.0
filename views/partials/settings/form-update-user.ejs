@@ -35,23 +35,19 @@
 </div>
 <div class="last">
   <div class="config-data-user">
-    <form action="/settings/update" method="POST">
+    <form id="settingsForm" method="POST" action="/settings/update">
       <h2 class="app-content-headerText">Editar Datos</h2>
-
       <p>
-        <input id="emailInput" class="text" type="email" name="email" value="<%= user.correo %>" maxlength="200"
-          placeholder="Correo electrónico" autocomplete="off" required>
-        <button type="button" class="btn-edit-email icon"
-          onclick="document.getElementById('emailInput').disabled = false;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18px" height="18px" fill="none"
-            stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-            class="feather feather-pie-chart">
-            <path
-              d="M 23.90625 3.96875 C 22.859375 3.96875 21.8125 4.375 21 5.1875 L 5.1875 21 L 5.125 21.3125 L 4.03125 26.8125 L 3.71875 28.28125 L 5.1875 27.96875 L 10.6875 26.875 L 11 26.8125 L 26.8125 11 C 28.4375 9.375 28.4375 6.8125 26.8125 5.1875 C 26 4.375 24.953125 3.96875 23.90625 3.96875 Z M 23.90625 5.875 C 24.410156 5.875 24.917969 6.105469 25.40625 6.59375 C 26.378906 7.566406 26.378906 8.621094 25.40625 9.59375 L 24.6875 10.28125 L 21.71875 7.3125 L 22.40625 6.59375 C 22.894531 6.105469 23.402344 5.875 23.90625 5.875 Z M 20.3125 8.71875 L 23.28125 11.6875 L 11.1875 23.78125 C 10.53125 22.5 9.5 21.46875 8.21875 20.8125 Z M 6.9375 22.4375 C 8.136719 22.921875 9.078125 23.863281 9.5625 25.0625 L 6.28125 25.71875 Z" />
-          </svg>
-          Editar</button>
+      <div class="cont-p">
+        <p style="text-decoration: underline; color: #ff00009c;">Nota:</p>
+        <p>Solo se puede cambiar una vez:
+        </p>
+        </div>
+<input id="businessName" class="text" type="text" name="businessName" value="<%= user.businessName %>" maxlength="200"
+  placeholder="Nombre de el Negocio" autocomplete="off">
+
       </p>
-      <label>Editar Ususario</label>
+      <label style="margin-top:20px">Editar Ususario</label>
       <div class="cont-p">
         <p style="text-decoration: underline; color: #ff00009c;">Nota:</p>
         <p>Si desea cambiar Solo El Usario Complete este Campo</p>
@@ -68,3 +64,50 @@
     </form>
   </div>
 </div>
+
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const data = {
+    businessName: e.target.businessName.value,
+    usuario: e.target.usuario.value,
+    currentPassword: e.target.currentPassword.value,
+    newPassword: e.target.newPassword.value,
+  };
+
+  try {
+const res = await fetch('/settings/update', {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'same-origin',  // <--- Esta línea es clave para enviar cookies
+  body: JSON.stringify(data),
+});
+
+
+    const result = await res.json();
+
+    if (res.ok) {
+      // Mostrar alerta y recargar la página para que se actualicen los datos
+      Swal.fire({
+        title: '¡Éxito!',
+        html: `<lottie-player src="/Lottie/ProfileUpdate.json" background="transparent" speed="1" style="width:150px; height:150px; margin:0 auto;" autoplay></lottie-player><p>${result.message}</p>`,
+        confirmButtonText: 'Aceptar'
+      }).then(() => {
+        window.location.reload();  // <--- recarga la página para traer los datos actualizados
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        html: `<lottie-player src="/Lottie/userOps.json" background="transparent" speed="1" style="width:150px; height:150px; margin:0 auto;" autoplay></lottie-player><p>${result.message}</p>`,
+        confirmButtonText: 'Aceptar'
+      });
+    }
+  } catch (error) {
+    Swal.fire('Error', 'Error al conectar con el servidor.', 'error');
+  }
+});
+
+
+</script>

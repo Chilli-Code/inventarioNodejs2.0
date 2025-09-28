@@ -126,9 +126,9 @@
                         <%= s.tipo %>
                       </td>
                       <td>
-                        <form action="/settings/subusuarios/delete/<%= s._id %>" method="POST" style="display:inline;">
-                          <button type="submit" class="Menu-opciones-articulos-eliminar btnHover btn-eliminar"
-                            data-id="<%= user._id %>">
+                        
+                          <button  aria-label="Eliminar subusuario" class="Menu-opciones-articulos-eliminar btnHover btn-eliminar"
+                           data-id="<%= s._id %>">
                             <svg id="Layer_1" data-name="Layer 1" height="24px" xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 105.16 122.88">
                               <defs>
@@ -144,7 +144,7 @@
                               </path>
                             </svg>
                           </button>
-                        </form>
+
                       </td>
                     </tr>
                     <% }) %>
@@ -158,24 +158,62 @@
 
 
         <script>
-          document.querySelectorAll('.btn-eliminar').forEach(button => {
-            button.addEventListener('click', function (event) {
-              event.preventDefault();  // <--- PREVENIR ENVÍO AUTOMÁTICO
-              const form = this.closest('form');
-              Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Esta acción no se puede deshacer.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  form.submit();  // <--- Ahora sí envía el formulario solo si confirma
-                }
-              });
-            });
+document.querySelectorAll('.btn-eliminar').forEach(button => {
+  button.addEventListener('click', async (event) => {
+    event.preventDefault();
+
+    const subuserId = button.getAttribute('data-id');
+
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción no se puede deshacer.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(`/settings/subusuarios/${subuserId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Quitar fila del DOM
+          button.closest('tr').remove();
+
+          // ✅ Mostrar Swal con animación Lottie
+          Swal.fire({
+            title: '¡Éxito!',
+            html: `
+              <lottie-player
+                src="/Lottie/delete.json"
+                background="transparent"
+                speed="1"
+                style="width: 150px; height: 150px; margin: 0 auto;"
+                autoplay>
+              </lottie-player>
+              <p>${data.message}</p>
+            `,
+            confirmButtonText: 'Aceptar'
           });
+        } else {
+          Swal.fire('Error', data.message || 'Error al eliminar', 'error');
+        }
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
+      }
+    }
+  });
+});
+
         </script>

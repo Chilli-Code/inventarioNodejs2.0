@@ -1,5 +1,24 @@
 <!-- Gráfica de análisis de clientes -->
-
+<style>
+    select {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255,255,255,.9);
+    font-size: .9em;
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+}
+input {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255,255,255,.9);
+    font-size: .9em;
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+}
+</style>
 <div style="margin-top: 30px; padding: 25px 12px; background-color: var(--app-content-secondary-color); border: 1px solid var(--sidebar-active-link); border-radius: 15px;">
     <h2 style="color: #ff6b35; margin-bottom: 10px;">Análisis de Clientes</h2>
     
@@ -7,7 +26,7 @@
     <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="clientFilter" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Cliente:</label>
-            <select id="clientFilter" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+            <select class="select" id="clientFilter" >
                 <option value="" style="color:#000">Todos los clientes</option>
                 <!-- Se llenarán dinámicamente -->
             </select>
@@ -15,7 +34,7 @@
         
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="timePeriod" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Período:</label>
-            <select id="timePeriod" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+            <select class="select" id="timePeriod">
                 <option value="day" style="color:#000">Por día</option>
                 <option value="week" style="color:#000">Por semana</option>
                 <option value="month" style="color:#000">Por mes</option>
@@ -24,7 +43,7 @@
         
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="clientChartType" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Tipo de gráfica:</label>
-            <select id="clientChartType" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+            <select class="select" id="clientChartType" >
                 <option value="line" style="color:#000">Líneas (recomendado)</option>
                 <option value="bar" style="color:#000">Barras</option>
                 <option value="area" style="color:#000">Área</option>
@@ -33,7 +52,7 @@
         
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="dateRange" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Últimos:</label>
-            <select id="dateRange" style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+            <select class="select" id="dateRange" >
                 <option value="7" style="color:#000">7 días</option>
                 <option value="30" style="color:#000">30 días</option>
                 <option value="90" style="color:#000">3 meses</option>
@@ -44,8 +63,27 @@
         
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="clientSearch" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Buscar cliente:</label>
-            <input type="text" id="clientSearch" placeholder="Nombre del cliente..." style="padding: 8px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--app-content-main-color);">
+            <input type="text" id="clientSearch" placeholder="Nombre del cliente...">
         </div>
+
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label for="customStartDate" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Desde:</label>
+<input type="date" id="customStartDate" name="customStartDate">
+
+
+</div>
+<div style="display: flex; flex-direction: column; gap: 5px;">
+    <label for="customEndDate" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Hasta:</label>
+    <input type="date" id="customEndDate" name="customEndDate">
+    
+</div>
+<div style="display: flex; flex-direction: column; gap: 5px;">
+    <label for="customEndDate" style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Limipiar Fechas:</label>
+    <button onclick="clearCustomDates()" style="padding: 8px 10px; background: var(--action-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-520h80v-280q0-17-11.5-28.5T480-840q-17 0-28.5 11.5T440-800v280ZM200-360h560v-80H200v80Zm-58 240h98v-80q0-17 11.5-28.5T280-240q17 0 28.5 11.5T320-200v80h120v-80q0-17 11.5-28.5T480-240q17 0 28.5 11.5T520-200v80h120v-80q0-17 11.5-28.5T680-240q17 0 28.5 11.5T720-200v80h98l-40-160H182l-40 160Zm676 80H142q-39 0-63-31t-14-69l55-220v-80q0-33 23.5-56.5T200-520h160v-280q0-50 35-85t85-35q50 0 85 35t35 85v280h160q33 0 56.5 23.5T840-440v80l55 220q13 38-11.5 69T818-40Zm-58-400H200h560Zm-240-80h-80 80Z"></path></svg>
+    </button>
+
+</div>
     </div>
     
     <!-- Estadísticas de clientes -->
@@ -58,12 +96,14 @@
             <div style="font-size: 1.5em; font-weight: bold; color: #43e97b;" id="avgClientValue">$0</div>
             <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Valor promedio</div>
         </div>
-        <div style="background: rgba(79,172,254,0.1); padding: 15px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 1.5em; font-weight: bold; color: #4facfe;" id="topClient">-</div>
-            <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Mejor cliente</div>
-        </div>
+<div style="background: rgba(79,172,254,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+    <div style="font-size: 1.5em; font-weight: bold; color: #4facfe;" id="ventasTotales">-</div>
+    <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Total de ventas</div>
+</div>
+
     </div>
-    
+
+
 </div>
 
 <div style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin: 30px 0; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
@@ -74,8 +114,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
 <script>
-    // Registrar todos los componentes necesarios de Chart.js
+function clearCustomDates() {
+    document.getElementById('customStartDate').value = '';
+    document.getElementById('customEndDate').value = '';
+    updateClientsChart();
+}
+</script>
+<script>
     Chart.register(
         Chart.CategoryScale,
         Chart.LinearScale,
@@ -88,36 +135,30 @@
         Chart.Filler
     );
 
-    // Datos de clientes - Análisis de Ventas por Cliente
     const clientsData = <%- JSON.stringify(clientSalesData || []) %>;
     let clientsChart;
 
-    // Poblar select de clientes
-    function populateClientFilter() {
-        const clientFilter = document.getElementById('clientFilter');
-        
-        // SOLUCIÓN: Limpiar opciones existentes (excepto la primera "Todos los clientes")
-        const firstOption = clientFilter.firstElementChild; // Guardar "Todos los clientes"
-        clientFilter.innerHTML = ''; // Limpiar todo
-        clientFilter.appendChild(firstOption); // Restaurar "Todos los clientes"
-        
-        // Obtener IDs únicos de clientes
-        const clients = [...new Set(clientsData.map(item => item._id.id))];
+function populateClientFilter() {
+  const clientFilter = document.getElementById('clientFilter');
+  const firstOption = clientFilter.firstElementChild;
+  clientFilter.innerHTML = '';
+  clientFilter.appendChild(firstOption);
 
-        // Agregar cada cliente solo una vez
-        clients.forEach(clientId => {
-            const cliente = clientsData.find(c => c._id.id === clientId);
-            if (cliente && cliente._id.nombre) { // Verificar que el cliente existe
-                const option = document.createElement('option');
-                option.value = clientId;
-                option.textContent = cliente._id.nombre;
-                option.style.color = '#000';
-                clientFilter.appendChild(option);
-            }
-        });
-        
-        console.log(`Select poblado con ${clients.length} clientes únicos`);
+  const clients = [...new Set(clientsData.map(item => item._id.id))];
+
+  clients.forEach(clientId => {
+    const cliente = clientsData.find(c => c._id.id === clientId);
+    if (cliente && cliente.nombre) {
+      const option = document.createElement('option');
+      option.value = clientId;
+      const businessName = cliente.businessName || 'Sin nombre comercial';
+      option.textContent = `${cliente.nombre} (${businessName})`;
+      option.style.color = '#000';
+      clientFilter.appendChild(option);
     }
+  });
+}
+
 
     function updateClientsChart() {
         const clientFilter = document.getElementById('clientFilter').value;
@@ -126,25 +167,20 @@
         const dateRange = document.getElementById('dateRange').value;
         const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
         
-        // Filtrar datos
         let filteredData = clientsData;
         
-        // Filtro por cliente específico
         if (clientFilter) {
             filteredData = filteredData.filter(item => item._id.id === clientFilter);
         }
         
-        // Filtro por búsqueda
-        if (searchTerm) {
-            filteredData = filteredData.filter(item => 
-                item._id.nombre.toLowerCase().includes(searchTerm)
-            );
-        }
+if (searchTerm) {
+    filteredData = filteredData.filter(item => {
+        const nombre = item.nombre || item._id?.nombre || '';
+        return nombre.toLowerCase().includes(searchTerm);
+    });
+}
+
         
-        // Determinar el tipo de gráfico válido
-        let validChartType = chartType;
-        
-        // Mapear tipos no válidos a tipos válidos
         const chartTypeMap = {
             'area': 'line',
             'scatter': 'scatter',
@@ -152,17 +188,11 @@
             'line': 'line'
         };
         
-        if (chartTypeMap[chartType]) {
-            validChartType = chartTypeMap[chartType];
-        } else {
-            validChartType = 'line'; // Fallback por defecto
-        }
-        
-        // Si es tipo "area", configurar fill
+        const validChartType = chartTypeMap[chartType] || 'line';
         const shouldFill = chartType === 'area';
         
-        // Preparar datos según período
-        const chartData = prepareTimeSeriesData(filteredData, timePeriod, dateRange, shouldFill);
+        const chartDataResult = prepareOptimizedTimeSeriesData(filteredData, timePeriod, dateRange, shouldFill);
+        const chartData = { datasets: chartDataResult.datasets };
         
         const ctx = document.getElementById('clientsChart').getContext('2d');
         
@@ -177,23 +207,57 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
+                    title: {
+                        display: true,
+                        text: getChartTitle(dateRange, chartDataResult.totalDays),
+                        font: { size: 16, weight: 'bold' },
+                        color: '#666'
+                    },
                     legend: {
                         display: true,
                         labels: { 
                             color: '#666',
                             usePointStyle: true,
-                            padding: 20
+                            padding: 15
                         }
                     },
                     tooltip: {
                         mode: 'index',
                         intersect: false,
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
+                        backgroundColor: '#FFFFFF',
+                        titleColor: '#1F2937',
+                        bodyColor: '#6B7280',
+                        borderColor: '#E5E7EB',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
                         callbacks: {
+                            title: function(context) {
+                                if (context.length > 0) {
+                                    const date = new Date(context[0].parsed.x);
+                                    return date.toLocaleDateString('es-ES', {
+                                        weekday: 'long',
+                                        day: 'numeric',
+                                        month: 'long',
+                                        year: 'numeric'
+                                    });
+                                }
+                                return '';
+                            },
                             label: function(context) {
                                 return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                            },
+                            afterBody: function(context) {
+                                if (context.length > 0) {
+                                    const info = context[0].dataset.extraInfo?.[context[0].dataIndex];
+                                    if (info) {
+                                        return [
+                                            `Recibos: ${info.recibos}`,
+                                            `Promedio: $${Math.round(info.promedio).toLocaleString()}`
+                                        ];
+                                    }
+                                }
+                                return [];
                             }
                         }
                     }
@@ -202,11 +266,11 @@
                     x: {
                         type: 'time',
                         time: {
-                            unit: timePeriod, // 'day', 'week', 'month'
+                            unit: getTimeUnit(dateRange, timePeriod),
                             displayFormats: {
-                                day: 'MMM dd',
-                                week: 'MMM dd',
-                                month: 'MMM yyyy'
+                                day: 'dd MMM',
+                                week: 'dd MMM',
+                                month: 'MMM yy'
                             }
                         },
                         title: {
@@ -216,10 +280,12 @@
                         },
                         ticks: { 
                             color: '#666',
-                            maxTicksLimit: 10
+                            maxTicksLimit: getMaxTicks(dateRange),
+                            autoSkip: true
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            display: true
                         }
                     },
                     y: {
@@ -231,12 +297,14 @@
                         },
                         ticks: {
                             callback: function(value) {
+                                if (value >= 1000000) return '$' + (value/1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return '$' + (value/1000).toFixed(0) + 'k';
                                 return '$' + value.toLocaleString();
                             },
                             color: '#666'
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: 'rgba(0, 0, 0, 0.05)'
                         }
                     }
                 },
@@ -245,203 +313,297 @@
                     axis: 'x',
                     intersect: false
                 },
-                // Configuración para líneas suaves
                 elements: {
                     line: {
-                        tension: 0.6, // Líneas más curvas
-                        borderWidth: 3
+                        tension: 0.4,
+                        borderWidth: 2
                     },
                     point: {
-                        radius: 4,
-                        hoverRadius: 8,
+                        radius: 3,
+                        hoverRadius: 6,
                         borderWidth: 2
                     }
                 },
-                // Animaciones suaves
                 animation: {
-                    duration: 1000,
+                    duration: 800,
                     easing: 'easeInOutQuart'
                 }
             }
         });
         
-        updateClientStats(filteredData);
+        updateClientStats(filteredData, chartDataResult);
+    }
+
+    function prepareOptimizedTimeSeriesData(data, period, range, shouldFill = false) {
+        const datasets = [];
+        const colors = [
+            '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+            '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
+        ];
+
+        // Calcular fechas de rango
+        const { startDate, endDate } = getDateRange(range);
+        
+        // Pre-filtrar datos por rango de fechas
+        const filteredByRange = data.map(client => ({
+            ...client,
+            ventasPorDia: client.ventasPorDia.filter(venta => {
+                if (!venta.fechaCompleta) return false;
+                const fechaVenta = new Date(venta.fechaCompleta);
+                fechaVenta.setHours(12, 0, 0, 0);
+                return fechaVenta >= startDate && fechaVenta <= endDate;
+            })
+        })).filter(client => client.ventasPorDia.length > 0);
+
+        let totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+        // Agrupar por período si hay muchos días
+        const shouldAggregate = totalDays > 60;
+        const groupPeriod = shouldAggregate ? getAggregationPeriod(totalDays) : 'day';
+
+        filteredByRange.slice(0, 5).forEach((client, idx) => {
+            let processedData;
+            
+            if (shouldAggregate && groupPeriod !== 'day') {
+                processedData = aggregateDataByPeriod(client.ventasPorDia, groupPeriod);
+            } else {
+                processedData = fillMissingDates(client.ventasPorDia, startDate, endDate);
+            }
+
+            const extraInfo = processedData.map(point => ({
+                recibos: point.recibos || 0,
+                promedio: point.recibos ? point.y / point.recibos : 0
+            }));
+const label = client.nombre || client._id?.nombre || 'Sin nombre';
+
+            datasets.push({
+                label: label,
+                data: processedData,
+                borderColor: colors[idx % colors.length],
+                backgroundColor: shouldFill ? colors[idx % colors.length] + '20' : 'transparent',
+                tension: 0.4,
+                fill: shouldFill,
+                pointRadius: shouldAggregate ? 2 : 3,
+                pointHoverRadius: shouldAggregate ? 4 : 6,
+                borderWidth: 2,
+                extraInfo: extraInfo
+            });
+        });
+
+        return {
+            datasets,
+            totalDays,
+            aggregated: shouldAggregate,
+            period: groupPeriod
+        };
+    }
+
+function getDateRange(range) {
+    // PRIMERO: Verificar si hay fechas personalizadas
+    const startInput = document.getElementById('customStartDate')?.value;
+    const endInput = document.getElementById('customEndDate')?.value;
+
+    if (startInput && endInput) {
+        // Usar fechas personalizadas si están definidas
+        const startDate = new Date(startInput);
+        const endDate = new Date(endInput);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        return { startDate, endDate };
+    }
+
+    // SEGUNDO: Si no hay fechas personalizadas, usar rangos predefinidos
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+    
+    let startDate;
+    if (range === 'all') {
+        startDate = new Date();
+        startDate.setFullYear(startDate.getFullYear() - 2);
+    } else {
+        const dias = parseInt(range) || 30;
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - dias);
+    }
+    startDate.setHours(0, 0, 0, 0);
+    
+    return { startDate, endDate };
+}
+    function getAggregationPeriod(totalDays) {
+        if (totalDays > 365) return 'month';
+        if (totalDays > 90) return 'week';
+        return 'day';
+    }
+
+    function aggregateDataByPeriod(ventasPorDia, period) {
+        const grouped = new Map();
+        
+        ventasPorDia.forEach(venta => {
+            const fecha = new Date(venta.fechaCompleta);
+            fecha.setHours(12, 0, 0, 0);
+            
+            let key;
+            if (period === 'week') {
+                const startOfWeek = new Date(fecha);
+                const day = startOfWeek.getDay();
+                const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                startOfWeek.setDate(diff);
+                key = startOfWeek.toISOString().split('T')[0];
+            } else if (period === 'month') {
+                key = fecha.getFullYear() + '-' + String(fecha.getMonth() + 1).padStart(2, '0');
+            } else {
+                key = fecha.toISOString().split('T')[0];
+            }
+
+            if (grouped.has(key)) {
+                const existing = grouped.get(key);
+                grouped.set(key, {
+                    total: existing.total + venta.total,
+                    recibos: existing.recibos + (venta.compras || 1),
+                    fecha: existing.fecha
+                });
+            } else {
+                grouped.set(key, {
+                    total: venta.total,
+                    recibos: venta.compras || 1,
+                    fecha: fecha
+                });
+            }
+        });
+
+        return Array.from(grouped.values())
+            .sort((a, b) => a.fecha - b.fecha)
+            .map(item => ({
+                x: item.fecha,
+                y: item.total,
+                recibos: item.recibos
+            }));
+    }
+
+    function fillMissingDates(ventasPorDia, startDate, endDate) {
+        const ventasMap = new Map();
+        
+        ventasPorDia.forEach(venta => {
+            const fecha = new Date(venta.fechaCompleta);
+            fecha.setHours(12, 0, 0, 0);
+            const key = fecha.getTime();
+            
+            ventasMap.set(key, {
+                total: venta.total,
+                recibos: venta.compras || 1
+            });
+        });
+
+        const result = [];
+        const current = new Date(startDate);
+        current.setHours(12, 0, 0, 0);
+
+        while (current <= endDate) {
+            const key = current.getTime();
+            const venta = ventasMap.get(key);
+            
+            result.push({
+                x: new Date(current),
+                y: venta ? venta.total : 0,
+                recibos: venta ? venta.recibos : 0
+            });
+
+            current.setDate(current.getDate() + 1);
+        }
+
+        return result;
+    }
+
+    function getTimeUnit(dateRange, timePeriod) {
+        const dias = parseInt(dateRange) || 30;
+        if (dias > 365) return 'month';
+        if (dias > 90) return 'week';
+        return 'day';
+    }
+
+    function getMaxTicks(dateRange) {
+        const dias = parseInt(dateRange) || 30;
+        if (dias > 365) return 12;
+        if (dias > 90) return 16;
+        if (dias > 30) return 10;
+        return 8;
+    }
+
+    function getChartTitle(dateRange, totalDays) {
+        if (dateRange === 'all') {
+            return `Ventas Históricas (${totalDays} días)`;
+        }
+        const dias = parseInt(dateRange) || 30;
+        return `Ventas - Últimos ${dias} días`;
     }
 
     function filterByDateRange(fecha, range) {
+        const startInput = document.getElementById('customStartDate')?.value;
+        const endInput = document.getElementById('customEndDate')?.value;
+
+        if (startInput && endInput) {
+            const startDate = new Date(startInput);
+            const endDate = new Date(endInput);
+            const fechaVenta = new Date(fecha);
+            fechaVenta.setHours(12, 0, 0, 0);
+            startDate.setHours(0, 0, 0, 0);
+            endDate.setHours(23, 59, 59, 999);
+
+            return fechaVenta >= startDate && fechaVenta <= endDate;
+        }
+
         if (range === 'all') return true;
 
         const dias = parseInt(range);
         const fechaVenta = new Date(fecha);
         const hoy = new Date();
-        
-        // Eliminar la parte de la hora
-        hoy.setHours(0, 0, 0, 0);
-        fechaVenta.setHours(0, 0, 0, 0);
 
-        const diferenciaEnMilisegundos = hoy - fechaVenta;
-        const diferenciaEnDias = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
+        hoy.setHours(23, 59, 59, 999);
+        fechaVenta.setHours(12, 0, 0, 0);
 
+        const diferenciaEnDias = (hoy - fechaVenta) / (1000 * 60 * 60 * 24);
         return diferenciaEnDias <= dias;
     }
 
-    function getDateLabel(venta, period) {
-        const fecha = new Date(venta.fechaCompleta);
-        
-        switch (period) {
-            case 'day':
-                return fecha.toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
+    function updateClientStats(data, chartResult) {
+        let totalVentas = 0;
+        let cantidadVentas = 0;
+
+        data.forEach(cliente => {
+            if (cliente.ventasPorDia) {
+                cliente.ventasPorDia.forEach(venta => {
+                    totalVentas += venta.total || 0;
+                    cantidadVentas += venta.compras || 1;
                 });
-            case 'week': {
-                // Semana ISO (lunes a domingo)
-                const dia = fecha.getDay(); // 0 (domingo) a 6 (sábado)
-                const diff = fecha.getDate() - dia + (dia === 0 ? -6 : 1); // lunes
-                const lunes = new Date(fecha.setDate(diff));
-                return `Semana de ${lunes.toLocaleDateString('es-ES')}`;
             }
-            case 'month':
-                return fecha.toLocaleDateString('es-ES', {
-                    month: 'long',
-                    year: 'numeric'
-                });
-            default:
-                return fecha.toLocaleDateString('es-ES');
+        });
+
+        const avgValue = data.length > 0 ? totalVentas / data.length : 0;
+
+        document.getElementById('clientsCount').textContent = data.length;
+        document.getElementById('avgClientValue').textContent = '$' + Math.round(totalVentas).toLocaleString();
+        
+        const ventasTotalesEl = document.getElementById('ventasTotales');
+        if (ventasTotalesEl) {
+            ventasTotalesEl.textContent = cantidadVentas.toLocaleString();
         }
     }
 
-    function prepareTimeSeriesData(data, period, range, shouldFill = false) {
-        const datasets = [];
-        const colors = [
-            '#ff6b35',  // Naranja vibrante
-            '#4facfe',  // Azul cielo
-            '#43e97b',  // Verde menta
-            '#f093fb',  // Rosa púrpura
-            '#fa709a',  // Rosa coral
-            '#feca57',  // Amarillo dorado
-            '#48dbfb',  // Azul claro
-            '#ff9ff3',  // Rosa claro
-            '#54a0ff',  // Azul medio
-            '#5f27cd'   // Púrpura oscuro
-        ];
-        
-        data.slice(0, 5).forEach((client, index) => {
-            let clientData = client.ventasPorDia
-                .filter(venta => filterByDateRange(venta.fechaCompleta, range))
-                .sort((a, b) => new Date(a.fechaCompleta) - new Date(b.fechaCompleta))
-                .map(venta => ({
-                    x: new Date(venta.fechaCompleta),
-                    y: venta.total
-                }));
-            
-            // SOLUCIÓN: Agregar puntos intermedios para crear curvas suaves
-            if (clientData.length === 2) {
-                const firstPoint = clientData[0];
-                const secondPoint = clientData[1];
-                
-                // Calcular punto intermedio
-                const timeDiff = secondPoint.x.getTime() - firstPoint.x.getTime();
-                const valueDiff = secondPoint.y - firstPoint.y;
-                
-                // Agregar 2 puntos intermedios para crear una curva suave
-                const intermediatePoint1 = {
-                    x: new Date(firstPoint.x.getTime() + timeDiff * 0.33),
-                    y: firstPoint.y + valueDiff * 0.2 + (Math.random() - 0.5) * (valueDiff * 0.1)
-                };
-                
-                const intermediatePoint2 = {
-                    x: new Date(firstPoint.x.getTime() + timeDiff * 0.66),
-                    y: firstPoint.y + valueDiff * 0.8 + (Math.random() - 0.5) * (valueDiff * 0.1)
-                };
-                
-                // Insertar puntos intermedios
-                clientData = [firstPoint, intermediatePoint1, intermediatePoint2, secondPoint];
-            }
-            
-            // Para un solo punto, crear una línea con tendencia
-            else if (clientData.length === 1) {
-                const singlePoint = clientData[0];
-                const baseValue = singlePoint.y;
-                
-                // Crear 4 puntos para una curva más natural
-                clientData = [
-                    {
-                        x: new Date(singlePoint.x.getTime() - 2 * 24 * 60 * 60 * 1000), // -2 días
-                        y: baseValue * 0.7
-                    },
-                    {
-                        x: new Date(singlePoint.x.getTime() - 24 * 60 * 60 * 1000), // -1 día
-                        y: baseValue * 0.85
-                    },
-                    singlePoint, // Punto original
-                    {
-                        x: new Date(singlePoint.x.getTime() + 24 * 60 * 60 * 1000), // +1 día
-                        y: baseValue * 1.15
-                    }
-                ];
-            }
-            
-            console.log(`${client._id.nombre}: ${clientData.length} puntos`, clientData);
-                
-            datasets.push({
-                label: client._id.nombre,
-                data: clientData,
-                borderColor: colors[index % colors.length],
-                backgroundColor: shouldFill ? 
-                    colors[index % colors.length] + '40' : // Más opacidad para area
-                    colors[index % colors.length] + '20',  // Menos opacidad para line
-                tension: 0.5, // AUMENTADO para más curvatura
-                fill: shouldFill, // Fill basado en el tipo de gráfico
-                showLine: true,
-                pointRadius: 4,
-                pointHoverRadius: 8,
-                pointBackgroundColor: colors[index % colors.length],
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointHoverBackgroundColor: colors[index % colors.length],
-                pointHoverBorderColor: '#fff',
-                pointHoverBorderWidth: 3,
-                // Configuración adicional para suavizado
-                cubicInterpolationMode: 'monotone', // Interpolación suave
-                borderWidth: 3,
-                // Hacer invisibles los puntos intermedios artificiales
-                pointStyle: function(context) {
-                    const originalDataLength = client.ventasPorDia.filter(venta => 
-                        filterByDateRange(venta.fechaCompleta, range)
-                    ).length;
-                    
-                    // Solo mostrar puntos de datos reales
-                    if (originalDataLength <= 2 && (context.dataIndex === 1 || context.dataIndex === 2)) {
-                        return 'circle'; // Puntos intermedios más pequeños
-                    }
-                    return 'circle';
-                }
-            });
-        });
-        
-        return { datasets };
-    }
-
-    function updateClientStats(data) {
-        const clientsCount = data.length;
-        const avgValue = data.length > 0 ? data.reduce((sum, client) => sum + client.totalCliente, 0) / data.length : 0;
-        const topClient = data.length > 0 ? data[0]._id.nombre : '-';
-        
-        document.getElementById('clientsCount').textContent = clientsCount;
-        document.getElementById('avgClientValue').textContent = '$' + Math.round(avgValue).toLocaleString();
-        document.getElementById('topClient').textContent = topClient;
-    }
-
     // Event listeners
-    document.getElementById('clientFilter').addEventListener('change', updateClientsChart);
-    document.getElementById('timePeriod').addEventListener('change', updateClientsChart);
-    document.getElementById('clientChartType').addEventListener('change', updateClientsChart);
-    document.getElementById('dateRange').addEventListener('change', updateClientsChart);
-    document.getElementById('clientSearch').addEventListener('input', updateClientsChart);
+    const eventElements = [
+        'customStartDate', 'customEndDate', 'clientFilter', 
+        'timePeriod', 'clientChartType', 'dateRange', 'clientSearch'
+    ];
 
-    // Inicializar al cargar la página - SOLO UNA VEZ
+    eventElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            const eventType = id === 'clientSearch' ? 'input' : 'change';
+            element.addEventListener(eventType, updateClientsChart);
+        }
+    });
+
+    // Inicialización
     document.addEventListener('DOMContentLoaded', function() {
         if (!window.clientAnalysisInitialized) {
             populateClientFilter();
@@ -450,11 +612,7 @@
         }
     });
 
-    // Inicialización inmediata solo si DOMContentLoaded ya pasó
-    if (document.readyState === 'loading') {
-        // DOM aún cargando, esperar al event listener
-    } else {
-        // DOM ya cargado, inicializar si no se ha hecho
+    if (document.readyState !== 'loading') {
         if (!window.clientAnalysisInitialized) {
             populateClientFilter();
             updateClientsChart();
