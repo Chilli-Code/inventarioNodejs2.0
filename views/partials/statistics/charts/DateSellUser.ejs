@@ -1,0 +1,405 @@
+<!-- Gráfica de análisis de ventas del usuario -->
+
+<div class="swapy-slide" data-swapy-slot="caat">
+    <div data-swapy-item="caat">
+        <div class="chart-card">
+        <div class="handle" data-swapy-handle=""></div>
+        <h2 style="color: #ff6b35; margin-bottom: 10px;">Análisis de Mis Ventas</h2>
+        <!-- Controles -->
+        <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label
+                    style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Agrupar
+                    por:</label>
+                <select class="sales-select" id="salesTimePeriod">
+                    <option value="day">Por día</option>
+                    <option value="week">Por semana</option>
+                    <option value="month">Por mes</option>
+                </select>
+            </div>
+    
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label
+                    style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Tipo
+                    de gráfica:</label>
+                <select class="sales-select" id="salesChartType">
+                    <option value="line">Líneas</option>
+                    <option value="bar">Barras</option>
+                    <option value="area">Área</option>
+                </select>
+            </div>
+    
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label
+                    style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Período:</label>
+                <select class="sales-select" id="salesDateRange">
+                    <option value="7">7 días</option>
+                    <option value="30" selected>30 días</option>
+                    <option value="90">3 meses</option>
+                    <option value="365">1 año</option>
+                    <option value="all">Todo el tiempo</option>
+                </select>
+            </div>
+    
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label
+                    style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Desde:</label>
+                <input type="date" class="sales-input" id="salesStartDate">
+            </div>
+    
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label
+                    style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Hasta:</label>
+                <input type="date" class="sales-input" id="salesEndDate">
+            </div>
+    
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label
+                    style="font-weight: 600; color: var(--app-content-main-color); opacity: 0.8; font-size: 0.9em;">Limpiar:</label>
+                <button onclick="clearSalesDates()"
+                    style="padding: 12px 15px; background: var(--action-color); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-520h80v-280q0-17-11.5-28.5T480-840q-17 0-28.5 11.5T440-800v280ZM200-360h560v-80H200v80Zm-58 240h98v-80q0-17 11.5-28.5T280-240q17 0 28.5 11.5T320-200v80h120v-80q0-17 11.5-28.5T480-240q17 0 28.5 11.5T520-200v80h120v-80q0-17 11.5-28.5T680-240q17 0 28.5 11.5T720-200v80h98l-40-160H182l-40 160Zm676 80H142q-39 0-63-31t-14-69l55-220v-80q0-33 23.5-56.5T200-520h160v-280q0-50 35-85t85-35q50 0 85 35t35 85v280h160q33 0 56.5 23.5T840-440v80l55 220q13 38-11.5 69T818-40Zm-58-400H200h560Zm-240-80h-80 80Z"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Estadísticas de ventas -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div style="background: rgba(255,107,53,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 1.5em; font-weight: bold; color: #ff6b35;" id="salesTotalAmount">$0</div>
+                <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Total Ingresos</div>
+            </div>
+            <div style="background: rgba(67,233,123,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 1.5em; font-weight: bold; color: #43e97b;" id="salesCount">0</div>
+                <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Ventas Realizadas
+                </div>
+            </div>
+            <div style="background: rgba(79,172,254,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 1.5em; font-weight: bold; color: #4facfe;" id="salesAverage">$0</div>
+                <div style="font-size: 0.8em; color: var(--app-content-main-color); opacity: 0.8;">Ticket Promedio</div>
+            </div>
+        </div>
+        <div
+            style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin: 30px 0; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
+            <div style="position: relative; height: 400px;">
+                <canvas id="userSalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+
+    </div>
+</div>
+
+
+
+<script>
+    const userSalesData = <%- JSON.stringify(ventasIndividuales || []) %>;
+    console.log('📊 Total ventas cargadas:', userSalesData.length);
+    
+    let userSalesChart;
+
+    function clearSalesDates() {
+        document.getElementById('salesStartDate').value = '';
+        document.getElementById('salesEndDate').value = '';
+        document.getElementById('salesDateRange').value = '30';
+        document.getElementById('salesTimePeriod').value = 'day';
+        document.getElementById('salesChartType').value = 'line';
+
+        updateUserSalesChart();
+    }
+
+    function parseFechaVenta(fechaStr) {
+        try {
+            const [fechaPart] = fechaStr.split(' - ');
+            const [day, month, year] = fechaPart.split('/');
+            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0);
+        } catch (e) {
+            console.error('Error parseando fecha:', fechaStr);
+            return null;
+        }
+    }
+
+    function updateUserSalesChart() {
+        const timePeriod = document.getElementById('salesTimePeriod').value;
+        const chartType = document.getElementById('salesChartType').value;
+        const dateRange = document.getElementById('salesDateRange').value;
+        
+        const { startDate, endDate } = getSalesDateRange(dateRange);
+        
+        console.log('🔍 Filtrando desde', startDate, 'hasta', endDate);
+        
+        // Agrupar ventas
+        const groupedData = groupSalesByPeriod(userSalesData, timePeriod, startDate, endDate);
+        
+        console.log('📈 Datos agrupados:', groupedData.chartData.length, 'puntos');
+        
+        if (groupedData.chartData.length === 0) {
+            document.getElementById('userSalesChart').parentElement.innerHTML = 
+                '<div style="position: relative; height: 400px; display: flex; align-items: center; justify-content: center;"><p style="text-align: center; color: #666;">No hay datos de ventas en el período seleccionado</p></div>';
+            document.getElementById('salesTotalAmount').textContent = '$0';
+            document.getElementById('salesCount').textContent = '0';
+            document.getElementById('salesAverage').textContent = '$0';
+            return;
+        }
+        
+        const chartTypeMap = {
+            'area': 'line',
+            'bar': 'bar',
+            'line': 'line'
+        };
+        
+        const validChartType = chartTypeMap[chartType] || 'line';
+        const shouldFill = chartType === 'area';
+        
+        // Asegurar que el canvas existe
+        if (!document.getElementById('userSalesChart')) {
+            document.querySelector('#userSalesChart').parentElement.innerHTML = 
+                '<canvas id="userSalesChart"></canvas>';
+        }
+        
+        const ctx = document.getElementById('userSalesChart').getContext('2d');
+        
+        if (userSalesChart) {
+            userSalesChart.destroy();
+        }
+        
+        userSalesChart = new Chart(ctx, {
+            type: validChartType,
+            data: {
+                datasets: [{
+                    label: 'Ventas',
+                    data: groupedData.chartData,
+                    borderColor: '#3B82F6',
+                    backgroundColor: shouldFill ? '#3B82F620' : 'transparent',
+                    tension: 0.4,
+                    fill: shouldFill,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Mis Ventas - ${getSalesChartTitle(dateRange, timePeriod)}`,
+                        font: { size: 16, weight: 'bold' },
+                        color: '#ff6b35'
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#FFFFFF',
+                        titleColor: '#1F2937',
+                        bodyColor: '#6B7280',
+                        borderColor: '#E5E7EB',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                        callbacks: {
+                            title: function(context) {
+                                if (context.length > 0) {
+                                    const date = new Date(context[0].parsed.x);
+                                    return date.toLocaleDateString('es-ES', {
+                                        weekday: 'long',
+                                        day: 'numeric',
+                                        month: 'long',
+                                        year: 'numeric'
+                                    });
+                                }
+                                return '';
+                            },
+                            label: function(context) {
+                                return 'Total: $' + context.parsed.y.toLocaleString();
+                            },
+                            afterBody: function(context) {
+                                if (context.length > 0) {
+                                    const dataPoint = groupedData.chartData[context[0].dataIndex];
+                                    if (dataPoint.count) {
+                                        return [
+                                            `Ventas: ${dataPoint.count}`,
+                                            `Promedio: $${Math.round(dataPoint.y / dataPoint.count).toLocaleString()}`
+                                        ];
+                                    }
+                                }
+                                return [];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: getSalesTimeUnit(timePeriod),
+                            displayFormats: {
+                                day: 'dd MMM',
+                                week: 'dd MMM',
+                                month: 'MMM yyyy'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Fecha',
+                            color: '#666'
+                        },
+                        ticks: { color: '#666' },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Ventas ($)',
+                            color: '#666'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) return '$' + (value/1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return '$' + (value/1000).toFixed(0) + 'k';
+                                return '$' + value.toLocaleString();
+                            },
+                            color: '#666'
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    }
+                }
+            }
+        });
+        
+        updateSalesStats(groupedData);
+    }
+
+    function groupSalesByPeriod(ventas, period, startDate, endDate) {
+        const grouped = new Map();
+        let totalAmount = 0;
+        let totalCount = 0;
+        
+        ventas.forEach(venta => {
+            const fecha = parseFechaVenta(venta.fechaa);
+            if (!fecha || fecha < startDate || fecha > endDate) return;
+            
+            let key;
+            const keyDate = new Date(fecha);
+            
+            if (period === 'week') {
+                const day = keyDate.getDay();
+                const diff = keyDate.getDate() - day + (day === 0 ? -6 : 1);
+                keyDate.setDate(diff);
+                keyDate.setHours(12, 0, 0, 0);
+                key = keyDate.toISOString().split('T')[0];
+            } else if (period === 'month') {
+                keyDate.setDate(1);
+                keyDate.setHours(12, 0, 0, 0);
+                key = keyDate.getFullYear() + '-' + String(keyDate.getMonth() + 1).padStart(2, '0') + '-01';
+            } else {
+                keyDate.setHours(12, 0, 0, 0);
+                key = keyDate.toISOString().split('T')[0];
+            }
+
+            if (grouped.has(key)) {
+                const existing = grouped.get(key);
+                grouped.set(key, {
+                    total: existing.total + venta.total,
+                    count: existing.count + 1,
+                    fecha: existing.fecha
+                });
+            } else {
+                grouped.set(key, {
+                    total: venta.total,
+                    count: 1,
+                    fecha: new Date(key + 'T12:00:00')
+                });
+            }
+            
+            totalAmount += venta.total;
+            totalCount++;
+        });
+
+        const chartData = Array.from(grouped.values())
+            .sort((a, b) => a.fecha - b.fecha)
+            .map(item => ({
+                x: item.fecha,
+                y: item.total,
+                count: item.count
+            }));
+
+        return { chartData, totalAmount, totalCount };
+    }
+
+    function getSalesDateRange(range) {
+        const startInput = document.getElementById('salesStartDate')?.value;
+        const endInput = document.getElementById('salesEndDate')?.value;
+
+        if (startInput && endInput) {
+            const startDate = new Date(startInput);
+            const endDate = new Date(endInput);
+            startDate.setHours(0, 0, 0, 0);
+            endDate.setHours(23, 59, 59, 999);
+            return { startDate, endDate };
+        }
+
+        const endDate = new Date();
+        endDate.setHours(23, 59, 59, 999);
+        
+        let startDate;
+        if (range === 'all') {
+            startDate = new Date('2020-01-01');
+        } else {
+            const dias = parseInt(range) || 30;
+            startDate = new Date();
+            startDate.setDate(startDate.getDate() - dias);
+        }
+        startDate.setHours(0, 0, 0, 0);
+        
+        return { startDate, endDate };
+    }
+
+    function getSalesTimeUnit(timePeriod) {
+        if (timePeriod === 'month') return 'month';
+        if (timePeriod === 'week') return 'week';
+        return 'day';
+    }
+
+    function getSalesChartTitle(range, period) {
+        const periodText = period === 'day' ? 'días' : period === 'week' ? 'semanas' : 'meses';
+        if (range === 'all') return `Todo el tiempo (por ${periodText})`;
+        const dias = parseInt(range) || 30;
+        return `Últimos ${dias} días (por ${periodText})`;
+    }
+
+    function updateSalesStats(data) {
+        document.getElementById('salesTotalAmount').textContent = '$' + data.totalAmount.toLocaleString();
+        document.getElementById('salesCount').textContent = data.totalCount.toLocaleString();
+        
+        const average = data.totalCount > 0 ? data.totalAmount / data.totalCount : 0;
+        document.getElementById('salesAverage').textContent = '$' + Math.round(average).toLocaleString();
+    }
+
+    // Event listeners - TODOS activos
+    ['salesTimePeriod', 'salesChartType', 'salesDateRange', 'salesStartDate', 'salesEndDate'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', updateUserSalesChart);
+        }
+    });
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!window.userSalesChartInitialized) {
+            updateUserSalesChart();
+            window.userSalesChartInitialized = true;
+        }
+    });
+
+    if (document.readyState !== 'loading' && !window.userSalesChartInitialized) {
+        updateUserSalesChart();
+        window.userSalesChartInitialized = true;
+    }
+</script>

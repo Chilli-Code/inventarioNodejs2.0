@@ -6,6 +6,7 @@ const Venta = require('../models/Sell'); // Asegúrate que la ruta al modelo est
 const { getDashboardData } = require('../controllers/dashboardController');
 const SubUser = require('../models/subUsuers'); 
 const User = require('../models/User');
+const { getUserDashboardData } = require('../controllers/userDashboardController');
 
 
 // Ruta protegida /home
@@ -153,7 +154,8 @@ if (vendedores.length === 0) {
 router.post('/receipt_page', isAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const { items, medio, nombrecliente, fechaa, codigo, vendedor } = req.body;
+    const { items, medio, nombrecliente, identificacionCliente, fechaa, codigo, vendedor } = req.body;
+
 
     const productos = [];
     const itemsParsed = JSON.parse(items);
@@ -198,6 +200,7 @@ router.post('/receipt_page', isAuthenticated, async (req, res) => {
       total,
       medio,
       nombrecliente,
+      identificacionCliente,
       fechaa,
       codigo,
       vendedor: nombreVendedor, // guardamos el nombre directamente
@@ -331,7 +334,19 @@ router.get('/notifications', isAuthenticated, async (req, res) => {
   }
 });
 
-router.get('/statistics', isAuthenticated, getDashboardData);
 
+// Ruta que decide qué controlador usar según el rol del usuario
+// router.get('/statistics', isAuthenticated, getDashboardData);
 
+router.get('/statistics', isAuthenticated, (req, res) => {
+  const user = req.session.user;
+  
+  if (user.role === 'admin') {
+    return getDashboardData(req, res);
+  } else if (user.role === 'user') {
+    return getUserDashboardData(req, res);
+  } else {
+    return res.status(403).send('Acceso denegado');
+  }
+});
 module.exports = router;

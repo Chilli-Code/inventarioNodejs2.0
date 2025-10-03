@@ -1,13 +1,88 @@
-<div data-swapy-slot="prod">
+<style>
+.chart-filters {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: flex-end;
+}
+
+.chart-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-weight: 600;
+    color: var(--app-content-main-color);
+    opacity: 0.8;
+    font-size: 0.9em;
+}
+
+.chart-filters input,
+.chart-filters select {
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 5px;
+    background: rgba(255,255,255,0.1);
+    color: var(--app-content-main-color);
+}
+
+.chart-filters button {
+    padding: 10px 20px;
+    background: #4FACFE;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.chart-filters button:hover {
+    background: #3B82F6;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    background: #4FACFE;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.pagination-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    color: var(--app-content-main-color);
+    font-weight: 600;
+}
+</style>
+
+<div class="swapy-slide chart-card" >
   <div data-swapy-item="prod">
-    <div class="chart-card">
+    <div class="">
       <div class="handle" data-swapy-handle></div>
       <h2>Top Productos Vendidos</h2>
 
       <!-- Filtros -->
       <div class="chart-filters">
-        <label>Desde: <input type="date" id="filtro-fecha-inicio" /></label>
-        <label>Hasta: <input type="date" id="filtro-fecha-fin" /></label>
+        <label>Desde: 
+          <input type="date" id="filtro-fecha-inicio" />
+        </label>
+        <label>Hasta: 
+          <input type="date" id="filtro-fecha-fin" />
+        </label>
         <label>Categoría:
           <select id="filtro-categoria">
             <option value="">Todas</option>
@@ -16,17 +91,210 @@
             <% }); %>
           </select>
         </label>
-        <label>Top:
+        <label>Productos por página:
           <select id="filtro-top">
-            <option value="5" selected>Top 5</option>
-            <option value="10">Top 10</option>
-            <option value="15">Top 15</option>
+            <option value="5">5 productos</option>
+            <option value="10" selected>10 productos</option>
+            <option value="15">15 productos</option>
+            <option value="20">20 productos</option>
           </select>
         </label>
         <button id="filtrar-productos">Filtrar</button>
       </div>
 
-      <div id="chart-productos"></div>
+      <div id="chart-productos" style="min-height: 400px; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin: 30px 0; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.1);"></div>
+
+      <!-- Paginación -->
+      <div class="pagination-container">
+        <button class="pagination-btn" id="btn-prev" onclick="cambiarPagina(-1)">←</button>
+        <span class="pagination-info" id="pagination-info">Página 1 de 1</span>
+        <button class="pagination-btn" id="btn-next" onclick="cambiarPagina(1)">→</button>
+      </div>
     </div>
   </div>
 </div>
+
+<script>
+    let productosCompletos = [];
+    let productosFiltrados = [];
+    let paginaActual = 1;
+    let productosPorPagina = 10;
+    let productosChart;
+
+    // Obtener todos los productos vendidos del usuario
+    async function cargarProductosVendidos() {
+        try {
+            const response = await fetch('/api/user/productos-vendidos');
+            const data = await response.json();
+            productosCompletos = data.productos || [];
+            console.log('📦 Productos cargados:', productosCompletos.length);
+            aplicarFiltros();
+        } catch (error) {
+            console.error('Error al cargar productos:', error);
+            document.getElementById('chart-productos').innerHTML = 
+                '<p style="text-align: center; color: red;">Error al cargar los productos</p>';
+        }
+    }
+
+    function aplicarFiltros() {
+        const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
+        const fechaFin = document.getElementById('filtro-fecha-fin').value;
+        const categoria = document.getElementById('filtro-categoria').value;
+        productosPorPagina = parseInt(document.getElementById('filtro-top').value);
+
+        // Filtrar en el servidor
+        const params = new URLSearchParams();
+        if (fechaInicio) params.append('fechaInicio', fechaInicio);
+        if (fechaFin) params.append('fechaFin', fechaFin);
+        if (categoria) params.append('categoria', categoria);
+
+        fetch('/api/user/productos-vendidos?' + params.toString())
+            .then(response => response.json())
+            .then(data => {
+                productosFiltrados = data.productos || [];
+                paginaActual = 1;
+                actualizarGrafica();
+            })
+            .catch(error => {
+                console.error('Error al filtrar:', error);
+            });
+    }
+
+    function actualizarGrafica() {
+        const inicio = (paginaActual - 1) * productosPorPagina;
+        const fin = inicio + productosPorPagina;
+        const productosPagina = productosFiltrados.slice(inicio, fin);
+
+        if (productosPagina.length === 0) {
+            document.getElementById('chart-productos').innerHTML = 
+                '<p style="text-align: center; padding: 40px; color: #666;">No hay productos en esta página</p>';
+            actualizarPaginacion();
+            return;
+        }
+
+        const labels = productosPagina.map(p => p.nombre);
+        const data = productosPagina.map(p => p.cantidadVendida);
+        const ingresos = productosPagina.map(p => p.ingresoTotal);
+
+        const colores = [
+            '#FF6B35', '#4FACFE', '#43E97B', '#F093FB', '#FA709A',
+            '#FECA57', '#48DBFB', '#FF9FF3', '#54A0FF', '#5F27CD',
+            '#FF6348', '#1ABC9C', '#3498DB', '#9B59B6', '#E74C3C'
+        ];
+
+        document.getElementById('chart-productos').innerHTML = 
+            '<canvas id="productosChartCanvas" style="max-height: 500px;"></canvas>';
+
+        const ctx = document.getElementById('productosChartCanvas').getContext('2d');
+
+        if (productosChart) {
+            productosChart.destroy();
+        }
+
+        productosChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Unidades Vendidas',
+                    data: data,
+                    backgroundColor: colores.slice(0, labels.length),
+                    borderColor: colores.slice(0, labels.length),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Top Productos Vendidos (Página ${paginaActual})`,
+                        font: { size: 16, weight: 'bold' },
+                        color: '#ff6b35'
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#FFFFFF',
+                        titleColor: '#1F2937',
+                        bodyColor: '#6B7280',
+                        borderColor: '#E5E7EB',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const idx = context.dataIndex;
+                                return [
+                                    `Unidades: ${data[idx]}`,
+                                    `Ingresos: $${ingresos[idx].toLocaleString()}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Unidades Vendidas',
+                            color: '#666'
+                        },
+                        ticks: { color: '#666' },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    y: {
+                        ticks: { 
+                            color: '#666',
+                            font: { size: 11 }
+                        },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        actualizarPaginacion();
+    }
+
+    function actualizarPaginacion() {
+        const totalPaginas = Math.ceil(productosFiltrados.length / productosPorPagina);
+        
+        document.getElementById('pagination-info').textContent = 
+            `Página ${paginaActual} de ${totalPaginas} `;
+        
+        document.getElementById('btn-prev').disabled = paginaActual === 1;
+        document.getElementById('btn-next').disabled = paginaActual >= totalPaginas;
+    }
+
+    function cambiarPagina(direccion) {
+        const totalPaginas = Math.ceil(productosFiltrados.length / productosPorPagina);
+        const nuevaPagina = paginaActual + direccion;
+
+        if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+            paginaActual = nuevaPagina;
+            actualizarGrafica();
+        }
+    }
+
+    // Event listeners
+    document.getElementById('filtrar-productos').addEventListener('click', aplicarFiltros);
+    document.getElementById('filtro-top').addEventListener('change', aplicarFiltros);
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!window.productosChartInitialized) {
+            cargarProductosVendidos();
+            window.productosChartInitialized = true;
+        }
+    });
+
+    if (document.readyState !== 'loading' && !window.productosChartInitialized) {
+        cargarProductosVendidos();
+        window.productosChartInitialized = true;
+    }
+</script>

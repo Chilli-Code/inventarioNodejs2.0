@@ -7,6 +7,7 @@ const RegisterUser = require('../models/RegisterUser');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const { deleteUserController } = require('../controllers/userController'); 
+const SubUser = require('../models/subUsuers');
 
 const Venta = require('../models/Sell');
 // Listado de usuarios pendientes
@@ -249,7 +250,119 @@ router.get('/receipts-management', isAdmin, async (req, res) => {
 
 
 
+// Ver perfil completo de un usuario
+router.get('/user-profile/:id', isAdmin, async (req, res) => {
+  try {
+    const adminUser = req.session.user;
+    
+    if (adminUser.role !== 'admin') {
+      return res.status(403).send('Solo administradores');
+    }
 
+    const userId = req.params.id;
+    const mongoose = require('mongoose');
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 15;
+    const skip = (page - 1) * limit;
+
+    // 1. Información del usuario
+    const usuario = await User.findById(userId);
+    if (!usuario) {
+      return res.status(404).send('Usuario no encontrado');
+    }
+
+    // 2. Subusuarios
+    const subUsuarios = await SubUser.find({ parentUser: userObjectId });
+
+    // 3. Productos del usuario
+    const productos = await Product.find({ user: userObjectId })
+      .sort({ ventas: -1 })
+      .skip(skip)
+      .limit(limit);
+
+     const totalProductos = await Product.countDocuments({ user: userObjectId });
+    const totalPages = Math.ceil(totalProductos / limit);
+    const productosActivos = await Product.countDocuments({ user: userObjectId, estado: 'Activo' });
+    const productosAgotados = await Product.countDocuments({ user: userObjectId, estado: 'Agotado' });
+
+    // 4. Ventas del usuario
+    const ventas = await Venta.find({ user: userObjectId })
+      .sort({ fechaa: -1 })
+      .limit(10)
+      .lean();
+
+    const totalVentas = await Venta.countDocuments({ user: userObjectId });
+    
+    const ingresosTotales = await Venta.aggregate([
+      { $match: { user: userObjectId } },
+      { $group: { _id: null, total: { $sum: '$total' } } }
+    ]);
+    const totalIngresos = ingresosTotales.length > 0 ? ingresosTotales[0].total : 0;
+
+    // 5. Clientes únicos
+    const clientesUnicos = await Venta.distinct('identificacionCliente', {
+      user: userObjectId,
+      identificacionCliente: { $ne: null, $ne: '', $exists: true }
+    });
+
+    // 6. Categorías
+    const categorias = await Product.distinct('categoria', { user: userObjectId });
+
+    // 7. Top 5 productos más vendidos
+    const topProductos = await Venta.aggregate([
+      { $match: { user: userObjectId } },
+      { $unwind: '$productos' },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'productos.productoVenta',
+          foreignField: '_id',
+          as: 'productoInfo'
+        }
+      },
+      { $unwind: '$productoInfo' },
+      {
+        $group: {
+          _id: '$productoInfo.producto',
+          totalVendido: { $sum: '$productos.cantidadVenta' },
+          ingresos: { $sum: { $multiply: ['$productos.cantidadVenta', '$productos.precioVenta'] } }
+        }
+      },
+      { $sort: { totalVendido: -1 } },
+      { $limit: 5 }
+    ]);
+
+    res.render('admin/userProfiles/user-profile', {
+      title: `Perfil de ${usuario.nombre}`,
+      titleMain: 'Perfil de Usuario',
+      currentOption: '/usuarios',
+      user: adminUser,
+      usuario,
+      subUsuarios,
+      productos,
+      ventas,
+      imageUrl:null,
+      totalProductos,
+      productosActivos,
+      productosAgotados,
+      totalVentas,
+      totalIngresos,
+      clientesUnicos: clientesUnicos.length,
+      categorias,
+      topProductos,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    });
+
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).send('Error al cargar perfil');
+  }
+});
 
 
 

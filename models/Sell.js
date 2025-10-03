@@ -14,6 +14,7 @@ const ventaSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   medio: { type: String, required: true },
   nombrecliente: { type: String },
+  identificacionCliente: { type: String },
   fechaa: { type: String, required: true },
   codigo: { type: String },
   vendedor: { type: String, required: true },

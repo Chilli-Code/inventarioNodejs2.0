@@ -50,6 +50,10 @@
   <link rel="stylesheet" href="/css/profile.css">
   <link rel="stylesheet" href="/css/dashboard.css">
   <% } %>
+  
+    <% if (currentOption==='/support') { %>
+  <link rel="stylesheet" href="/css/support.css">
+  <% } %>
 
   <!-- SweetAlert2 -->
   <link rel="stylesheet" href="/css/sweetalert2.min.css">
@@ -69,6 +73,10 @@
 <script src="https://unpkg.com/swapy@latest/dist/swapy.min.js"></script>
 
 <% } %>
+
+  <% if (currentOption==='/user') { %>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <% } %>
 <% if (currentOption==='/home') { %>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="/js/lottie-player.js" defer></script>
@@ -82,7 +90,17 @@
 <% } %>
 
 <body>
-
+  <script>
+    // Pasar el rol del usuario a JavaScript
+    <% if (user) { %>
+      window.userRole = '<%= user.role %>';
+      window.userId = '<%= user.id %>';
+      window.userName = '<%= user.nombre %>';
+    <% } else { %>
+      window.userRole = null;
+    <% } %>
+  </script>
+  <script src="/js/notifications.js"></script>
 
 
 

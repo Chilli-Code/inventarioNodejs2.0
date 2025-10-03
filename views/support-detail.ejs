@@ -1,0 +1,181 @@
+
+
+
+<%- include('./partials/header/layout') %>
+<%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+</div>
+
+
+<div class="app-content-inicio">
+        <div class="app-content-actions">
+        <a href="/support" class="back-btn">
+            ← Volver a Tickets
+        </a>
+    </div>
+    <div style="overflow: auto;">
+        <div class="ticket-detail-card">
+            <div class="ticket-detail-header">
+                <div class="ticket-meta">
+                    <span class="ticket-type type-<%= ticket.tipo %>">
+                        <%= ticket.tipo === 'bug' ? '🐛 Bug' : 
+                            ticket.tipo === 'feature' ? '✨ Feature' : 
+                            ticket.tipo === 'question' ? '❓ Pregunta' : 
+                            '📝 Otro' %>
+                    </span>
+                    <span class="ticket-status status-<%= ticket.estado %>">
+                        <%= ticket.estado.replace('_', ' ').toUpperCase() %>
+                    </span>
+                    <span class="priority-badge priority-<%= ticket.prioridad %>">
+                        <%= ticket.prioridad %>
+                    </span>
+                </div>
+    
+                <% if (user.role === 'admin') { %>
+                    <div class="admin-controls">
+                        <select class="status-dropdown" onchange="cambiarEstado(this.value)">
+                            <option value="abierto" <%= ticket.estado === 'abierto' ? 'selected' : '' %>>Abierto</option>
+                            <option value="en_proceso" <%= ticket.estado === 'en_proceso' ? 'selected' : '' %>>En Proceso</option>
+                            <option value="resuelto" <%= ticket.estado === 'resuelto' ? 'selected' : '' %>>Resuelto</option>
+                            <option value="cerrado" <%= ticket.estado === 'cerrado' ? 'selected' : '' %>>Cerrado</option>
+                        </select>
+                    </div>
+                <% } %>
+            </div>
+    
+            <h1 class="detail-title"><%= ticket.asunto %></h1>
+    
+            <div class="detail-description">
+                <%= ticket.descripcion %>
+            </div>
+    
+            <div class="ticket-info-grid">
+                <% if (user.role === 'admin' && ticket.user) { %>
+                    <div class="info-item">
+                        <span class="info-label">Creado por</span>
+                        <span class="info-value">
+                            <%= ticket.user.nombre || 'Usuario' %>
+                            <% if (ticket.user.businessName) { %>
+                                <br><small><%= ticket.user.businessName %></small>
+                            <% } %>
+                        </span>
+                    </div>
+                <% } %>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Creación</span>
+                    <span class="info-value">
+                        <%= new Date(ticket.fechaCreacion).toLocaleString('es-ES', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) %>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Última Actualización</span>
+                    <span class="info-value">
+                        <%= new Date(ticket.fechaActualizacion).toLocaleString('es-ES', {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) %>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Respuestas</span>
+                    <span class="info-value"><%= ticket.respuestas.length %></span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="responses-section">
+            <h2 class="responses-title">
+                💬 Conversación
+            </h2>
+    
+            <% if (ticket.respuestas && ticket.respuestas.length > 0) { %>
+                <% ticket.respuestas.forEach(respuesta => { %>
+                    <div class="response-item <%= respuesta.esAdmin ? 'admin-response' : '' %>">
+                        <div class="response-header">
+                            <div class="response-author">
+                                <%= respuesta.usuario ? respuesta.usuario.nombre : 'Usuario' %>
+                                <% if (respuesta.esAdmin) { %>
+                                    <span class="admin-badge">Admin</span>
+                                <% } %>
+                            </div>
+                            <div class="response-date">
+                                <%= new Date(respuesta.fecha).toLocaleString('es-ES', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) %>
+                            </div>
+                        </div>
+                        <div class="response-message">
+                            <%= respuesta.mensaje %>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="empty-responses">
+                    No hay respuestas aún. Sé el primero en responder.
+                </div>
+            <% } %>
+    
+            <% if (ticket.estado !== 'cerrado') { %>
+                <div class="reply-form">
+                    <h3>Agregar Respuesta</h3>
+                    <form action="/support/<%= ticket._id %>/reply" method="POST">
+                        <textarea 
+                            name="mensaje" 
+                            class="reply-textarea" 
+                            placeholder="Escribe tu respuesta aquí..."
+                            required
+                        ></textarea>
+                        <button type="submit" class="btn-reply">Enviar Respuesta</button>
+                    </form>
+                </div>
+            <% } else { %>
+                <div class="closed-notice">
+                    ⚠️ Este ticket está cerrado. No se pueden agregar más respuestas.
+                </div>
+            <% } %>
+    
+    </div>
+
+    </div>
+
+</div>
+
+
+
+
+<script>
+function cambiarEstado(nuevoEstado) {
+    if (confirm('¿Cambiar el estado del ticket?')) {
+        fetch('/support/<%= ticket._id %>/status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ estado: nuevoEstado })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al cambiar el estado');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cambiar el estado');
+        });
+    }
+}
+</script>

@@ -1,0 +1,188 @@
+
+
+.profile-container {
+    width: 100%;
+    margin: 0 ;
+    padding: 20px;
+    overflow: auto;
+}
+
+
+.profile-header {
+    background: var(--app-content-secondary-color);
+    border: 1px solid var(--sidebar-active-link);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.user-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    color: white;
+    font-weight: bold;
+}
+
+.user-details h1 {
+    color: var(--app-content-main-color);
+    margin: 0 0 5px 0;
+}
+
+.user-details p {
+    color: var(--app-content-main-color);
+    opacity: 0.7;
+    margin: 5px 0;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--app-content-secondary-color);
+    border: 1px solid var(--sidebar-active-link);
+    border-radius: 8px;
+    color: var(--app-content-main-color);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    transform: translateX(-5px);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--app-content-secondary-color);
+    border: 1px solid var(--sidebar-active-link);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--app-content-main-color);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: var(--app-content-main-color);
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.section {
+    background: var(--app-content-secondary-color);
+    border: 1px solid var(--sidebar-active-link);
+    border-radius: 15px;
+    padding: 30px !important;
+    overflow-x: scroll;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--app-content-main-color);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    text-align: left;
+    padding: 12px;
+    color: var(--app-content-main-color);
+    font-weight: 600;
+}
+
+table td {
+    padding: 12px;
+    color: var(--app-content-main-color);
+}
+
+.status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.status.active {
+    background: #4CAF50;
+    color: white;
+}
+
+.status.disabled {
+    background: #F44336;
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--app-content-main-color);
+    opacity: 0.5;
+}
+
+.top-product-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: var(--app-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.product-name {
+    font-weight: 600;
+    color: var(--app-content-main-color);
+}
+
+.product-stats {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9em;
+    color: var(--app-content-main-color);
+    opacity: 0.8;
+}
+
+.products-header {
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    background-color: var(--app-content-secondary-color);
+    position: relative;
+    top: 0;
+}

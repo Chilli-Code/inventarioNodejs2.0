@@ -1,0 +1,144 @@
+
+<%- include('./partials/header/layout') %>
+<%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+</div>
+<div class="app-content-inicio">
+
+        <div class="app-content-actions">
+            <div>
+                <p style="color:var(--app-content-main-color)">Gestiona tus tickets de soporte</p>
+            </div>
+            <button class="btn-new-ticket" onclick="openNewTicketModal()">
+                + Nuevo Ticket
+            </button>
+        </div>
+    
+        <div class="filters">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="abierto">Abiertos</button>
+            <button class="filter-btn" data-filter="en_proceso">En Proceso</button>
+            <button class="filter-btn" data-filter="resuelto">Resueltos</button>
+            <button class="filter-btn" data-filter="cerrado">Cerrados</button>
+        </div>
+    
+        <div class="tickets-grid">
+            <% if (tickets && tickets.length > 0) { %>
+                <% tickets.forEach(function(ticket) { %>
+                    <div class="ticket-card" data-status="<%= ticket.estado %>" onclick="window.location.href='/support/<%= ticket._id %>'">
+                        <div class="ticket-header">
+                            <span class="ticket-type type-<%= ticket.tipo %>">
+                                <%= ticket.tipo === 'bug' ? '🐛 Bug' : ticket.tipo === 'feature' ? '✨ Nueva Funcionalidad' : ticket.tipo === 'question' ? '❓ Pregunta' : '📝 Otro' %>
+                            </span>
+                            <span class="ticket-status status-<%= ticket.estado %>">
+                                <%= ticket.estado.replace('_', ' ').toUpperCase() %>
+                            </span>
+                        </div>
+                        
+                        <h3 class="ticket-title">
+                            <%= ticket.asunto %>
+                            <span class="priority-badge priority-<%= ticket.prioridad %>">
+                                <%= ticket.prioridad %>
+                            </span>
+                        </h3>
+                        
+                        <p class="ticket-description"><%= ticket.descripcion %></p>
+                        
+                        <div class="ticket-footer">
+                            <div>
+                                <% if (user.role === 'admin' && ticket.user) { %>
+                                    <div class="ticket-user">
+                                        <h3>ERES USUARIO ADMIN</h3>
+                                        👤 <%= ticket.user.nombre || 'Usuario' %>
+                                        <% if (ticket.user.businessName) { %>
+                                            (<%= ticket.user.businessName %>)
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                                <div class="responses-count">
+                                    💬 <%= ticket.respuestas ? ticket.respuestas.length : 0 %> respuestas
+                                </div>
+                            </div>
+                            <div class="ticket-date">
+                                <%= new Date(ticket.fechaActualizacion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <h2>No hay tickets disponibles</h2>
+                    <p>Crea tu primer ticket de soporte</p>
+                </div>
+            <% } %>
+        </div>
+
+    <div class="modal" id="newTicketModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nuevo Ticket de Soporte</h2>
+                <button class="close-modal" onclick="closeNewTicketModal()">×</button>
+            </div>
+            
+            <form action="/support/create" method="POST">
+                <div class="form-group">
+                    <label>Tipo de Ticket</label>
+                    <select name="tipo" required>
+                        <option value="bug">🐛 Reportar un Error</option>
+                        <option value="feature">✨ Solicitar Nueva Funcionalidad</option>
+                        <option value="question">❓ Hacer una Pregunta</option>
+                        <option value="other">📝 Otro</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label>Prioridad</label>
+                    <select name="prioridad" required>
+                        <option value="baja">Baja</option>
+                        <option value="media" selected>Media</option>
+                        <option value="alta">Alta</option>
+                        <option value="urgente">Urgente</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label>Asunto</label>
+                    <input type="text" name="asunto" maxlength="200" required placeholder="Describe brevemente el problema...">
+                </div>
+    
+                <div class="form-group">
+                    <label>Descripción Detallada</label>
+                    <textarea name="descripcion" required placeholder="Explica con detalle tu solicitud o problema..."></textarea>
+                </div>
+    
+                <button type="submit" class="btn-submit">Crear Ticket</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function openNewTicketModal() {
+    document.getElementById('newTicketModal').classList.add('active');
+}
+
+function closeNewTicketModal() {
+    document.getElementById('newTicketModal').classList.remove('active');
+}
+
+document.getElementById('newTicketModal').addEventListener('click', function(e) {
+    if (e.target === this) closeNewTicketModal();
+});
+
+document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        
+        var filter = this.dataset.filter;
+        document.querySelectorAll('.ticket-card').forEach(function(card) {
+            card.style.display = (filter === 'todos' || card.dataset.status === filter) ? 'block' : 'none';
+        });
+    });
+});
+</script>

@@ -1,37 +1,93 @@
 
-<style>
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/gridstack@8.2.0/dist/gridstack.min.css" rel="stylesheet" />
 
-  .swapy-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
+  <style>
+    @media (max-width: 768px) {
+  body.is-mobile .grid-stack {
+  width: 100%;
+  height: auto;
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+}
 
-  .chart-card {
-    background-color: var(--app-content-secondary-color);
-    border-radius: 8px;
-    padding: 20px;
-    flex: 1;
-    min-width: 300px;
-    border:1px solid var(--sidebar-active-link);
-  }
+body.is-mobile .grid-stack-item {
+  height: auto;
+  position: relative;
+}
 
-  .chart-card h2 {
-    color: var(--app-content-main-color);
-    margin-bottom: 15px;
-    text-align: center;
-  }
-.handle {
-    cursor: grab;
-    width: 24px;
-    height: 24px;
-    background-image: url("data:image/svg+xml,%3csvg%20viewBox='0%200%2024%2024'%20xmlns='http://www.w3.org/2000/svg'%20id='fi_3793594'%3e%3ccircle%20cx='8'%20cy='4'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='8'%20cy='12'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='8'%20cy='20'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='4'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='12'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='20'%20r='2'%3e%3c/circle%3e%3c/svg%3e");
-    opacity: .5;
+body.is-mobile .grid-stack-item-content {
+  margin-top: 80px;
+}
+
+/* Estilos específicos si quieres para cada div */
+body.is-mobile .divOne {
+  margin-bottom: 90px !important;
+  background-color: #29b6f6 !important;
+  height: 1150px !important;
+}
+
+body.is-mobile .divTwo {
+  height: 850px !important;
+}
+
+body.is-mobile .divThree {
+  height: 300px !important;
+}
+
+  
+}
+.grid-stack-item .ui-resizable-se {
+    right: 0px !important;
+    bottom: 4px !important;
+    width: 50px !important;
+    height: 40px !important;
+    /* background: rgb(209 25 25 / 20%); */
+    border-radius: 4px;
+    z-index: 10;
+    cursor: se-resize;
+}
+
+.grid-stack-item-content{
+  background-color: var(--app-content-secondary-color);
+  border:1px solid var(--sidebar-active-link);
+      border-radius: 8px;
 
 }
 
-
-</style>
+  @media(max-width: 990px) {
+    .container-mobile .swapy-container {
+      display: flex !important;
+      gap: 20px;
+      width: 100%;
+      flex-direction: column !important;
+  }
+  }
+    .chart-card {
+      padding: 20px;
+      flex: 1;
+      min-width: 300px;
+      
+    }
+  
+    .chart-card h2 {
+      color: var(--app-content-main-color);
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  .handle {
+      cursor: grab;
+      width: 24px;
+      height: 24px;
+      background-image: url("data:image/svg+xml,%3csvg%20viewBox='0%200%2024%2024'%20xmlns='http://www.w3.org/2000/svg'%20id='fi_3793594'%3e%3ccircle%20cx='8'%20cy='4'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='8'%20cy='12'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='8'%20cy='20'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='4'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='12'%20r='2'%3e%3c/circle%3e%3ccircle%20cx='16'%20cy='20'%20r='2'%3e%3c/circle%3e%3c/svg%3e");
+      opacity: .5;
+  
+  }
+  
+  
+  </style>
+</head>
 <%- include('./partials/header/layout') %>
 
 
@@ -40,6 +96,7 @@
   <%- include('./partials/statistics/statisticsHeader'); %>
 
   <div class="container-mobile" style="padding: 1rem 2rem; overflow: auto;">
+
 <% if (user?.role === 'admin') { %>
   <%- include('./partials/admin/statistics/chartProducts', {productsByUser, allUsers, isMobile}) %>
   <%- include('./partials/admin/statistics/chartSellUser', {salesByUser, allUsers, isMobile}) %>
@@ -49,99 +106,30 @@
 <div class="alert alert-info" style="background: #00002010; color: #29b6f6; border: 1px solid #29b6f6;">
   Estás viendo <strong>tus estadísticas personales</strong>.
 </div>
-  <div class="swapy-container">
-  <%- include('./partials/statistics/charts/productos') %>
-  <%- include('./partials/statistics/charts/categorias') %>
-  <%- include('./partials/statistics/charts/clientes') %>
-</div>
+  <div class="grid-stack">
+    <div class="grid-stack-item divOne" gs-x="0" gs-y="0" gs-w="12" gs-h="16">
+      <div class="grid-stack-item-content">
+        <%- include('./partials/statistics/charts/DateSellUser') %>
+      </div>
+    </div>
+    <div class="grid-stack-item divTwo" gs-x="0" gs-y="3" gs-w="6" gs-h="13">
+      <div class="grid-stack-item-content">
+        <%- include('./partials/statistics/charts/productos') %>
+      </div>
+    </div>
+    <div class="grid-stack-item divThree" gs-x="6" gs-y="3" gs-w="6" gs-h="13" >
+      <div class="grid-stack-item-content">
+        <%- include('./partials/statistics/charts/categorias') %>
+      </div>
+    </div>
+  </div>
 <% } %>
 </div>
 
 
 
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
 
-  const categoriasLabels = <%- JSON.stringify(catLabels || []) %>;
-  const categoriasData = <%- JSON.stringify(catData || []) %>;
-
-  const clientesLabels = <%- JSON.stringify(clientLabels || []) %>;
-  const clientesData = <%- JSON.stringify(clientData || []) %>;
-
-  const container = document.querySelector(".swapy-container");
-  const savedOrder = JSON.parse(localStorage.getItem("chartOrder") || "null");
-
-  if (container && savedOrder) {
-    const slotElements = Array.from(container.querySelectorAll("[data-swapy-slot]"));
-    const slotsMap = {};
-    slotElements.forEach(el => {
-      const key = el.getAttribute("data-swapy-slot");
-      slotsMap[key] = el;
-    });
-
-    for (const key of Object.keys(savedOrder)) {
-      const slot = savedOrder[key];
-      if (slotsMap[slot]) {
-        container.appendChild(slotsMap[slot]);
-      }
-    }
-  }
-
-  // renderBarChart("#chart-productos", productosLabels, productosData, "Productos");
-  renderBarChart("#chart-categorias", categoriasLabels, categoriasData, "Categorías");
-  renderBarChart("#chart-clientes", clientesLabels, clientesData, "Clientes");
-
-  if (container && Swapy?.createSwapy) {
-    const swapy = Swapy.createSwapy(container, {
-      swapMode: "hover",
-      animation: "dynamic",
-      draggable: true,
-      handle: "[data-swapy-handle]"
-    });
-
-    swapy.onSwapEnd(event => {
-      const order = event.slotItemMap.asObject;
-      localStorage.setItem("chartOrder", JSON.stringify(order));
-    });
-  }
-});
-
-function renderBarChart(selector, labels, data, title = "Cantidad") {
-  const element = document.querySelector(selector);
-  if (!element) {
-    console.warn("Elemento no encontrado para selector:", selector);
-    return;
-  }
-
-  element.innerHTML = "";
-
-  if (!labels.length || !data.length || data.every(val => val === 0)) {
-    element.innerHTML = `
-      <div style="text-align:center; color:#ccc; padding: 30px;">
-        <div style="font-size:40px;">📉</div>
-        <div>No hay datos disponibles</div>
-      </div>
-    `;
-    return;
-  }
-
-  const options = {
-    series: [{ name: title, data }],
-    chart: { type: 'bar', height: 300, background: 'transparent', toolbar: { show: false }},
-    plotOptions: { bar: { horizontal: false, columnWidth: '50%', distributed: true }},
-    dataLabels: { enabled: false },
-    xaxis: { categories: labels, labels: { style: { colors: 'var(--app-content-main-color)' } }},
-    yaxis: { labels: { style: { colors: 'var(--app-content-main-color)' } }},
-    tooltip: { theme: 'dark' },
-    colors: ["#2962ff", "#d50000", "#2e7d32", "#ff6d00", "#583cb3"],
-    grid: { borderColor: "#55596e" }
-  };
-
-  const chart = new ApexCharts(element, options);
-  chart.render();
-}
-</script>
 
 <!-- Filtro para productos -->
 <script>
@@ -195,3 +183,53 @@ if (btnFiltrarCat) {
   });
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<!-- CDN de Swapy.js (usa el build adecuado si tienes uno) -->
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/gridstack@8.2.0/dist/gridstack-all.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobileDevice) {
+      document.body.classList.add('is-mobile');
+
+      // Añade clases específicas a los grid-stack-items
+      const items = document.querySelectorAll('.grid-stack-item');
+      if (items.length >= 3) {
+        items[0].classList.add('divOne');
+        items[1].classList.add('divTwo');
+        items[2].classList.add('divThree');
+      }
+
+      // Forzar que ocupen todo el ancho
+      items.forEach(item => {
+        item.setAttribute('gs-w', '12');
+      });
+    }
+
+    // Inicializa GridStack
+    GridStack.init({
+      cellHeight: 60,
+      float: false,
+      oneColumnMode: isMobileDevice,
+      oneColumnModeDomSort: true,
+      resizable: {
+        handles: 'se'
+      },
+      draggable: isMobileDevice ? false : {
+        handle: '.handle',
+        delay: 100,          // Espera 100ms antes de empezar a arrastrar
+        distance: 5          // El cursor debe moverse 5px para activar el drag
+      }
+    });
+  });
+</script>
+
+
+
+

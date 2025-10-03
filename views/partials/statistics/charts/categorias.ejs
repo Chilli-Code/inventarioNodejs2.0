@@ -1,60 +1,269 @@
-<style>
-.quesadilla {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.quesadilla:after{
-  z-index:-1;
-  content:'📅';
-  display: block;
-  font-size:2rem;
-  color:STEELBLUE;
-  background: none;
-  width: 50px;
-  height: 50px;
-  position: absolute;
-  top:13px;
-  right:-7px;
-}
-input.date{
-  border-radius:10px;
-  height:auto;
-  transition:all ease 400ms;
+<!-- statistics.ejs - Versión SIMPLIFICADA sin filtros -->
 
-}
-
-label{
-  color: var(--app-content-main-color);
-}
-
-
-</style>
-
-<div data-swapy-slot="cat">
-  <div data-swapy-item="cat">
+<% if (user.role === 'user') { %>
+<div class="swapy-slide three-div" data-swapy-slot="cat-chart" >
+  <div data-swapy-item="cat-chart">
     <div class="chart-card">
       <div class="handle" data-swapy-handle></div>
       <h2>Ventas por Categorías</h2>
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-        <div class="quesadilla">
-          <label >Desde</label>
-          <input type="date" id="filtro-cat-fecha-inicio" class="date" />
-        </div>
-        <div class="quesadilla">
-          <label>Hasta</label>
-          <input type="date" id="filtro-cat-fecha-fin" class="date" />
-        </div>
-    <select id="filtro-categoria-especifica">
-      <option value="todas">Todas</option>
-      <% categoriasDisponibles.forEach(cat => { %>
-        <option value="<%= cat %>"><%= cat %></option>
-      <% }); %>
-    </select>
-        <button id="filtrar-categorias">Filtrar Categorías</button>
-        <div id="chart-categorias"></div>
+
+      <!-- Contenedor de la gráfica -->
+      <div id="chart-categorias" style="min-height: 400px; position: relative;">
+        <!-- La gráfica se insertará aquí dinámicamente -->
       </div>
     </div>
   </div>
 </div>
+
+<!-- Estilos CSS -->
+<style>
+
+.chart-card h2 {
+    color: #ff6b35;
+    margin-bottom: 20px;
+}
+</style>
+
+<!-- Script de la gráfica -->
+
+<script>
+    // Registrar componentes necesarios de Chart.js
+    Chart.register(
+        Chart.CategoryScale,
+        Chart.LinearScale,
+        Chart.BarElement,
+        Chart.PieController,
+        Chart.ArcElement,
+        Chart.Title,
+        Chart.Tooltip,
+        Chart.Legend
+    );
+
+    // Datos iniciales desde el backend
+    const ventasPorCategoria = <%- JSON.stringify(ventasPorCategoria || []) %>;
+    let categoryChart;
+
+    //console.log('📊 Datos de categorías cargados:', ventasPorCategoria);
+    //console.log('📊 Cantidad de categorías:', ventasPorCategoria.length);
+
+    function createCategoryChart(data = null) {
+        const chartData = data || ventasPorCategoria;
+        
+        //console.log('🎨 Intentando crear gráfica con:', chartData);
+        
+        if (!chartData || chartData.length === 0) {
+            console.error('❌ No hay datos para mostrar');
+            document.getElementById('chart-categorias').innerHTML = 
+                `<div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 3em; margin-bottom: 20px;">📊</div>
+                    <p style="color: var(--app-content-main-color);">No hay datos de ventas por categorías</p>
+                    <p style="color: #999; font-size: 0.9em; margin-top: 10px;">
+                        Registra algunas ventas para ver tus estadísticas
+                    </p>
+                </div>`;
+            return;
+        }
+
+        // Preparar datos para la gráfica
+        const labels = chartData.map(item => item._id || 'Sin categoría');
+        const ingresosData = chartData.map(item => item.totalIngresos || 0);
+        
+        //console.log('📈 Labels:', labels);
+        //console.log('💰 Ingresos:', ingresosData);
+        
+        const coloresVibrantes = [
+            '#FF6B35', '#4FACFE', '#43E97B', '#F093FB', '#FA709A',
+            '#FECA57', '#48DBFB', '#FF9FF3', '#54A0FF', '#5F27CD'
+        ];
+
+        // Limpiar contenedor
+        document.getElementById('chart-categorias').innerHTML = 
+            '<canvas id="categoryChartCanvas" style="max-height: 400px;"></canvas>';
+
+        const ctx = document.getElementById('categoryChartCanvas').getContext('2d');
+        
+        if (categoryChart) {
+            categoryChart.destroy();
+        }
+
+        categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ingresos por Categoría',
+                    data: ingresosData,
+                    backgroundColor: coloresVibrantes.slice(0, labels.length),
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Mis Ventas por Categorías',
+                        font: { size: 18, weight: 'bold' },
+                        color: '#ff6b35',
+                        padding: { bottom: 20 }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: '#666',
+                            padding: 15,
+                            usePointStyle: true,
+                            font: { size: 12 }
+                        },
+                        onClick: function(e, legendItem, legend) {
+                            const index = legendItem.index;
+                            const chart = legend.chart;
+                            const meta = chart.getDatasetMeta(0);
+                            
+                            // Toggle visibility
+                            meta.data[index].hidden = !meta.data[index].hidden;
+                            chart.update();
+                            
+                            // Actualizar estadísticas basadas en lo visible
+                            updateStatsFromVisibleData(chart, chartData);
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#FFFFFF',
+                        titleColor: '#1F2937',
+                        bodyColor: '#6B7280',
+                        borderColor: '#E5E7EB',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const categoria = context.label;
+                                const ingresos = context.parsed;
+                                const item = chartData.find(d => (d._id || 'Sin categoría') === categoria);
+                                const cantidadVentas = item ? item.totalVentas : 0;
+                                const recibos = item ? item.cantidadRecibos : 0;
+                                
+                                return [
+                                    `Categoría: ${categoria}`,
+                                    `Ingresos: $${ingresos.toLocaleString()}`,
+                                    `Unidades vendidas: ${cantidadVentas}`,
+                                    `Recibos: ${recibos}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+
+        updateCategoryStats(chartData);
+        // //console.log('✅ Gráfica creada exitosamente');
+    }
+
+    // NUEVA FUNCIÓN: Actualizar estadísticas basadas en datos visibles
+    function updateStatsFromVisibleData(chart, data) {
+        const meta = chart.getDatasetMeta(0);
+        
+        let totalIngresos = 0;
+        let totalUnidades = 0;
+        let categoriasVisibles = [];
+        
+        // Recorrer cada segmento de la gráfica
+        data.forEach((item, index) => {
+            // Verificar si este segmento está visible
+            if (!meta.data[index].hidden) {
+                totalIngresos += item.totalIngresos || 0;
+                totalUnidades += item.totalVentas || 0;
+                categoriasVisibles.push({
+                    nombre: item._id,
+                    ingresos: item.totalIngresos || 0
+                });
+            }
+        });
+        
+        // Encontrar la categoría top entre las visibles
+        const categoriaTop = categoriasVisibles.length > 0
+            ? categoriasVisibles.reduce((max, cat) => 
+                cat.ingresos > max.ingresos ? cat : max
+              ).nombre
+            : 'N/A';
+        
+        // Actualizar las estadísticas con los nuevos valores
+        updateCategoryStats(data, totalIngresos, totalUnidades, categoriaTop);
+        
+        //console.log('📊 Estadísticas actualizadas:', {
+        //    totalIngresos,
+        //    totalUnidades,
+        //    categoriaTop,
+        //    categoriasVisibles: categoriasVisibles.length
+        //});
+    }
+
+    function updateCategoryStats(data, customIngresos = null, customUnidades = null, customTop = null) {
+        const totalIngresos = customIngresos !== null 
+            ? customIngresos 
+            : data.reduce((sum, item) => sum + (item.totalIngresos || 0), 0);
+            
+        const totalUnidades = customUnidades !== null
+            ? customUnidades
+            : data.reduce((sum, item) => sum + (item.totalVentas || 0), 0);
+            
+        const categoriaTop = customTop !== null
+            ? customTop
+            : (data.length > 0 ? (data[0]._id || 'N/A') : 'N/A');
+
+        let statsHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 80px;">
+                <div style="background: rgba(255,107,53,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #ff6b35;">$${totalIngresos.toLocaleString()}</div>
+                    <div style="font-size: 0.85em; color: var(--app-content-main-color); opacity: 0.8; margin-top: 5px;">Total Ingresos</div>
+                </div>
+                <div style="background: rgba(67,233,123,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #43e97b;">${totalUnidades}</div>
+                    <div style="font-size: 0.85em; color: var(--app-content-main-color); opacity: 0.8; margin-top: 5px;">Unidades Vendidas</div>
+                </div>
+                <div style="background: rgba(79,172,254,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: #4facfe;">${categoriaTop}</div>
+                    <div style="font-size: 0.85em; color: var(--app-content-main-color); opacity: 0.8; margin-top: 5px;">Top Categoría</div>
+                </div>
+            </div>
+        `;
+
+        const chartContainer = document.getElementById('chart-categorias');
+        let existingStats = chartContainer.querySelector('.category-stats');
+        
+        if (!existingStats) {
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'category-stats';
+            statsDiv.innerHTML = statsHTML;
+            chartContainer.appendChild(statsDiv);
+        } else {
+            existingStats.innerHTML = statsHTML;
+        }
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        //console.log('🚀 DOM cargado, inicializando gráfica...');
+        if (!window.categoryChartInitialized) {
+            createCategoryChart();
+            window.categoryChartInitialized = true;
+        }
+    });
+
+    // Por si el DOM ya está listo
+    if (document.readyState !== 'loading' && !window.categoryChartInitialized) {
+        //console.log('🚀 DOM ya estaba listo, inicializando gráfica...');
+        createCategoryChart();
+        window.categoryChartInitialized = true;
+    }
+</script>
+<% } %>

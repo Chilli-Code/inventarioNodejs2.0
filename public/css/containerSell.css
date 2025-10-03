@@ -325,13 +325,7 @@ div#productos-seleccionados {
     border-color: var(--action-color);
 }
 
-.cont-from-ventas label {
-    display: block;
-    font-size: 14px;
-    color: var(--app-content-main-color);
-    margin-bottom: 8px;
-    margin-top: 5px;
-}
+
 
 .cont-from-ventas  select {
     -webkit-appearance: none;

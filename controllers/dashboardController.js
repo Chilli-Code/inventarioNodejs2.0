@@ -6,31 +6,35 @@ const SubUser = require('../models/subUsuers');
 async function getDashboardData(req, res) {
   try {
     const user = req.session.user;
-    const isAdmin = user.role === 'admin';
+    
+    // SEGURIDAD: Solo administradores pueden acceder
+    if (user.role !== 'admin') {
+      return res.status(403).send('Acceso denegado: Solo administradores');
+    }
 
-    // filtros
-    const ventaFilter = isAdmin ? {} : { user: user.id };
-    const productoFilter = isAdmin ? {} : { user: user.id };
+    // CAMBIAR: Ahora todos los filtros son para admin (sin filtros)
+    const ventaFilter = {};
+    const productoFilter = {};
+    const subUserFilter = {};
 
-    // 1. Total de productos
+    // 1. Total de productos (TODOS)
     const totalProductos = await Product.countDocuments(productoFilter);
 
-    // 2. Total de categorías
+    // 2. Total de categorías (TODAS)
     const categorias = await Product.distinct('categoria', productoFilter);
     const totalCategorias = categorias.length;
 
-    // 3. Total de clientes únicos
-    const clientesUnicos = await Venta.distinct('nombrecliente', {
-      ...ventaFilter,
-      nombrecliente: { $ne: null, $ne: '' }
-    });
-    const totalClientes = clientesUnicos.length;
+    // 3. Total de clientes únicos (TODOS)
+const clientesUnicos = await Venta.distinct('identificacionCliente', {
+  ...ventaFilter,
+  identificacionCliente: { $ne: null, $ne: '', $exists: true }
+});
+const totalClientes = clientesUnicos.length;
 
-    // 4. Total de subusuarios
-    const subUserFilter = isAdmin ? {} : { parentUser: user.id };
+    // 4. Total de subusuarios (TODOS)
     const totalSubUsuarios = await SubUser.countDocuments(subUserFilter);
 
-    // 5. Top productos
+    // 5. Top productos (TODOS LOS USUARIOS)
     const topVentas = await Venta.aggregate([
       { $match: ventaFilter },
       { $unwind: '$productos' },
@@ -43,7 +47,7 @@ async function getDashboardData(req, res) {
         }
       },
       { $unwind: '$productoInfo' },
-      { $match: isAdmin ? {} : { 'productoInfo.user': user.id } },
+      // QUITAR: { $match: { 'productoInfo.user': user.id } }, - Ya no filtrar por usuario
       {
         $group: {
           _id: '$productos.productoVenta',
@@ -54,15 +58,7 @@ async function getDashboardData(req, res) {
       { $limit: 5 }
     ]);
 
-    // Obtener los nombres de los productos
-    const productosConNombre = await Product.find({
-      _id: { $in: topVentas.map(p => p._id) },
-      ...productoFilter
-    });
-
-
-
-    // 6. Gráfico por categorías
+    // 6. Gráfico por categorías (TODOS LOS USUARIOS)
     const categoriaVentas = await Venta.aggregate([
       { $match: ventaFilter },
       { $unwind: '$productos' },
@@ -75,7 +71,7 @@ async function getDashboardData(req, res) {
         }
       },
       { $unwind: '$productoInfo' },
-      { $match: isAdmin ? {} : { 'productoInfo.user': user.id } },
+      // QUITAR: { $match: { 'productoInfo.user': user.id } }, - Ya no filtrar por usuario
       {
         $group: {
           _id: '$productoInfo.categoria',
@@ -88,7 +84,7 @@ async function getDashboardData(req, res) {
     const catLabels = categoriaVentas.map(c => c._id || 'Sin Categoría');
     const catData = categoriaVentas.map(c => c.totalVendidos);
 
-    // 7. Gráfico de clientes
+    // 7. Gráfico de clientes (TODOS)
     const clienteVentas = await Venta.aggregate([
       {
         $match: {
@@ -109,188 +105,168 @@ async function getDashboardData(req, res) {
     const clientLabels = clienteVentas.map(c => c._id || 'Sin Nombre');
     const clientData = clienteVentas.map(c => c.totalComprado);
 
-    // 8. Ventas por usuario (solo admin) - *** CORREGIDO ***
-    let salesByUser = [];
-    if (isAdmin) {
-      salesByUser = await Venta.aggregate([
-        {
-          $group: {
-            _id: '$user', // campo de referencia al usuario que hizo la venta
-            totalVentas: { $sum: '$total' },
-            cantidadVentas: { $sum: 1 },
-             cantidadRecibos: { $sum: 1 }
-          }
-        },
-        {
-          $lookup: {
-            from: 'users', // nombre de la colección de usuarios
-            localField: '_id',
-            foreignField: '_id',
-            as: 'user' // *** CAMBIO: usar 'user' en lugar de 'userInfo' ***
-          }
-        },
-        { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } }, // *** CAMBIO: usar 'user' ***
-            {
-      $addFields: {
-        'active': '$user.active',
-        businessName: '$user.businessName',
+    // 8. Ventas por usuario (SOLO ADMIN - MANTENER)
+    const salesByUser = await Venta.aggregate([
+      {
+        $group: {
+          _id: '$user',
+          totalVentas: { $sum: '$total' },
+          cantidadVentas: { $sum: 1 },
+          cantidadRecibos: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          'active': '$user.active',
+          businessName: '$user.businessName',
+        }
       }
-    }
-      ]);
-    }
+    ]);
 
-    // 9. Lista de usuarios (para admin)
+    // 9. Lista de usuarios (TODOS)
     const usuarios = await User.find({ role: 'user' }).lean();
+    const allUsers = await User.find({ role: 'user' }).lean();
 
+    // 10. Categorías disponibles (TODAS)
+    const categoriasDisponibles = await Product.distinct('categoria', productoFilter);
+    const isMobile = /mobile|android|iphone|ipad/i.test(req.headers['user-agent']);
 
-    
+    // 11. Usuarios con más productos (TODOS)
+    const productsByUser = await Product.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      {
+        $match: {
+          'user.role': 'user'
+        }
+      },
+      {
+        $group: {
+          _id: '$user._id',
+          user: { $first: '$user' },
+          totalProductos: { $sum: 1 },
+          productosActivos: { 
+            $sum: { $cond: [{ $eq: ['$estado', 'Activo'] }, 1, 0] } 
+          },
+          productosAgotados: { 
+            $sum: { $cond: [{ $eq: ['$estado', 'Agotado'] }, 1, 0] } 
+          },
+          totalVentas: { $sum: '$ventas' },
+          valorInventario: { $sum: { $multiply: ['$cantidad', '$precio'] } }
+        }
+      },
+      { $sort: { totalProductos: -1 } }
+    ]);
+
+    // 12. Datos de ventas por usuario (TODOS)
+    const clientSalesData = await Venta.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: false
+        }
+      },
+      {
+        $match: {
+          'user.role': 'user'
+        }
+      },
+      {
+        $addFields: {
+          fechaParsed: {
+            $dateFromParts: {
+              year: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 2] }, 0, 4] } },
+              month: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 1] }, 0, 2] } },
+              day: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 0] }, 0, 2] } },
+              hour: 12,
+              minute: 0,
+              second: 0
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            clienteId: "$user._id",
+            nombre: "$user.nombre",
+            businessName: "$user.businessName",
+            fecha: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$fechaParsed"
+              }
+            },
+            semana: {
+              $dateToString: {
+                format: "%Y-W%U",
+                date: "$fechaParsed"
+              }
+            },
+            mes: {
+              $dateToString: {
+                format: "%Y-%m",
+                date: "$fechaParsed"
+              }
+            }
+          },
+          totalVentas: { $sum: "$total" },
+          cantidadCompras: { $sum: 1 },
+          fechaCompleta: { $first: "$fechaParsed" }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            id: "$_id.clienteId"
+          },
+          nombre: { $first: "$_id.nombre" },
+          businessName: { $first: "$_id.businessName" },
+          ventasPorDia: {
+            $push: {
+              fecha: "$_id.fecha",
+              semana: "$_id.semana",
+              mes: "$_id.mes",
+              total: "$totalVentas",
+              compras: "$cantidadCompras",
+              fechaCompleta: "$fechaCompleta"
+            }
+          },
+          totalCliente: { $sum: "$totalVentas" },
+          totalCompras: { $sum: "$cantidadCompras" }
+        }
+      },
+      { $sort: { totalCliente: -1 } },
+      { $limit: 50 }
+    ]);
+
     // Animación de bienvenida
     const hasSeenWelcomeAnimation = req.session.hasSeenWelcomeAnimation || false;
     req.session.hasSeenWelcomeAnimation = true;
-
-    
-    const categoriasDisponibles = await Product.distinct('categoria', productoFilter);
-    const allUsers = await User.find({ role: 'user' }).lean();
-  const isMobile = /mobile|android|iphone|ipad/i.test(req.headers['user-agent']);
-    
-
-    //obtner el total de productos
-    // 9. Usuarios con más productos (solo admin)
-let productsByUser = [];
-if (isAdmin) {
-  
-// En dashboardController.js
-productsByUser = await Product.aggregate([
-  {
-    $lookup: {
-      from: 'users',
-      localField: 'user',
-      foreignField: '_id',
-      as: 'user'
-    }
-  },
-  { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
-  // AGREGAR: Filtrar solo usuarios con rol 'user'
-  {
-    $match: {
-      'user.role': 'user'
-    }
-  },
-  {
-    $group: {
-      _id: '$user._id',
-      user: { $first: '$user' },
-      totalProductos: { $sum: 1 },
-      productosActivos: { 
-        $sum: { $cond: [{ $eq: ['$estado', 'Activo'] }, 1, 0] } 
-      },
-      productosAgotados: { 
-        $sum: { $cond: [{ $eq: ['$estado', 'Agotado'] }, 1, 0] } 
-      },
-      totalVentas: { $sum: '$ventas' },
-      valorInventario: { $sum: { $multiply: ['$cantidad', '$precio'] } }
-    }
-  },
-  { $sort: { totalProductos: -1 } }
-]);
-}
-
-
-let clientSalesData = [];
-if (isAdmin) {
-// En dashboardController.js - Datos de clientes por tiempo
-clientSalesData = await Venta.aggregate([
-  {
-    $lookup: {
-      from: 'users',
-      localField: 'user',
-      foreignField: '_id',
-      as: 'user'
-    }
-  },
-  {
-    $unwind: {
-      path: '$user',
-      preserveNullAndEmptyArrays: false
-    }
-  },
-  {
-    $match: {
-      'user.role': 'user'
-    }
-  },
-  {
-    $addFields: {
-      fechaParsed: {
-        $dateFromParts: {
-          year: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 2] }, 0, 4] } },
-          month: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 1] }, 0, 2] } },
-          day: { $toInt: { $substr: [{ $arrayElemAt: [{ $split: ["$fechaa", "/"] }, 0] }, 0, 2] } },
-          hour: 12,
-          minute: 0,
-          second: 0
-        }
-      }
-    }
-  },
-  {
-    $group: {
-      _id: {
-        clienteId: "$user._id",
-        nombre: "$user.nombre",
-        businessName: "$user.businessName",
-        fecha: {
-          $dateToString: {
-            format: "%Y-%m-%d",
-            date: "$fechaParsed"
-          }
-        },
-        semana: {
-          $dateToString: {
-            format: "%Y-W%U",
-            date: "$fechaParsed"
-          }
-        },
-        mes: {
-          $dateToString: {
-            format: "%Y-%m",
-            date: "$fechaParsed"
-          }
-        }
-      },
-      totalVentas: { $sum: "$total" },
-      cantidadCompras: { $sum: 1 },
-      fechaCompleta: { $first: "$fechaParsed" }
-    }
-  },
-  {
-    $group: {
-      _id: {
-        id: "$_id.clienteId"  // solo el ID en _id
-      },
-      nombre: { $first: "$_id.nombre" },            // 🔸 nombre fuera de _id
-      businessName: { $first: "$_id.businessName" },// 🔸 businessName fuera de _id
-      ventasPorDia: {
-        $push: {
-          fecha: "$_id.fecha",
-          semana: "$_id.semana",
-          mes: "$_id.mes",
-          total: "$totalVentas",
-          compras: "$cantidadCompras",
-          fechaCompleta: "$fechaCompleta"
-        }
-      },
-      totalCliente: { $sum: "$totalVentas" },
-      totalCompras: { $sum: "$cantidadCompras" }
-    }
-  },
-  { $sort: { totalCliente: -1 } },
-  { $limit: 50 }
-]);
-
-
-}
-
 
     req.session.save(err => {
       if (err) console.error('Error saving session:', err);

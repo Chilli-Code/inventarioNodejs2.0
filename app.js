@@ -16,7 +16,7 @@ const profileRoutes = require('./routes/settings');
 const compression = require('compression');
 const subUserRoutes = require('./routes/subusers');
 const notificacionesMiddleware = require('./middleware/notificaciones');
-
+const supportRoutes = require('./routes/support');
 dotenv.config();
 
 const app = express();
@@ -86,7 +86,7 @@ app.use('/subusers', subUserRoutes);
 app.use('/settings', profileRoutes);
 app.use('/admin', adminRoutes);
 app.use('/admin', require('./routes/adminReceipts'));
-
+app.use('/', supportRoutes);
 // Ruta raíz
 app.get('/', (req, res) => {
   const isMobile = /mobile|android|iphone|ipad/i.test(req.headers['user-agent']);

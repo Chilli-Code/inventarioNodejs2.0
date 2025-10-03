@@ -1,0 +1,400 @@
+<style>
+    .tableView .products-header{
+
+    }
+    .products-area-wrapper{
+        overflow: hidden !important;
+        height: auto !important;
+        max-height: max-content !important;
+    }
+:root{
+    --bg-cont-info-user:#fff;
+
+}
+.light {
+    --bg-cont-info-user:#1d283c7d;
+
+}
+</style>
+
+<head>
+    <link rel="stylesheet" href="/css/profileUsers.css">
+</head>
+
+<%- include('../../partials/header/layout') %>
+<%- include('../../partials/navigation/navigation', {titleMain: titleMain}); %>
+</div>
+<div class="app-content-actions">
+    <a href="/listUsers" class="back-btn">
+        ← Volver
+    </a>
+
+</div>
+<div class="profile-container">
+
+    <div class="profile-header">
+        <div class="user-info">
+            <div class="user-avatar">
+                <%= usuario.nombre.charAt(0).toUpperCase() %>
+            </div>
+            <div class="user-details">
+                <h1><%= usuario.nombre %></h1>
+                <p><%= usuario.correo %></p>
+                <p><strong>Negocio:</strong> <%= usuario.businessName || 'No especificado' %></p>
+                <span style="width: max-content;" class="status <%= usuario.active ? 'active' : 'disabled' %>">
+                    <%= usuario.active ? 'Activo' : 'Inactivo' %>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">$<%= totalIngresos.toLocaleString() %></div>
+            <div class="stat-label">Total Ingresos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= totalVentas %></div>
+            <div class="stat-label">Total Ventas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= totalProductos %></div>
+            <div class="stat-label">Total Productos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= clientesUnicos %></div>
+            <div class="stat-label">Clientes Únicos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= productosActivos %></div>
+            <div class="stat-label">Productos Activos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><%= categorias.length %></div>
+            <div class="stat-label">Categorías</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Top 5 Productos Más Vendidos</h2>
+        <% if (topProductos && topProductos.length > 0) { %>
+            <% topProductos.forEach(prod => { %>
+                <div class="top-product-item">
+                    <div class="product-name"><%= prod._id %></div>
+                    <div class="product-stats">
+                        <span>Vendidos: <%= prod.totalVendido %></span>
+                        <span>Ingresos: $<%= prod.ingresos.toLocaleString() %></span>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="empty-state">No hay datos de ventas</div>
+        <% } %>
+    </div>
+
+    <div class="section" style="background-color: var(--bg-cont-info-user);">
+        <h2 class="section-title">Subusuarios (<%= subUsuarios.length %>)</h2>
+        <% if (subUsuarios && subUsuarios.length > 0) { %>
+            <table>
+                <thead class="products-header">
+                    <tr class="header-sub">
+                        <th class="product-cell padding color: var(--app-content-main-color);">Nombre</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Rol</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">N° de ventas</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">ultima Venta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% subUsuarios.forEach(sub => { %>
+                        <tr class="products-row articulo mg">
+                            <td class="product-cell tituloProduct"><%= sub.nombre %></td>
+                            <td class="product-cell"><%= sub.tipo %></td>
+                            <td class="product-cell"><%= 20 %></td>
+                            <td class="product-cell"><%= sub.createdAt.toLocaleString('es-CO') %></td>
+
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <div class="empty-state">No tiene subusuarios</div>
+        <% } %>
+    </div>
+
+    <div class="section tableView products-area-wrapper" style="padding: 25px !important; background-color: var(--bg-cont-info-user);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="section-title" style="margin: 0;">Productos (<%= totalProductos %>)</h2>
+        <div style="color: var(--app-content-main-color); opacity: 0.7;">
+            Página <%= currentPage %> de <%= totalPages %>
+        </div>
+    </div>
+        <h2 class="section-title">Últimos 10 Productos</h2>
+        <%- include('./filterProfileUser') %>
+        <% if (productos && productos.length > 0) { %>
+            <div style="height: 100%; overflow-x: auto; overflow-y: auto;">
+            <table>
+                <thead class="products-header">
+                    <tr class="header-sub">
+                        <th class="product-cell padding color: var(--app-content-main-color);">Producto</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Categoría</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Precio</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Cantidad</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Ventas</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Estado</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% productos.forEach(prod => { %>
+                        <tr class="products-row articulo mg">
+                            <td class="product-cell onetitle"><%= prod.producto %></td>
+                            <td class="product-cell"><%= prod.categoria %></td>
+                            <td class="product-cell">
+                                <p style="color:#2ba972">$</p>
+                                <%= prod.precio.toLocaleString() %></td>
+                            <td class="product-cell"><%= prod.cantidad %></td>
+                            <td class="product-cell"><%= prod.ventas || 0 %></td>
+                            <td class="product-cell">
+                                <span class="status <%= prod.estado === 'Activo' ? 'active' : 'disabled' %>">
+                                    <%= prod.estado %>
+                                </span>
+                            </td>
+                                <td class="product-cell hora">
+                                    <%- prod.hora %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            </div>
+                   <!-- Controles de Paginación -->
+        <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;">
+            <% if (hasPrevPage) { %>
+                <a href="/listUsers/user-profile/<%= usuario._id %>?page=<%= currentPage - 1 %>" 
+                   style="padding: 8px 16px; background: var(--action-color); color: white; border-radius: 5px; text-decoration: none;">
+                    ← 
+                </a>
+            <% } else { %>
+                <span style="padding: 8px 16px; background: #ccc; color: #666; border-radius: 5px; opacity: 0.5;">
+                    ← 
+                </span>
+            <% } %>
+            <% if (hasNextPage) { %>
+                <a href="/listUsers/user-profile/<%= usuario._id %>?page=<%= currentPage + 1 %>" 
+                   style="padding: 8px 16px; background: var(--action-color); color: white; border-radius: 5px; text-decoration: none;">
+                     →
+                </a>
+            <% } else { %>
+                <span style="padding: 8px 16px; background: #ccc; color: #666; border-radius: 5px; opacity: 0.5;">
+                     →
+                </span>
+            <% } %>
+        </div>
+        <% } else { %>
+            <div class="empty-state">No tiene productos</div>
+        <% } %>
+    </div>
+
+    <div class="section tableView products-area-wrapper" style="padding: 25px !important; background-color: var(--bg-cont-info-user);">
+        <h2 class="section-title">Últimas 10 Ventas</h2>
+        <% if (ventas && ventas.length > 0) { %>
+            <div style="height: 100%; overflow-x: auto; overflow-y: auto;">
+            <table>
+                <thead class="products-header">
+                    <tr class="header-sub">
+                        <th class="product-cell padding color: var(--app-content-main-color);">Fecha</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Cliente</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Total</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Medio de Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% ventas.forEach(venta => { %>
+                        <tr class="products-row">
+                            <td class="product-cell"><%= venta.fechaa %></td>
+                            <td class="product-cell"><%= venta.nombrecliente || 'N/A' %></td>
+                            <td class="product-cell">
+                                <p style="color:#2ba972">$</p>
+                                <%= venta.total.toLocaleString() %></td>
+                            <td class="product-cell"><%= venta.medio %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            </div>
+        <% } else { %>
+            <div class="empty-state">No tiene ventas registradas</div>
+        <% } %>
+    </div>
+</div>
+
+
+<script>
+/* filter.js - versión robusta para buscar el nombre correcto en cada fila */
+(function(){
+  const DEBUG = false; // pon true para ver logs
+
+  function dbg(...args){ if(DEBUG) console.log(...args); }
+
+  // Guarda referencias reales de las filas
+  let filasOriginales = [];
+
+  function parseFechaCustom(fechaStr) {
+    if (!fechaStr) return new Date();
+    const [fecha, hora] = fechaStr.split(" - ");
+    const [dia, mes, año] = fecha.split("/");
+    return new Date(`${año}-${mes}-${dia}T${hora}`);
+  }
+
+  // Intenta obtener el texto del producto dentro de una fila (robusto)
+  function getProductText(row){
+    if(!row) return "";
+
+    // 1) Preferencia: clase explícita producto-nombre (si la pones, será ideal)
+    const selectorsPreferidos = [
+      '.producto-nombre',
+      '.product-cell.tituloProduct.busqueda',
+      '.tituloProduct.busqueda',
+      '.product-cell.tituloProduct',
+      '.busqueda' // fallback
+    ];
+
+    for (const sel of selectorsPreferidos) {
+      const el = row.querySelector(sel);
+      if (el) {
+        const t = (el.textContent || '').trim();
+        if (t && /[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ]/.test(t)) return t.toLowerCase();
+      }
+    }
+
+    // 2) Si no encontramos, buscar la primera TD que NO sea la columna de iconos
+    const tds = Array.from(row.querySelectorAll('td'));
+    for (const td of tds) {
+      // evita contenedores de íconos (clase conocida en tu template: iconosPosision)
+      if (td.classList.contains('iconosPosision')) continue;
+      const t = (td.textContent || '').trim();
+      if (t && /[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ]/.test(t)) return t.toLowerCase();
+    }
+
+    return "";
+  }
+
+  function aplicarFiltro(){
+    const inputBuscador = document.getElementById('buscador');
+    const selectCategoria = document.getElementById('filtro-categoria');
+    const selectEstado = document.getElementById('filtro-estado');
+    const selectOrden = document.getElementById('filtro-orden');
+    const noDataDiv = document.querySelector('.noData');
+
+    const textoBuscado = (inputBuscador?.value || '').toLowerCase().trim();
+    const categoria = (selectCategoria?.value || '').toLowerCase();
+    const estado = (selectEstado?.value || '').toLowerCase();
+    const orden = (selectOrden?.value || '');
+
+    const filas = Array.from(document.querySelectorAll("#products-row tbody tr"));
+    dbg("aplicarFiltro: filas totales", filas.length, "texto:", textoBuscado, "cat:", categoria, "est:", estado);
+
+    filas.forEach(row=>{
+      const productoText = getProductText(row);
+      const cat = (row.querySelector(".category")?.textContent || '').toLowerCase();
+      const est = (row.querySelector(".status")?.textContent || '').toLowerCase();
+
+      const cumpleBuscador = textoBuscado === '' || (productoText && productoText.includes(textoBuscado));
+      const cumpleCategoria = categoria === '' || cat.includes(categoria);
+      const cumpleEstado = estado === '' || est.includes(estado);
+
+      row.style.display = (cumpleBuscador && cumpleCategoria && cumpleEstado) ? '' : 'none';
+    });
+
+    const filasVisibles = filas.filter(r => r.style.display !== 'none');
+    dbg("filas visibles:", filasVisibles.length);
+
+    // Actualiza contador visible
+    const contador = document.getElementById('filteredCount');
+    if (contador) contador.textContent = filasVisibles.length;
+
+    // Ordenar si aplica
+    if (orden !== '') {
+      const [campo, direccion] = orden.split('-');
+      filasVisibles.sort((a,b)=>{
+        let valA, valB;
+        switch(campo){
+          case 'ventas':
+            valA = parseInt(a.querySelector('.sales')?.textContent || 0);
+            valB = parseInt(b.querySelector('.sales')?.textContent || 0);
+            break;
+          case 'cantidad':
+            valA = parseInt(a.querySelector('.cantidad')?.textContent.replace(/\D/g,'') || 0);
+            valB = parseInt(b.querySelector('.cantidad')?.textContent.replace(/\D/g,'') || 0);
+            break;
+          case 'precio':
+            valA = parseFloat((a.querySelector('.price')?.textContent || '0').replace(/[^\d.-]/g,'')) || 0;
+            valB = parseFloat((b.querySelector('.price')?.textContent || '0').replace(/[^\d.-]/g,'')) || 0;
+            break;
+          case 'hora':
+            valA = parseFechaCustom(a.querySelector('.hora')?.textContent.replace('Hora:','').trim() || '');
+            valB = parseFechaCustom(b.querySelector('.hora')?.textContent.replace('Hora:','').trim() || '');
+            break;
+          default:
+            valA = getProductText(a);
+            valB = getProductText(b);
+        }
+
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return direccion === 'asc' ? valA - valB : valB - valA;
+        }
+        return direccion === 'asc' ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
+      });
+
+      const tbody = document.querySelector('#products-row tbody');
+      filasVisibles.forEach(row => tbody.appendChild(row));
+    }
+
+    if (noDataDiv) noDataDiv.style.display = filasVisibles.length > 0 ? 'none' : 'block';
+  }
+
+  function resetFilters(){
+    const buscador = document.getElementById('buscador');
+    const cat = document.getElementById('filtro-categoria');
+    const est = document.getElementById('filtro-estado');
+    const ord = document.getElementById('filtro-orden');
+
+    if (buscador) buscador.value = '';
+    if (cat) cat.value = '';
+    if (est) est.value = '';
+    if (ord) ord.value = '';
+
+    // Mostrar todas las filas (referencias reales)
+    filasOriginales.forEach(r => r.style.display = '');
+
+    const contador = document.getElementById('filteredCount');
+    if (contador) contador.textContent = filasOriginales.length;
+
+    const noDataDiv = document.querySelector('.noData');
+    if (noDataDiv) noDataDiv.style.display = 'none';
+  }
+
+  function initFilters(){
+    const tbody = document.querySelector('#products-row tbody');
+    if(!tbody){ dbg("initFilters: no hay tbody"); return; }
+    filasOriginales = Array.from(tbody.querySelectorAll('tr'));
+    dbg("initFilters: filasOriginales", filasOriginales.length);
+
+    const contador = document.getElementById('filteredCount');
+    if (contador) contador.textContent = filasOriginales.length;
+
+    document.getElementById('buscador')?.addEventListener('input', aplicarFiltro);
+    document.getElementById('filtro-categoria')?.addEventListener('change', aplicarFiltro);
+    document.getElementById('filtro-estado')?.addEventListener('change', aplicarFiltro);
+    document.getElementById('filtro-orden')?.addEventListener('change', aplicarFiltro);
+  }
+
+  // inicializar al cargar. Si usas defer, esto se ejecutará correctamente.
+  document.addEventListener('DOMContentLoaded', initFilters);
+
+  // Exponer funciones globalmente por si necesitas reinicializar tras AJAX
+  window.aplicarFiltro = aplicarFiltro;
+  window.resetFilters = resetFilters;
+  window.initFilters = initFilters;
+})();
+</script>

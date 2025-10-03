@@ -109,6 +109,9 @@ span{
             <label>Nombre De Cliente</label>
             <input type="text" name="nombrecliente" required>
             <hr>
+            <label>Identificación</label>
+            <input type="number" name="identificacionCliente" required>
+            <hr>
             <label>Hora de Venta</label>
             <input type="text" name="fechaa" id="clock" readonly="">
             <hr>
@@ -164,18 +167,21 @@ span{
     const precio = parseFloat(document.getElementById('precio').value);
     const cantidad = parseInt(document.getElementById('cantidad').value);
     const nombreCliente = document.querySelector('[name="nombrecliente"]').value.trim();
+    const identificacionCliente = document.querySelector('[name="identificacionCliente"]').value.trim();
 
-    if (!nombreCliente) {
-      alert('Debes ingresar el nombre del cliente antes de agregar productos.');
+    // 🛑 Validar nombre e identificación
+    if (!nombreCliente || !identificacionCliente) {
+      alert('Debes ingresar el nombre e identificación del cliente antes de agregar productos.');
       return;
     }
 
+    // 🛑 Validar producto y cantidad
     if (!productoId || isNaN(precio) || isNaN(cantidad) || cantidad <= 0) {
       alert('Debes seleccionar un producto válido y una cantidad mayor a 0.');
       return;
     }
 
-    // Agregar al carrito
+    // ✅ Agregar al carrito
     carrito.push({
       productoVenta: productoId,
       nombre: productoNombre,
@@ -186,13 +192,29 @@ span{
     // Actualizar tabla visual
     const tbody = document.querySelector('#tabla-carrito tbody');
     const row = document.createElement('tr');
+    const index = carrito.length - 1; 
     row.innerHTML = `
       <td>${productoNombre}</td>
       <td>${cantidad}</td>
       <td>$${precio.toLocaleString('es-CO')}</td>
       <td>$${(precio * cantidad).toLocaleString('es-CO')}</td>
+      <td><button class="btn-eliminar" data-index="${index}">❌</button></td>
     `;
     tbody.appendChild(row);
+
+    row.querySelector('.btn-eliminar').addEventListener('click', function () {
+  const index = parseInt(this.getAttribute('data-index'));
+  if (!isNaN(index)) {
+    carrito.splice(index, 1); // eliminar del array
+    row.remove(); // quitar fila del DOM
+    actualizarTotalGeneral();
+
+    // Actualizar contador visual del ícono
+    const contador = document.getElementById('contador-carrito');
+    contador.textContent = carrito.length;
+    contador.style.display = carrito.length ? 'inline-block' : 'none';
+  }
+});
 
     // Actualizar total general
     actualizarTotalGeneral();
@@ -213,6 +235,7 @@ span{
   // ✅ Validación al enviar formulario
   document.getElementById('agregar-producto-form').addEventListener('submit', function (e) {
     const nombreCliente = this.querySelector('[name="nombrecliente"]').value.trim();
+    const identificacionCliente = this.querySelector('[name="identificacionCliente"]').value.trim();
 
     if (carrito.length === 0) {
       e.preventDefault();
@@ -226,10 +249,17 @@ span{
       return;
     }
 
+    if (!identificacionCliente || identificacionCliente.length < 6) {
+      e.preventDefault();
+      alert('La identificación del cliente es obligatoria y debe tener al menos 6 dígitos.');
+      return;
+    }
+
     // Guardar carrito en campo oculto
     document.getElementById('items-json').value = JSON.stringify(carrito);
   });
 </script>
+
 
 
 

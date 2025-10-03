@@ -1,0 +1,69 @@
+        <div class="app-content-actions">
+  <input class="search-bar" placeholder="Buscar..." type="text" id="buscador">
+  <div class="app-content-actions-wrapper">
+    <div class="filter-button-wrapper">
+      <button class="action-button filter jsFilter" type="button">
+        <span>Filtrar</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+      </button>
+
+      <div class="filter-menu">
+        <label>Categoría</label>
+        <select id="filtro-categoria" name="categoria">
+          <option value="">Todas</option>
+          <option value="Tecnologia">Tecnologia</option>
+          <option value="Ropa">Ropa</option>
+          <option value="Heladeria">Heladeria</option>
+        </select>
+
+        <label>Estado</label>
+        <select id="filtro-estado">Estado
+          <option value="">Todos</option>
+          <option value="Activo">Activo</option>
+          <option value="Agotado">Agotado</option>
+        </select>
+        <label>Ordenar por:</label>
+        <select id="filtro-orden">
+          <option value="">Ninguno</option>
+          <option value="ventas-asc">Ventas (Menor a Mayor)</option>
+          <option value="ventas-desc">Ventas (Mayor a Menor)</option>
+          <option value="cantidad-asc">Cantidad (Menor a Mayor)</option>
+          <option value="cantidad-desc">Cantidad (Mayor a Menor)</option>
+          <option value="precio-asc">Precio (Menor a Mayor)</option>
+          <option value="precio-desc">Precio (Mayor a Menor)</option>
+          <option value="hora-asc">Fecha (Más antiguo primero)</option>
+          <option value="hora-desc">Fecha (Más reciente primero)</option>
+        </select>
+
+        <div class="filter-menu-buttons">
+          <button class="filter-button reset" type="button" onclick="resetFilters()">Reset</button>
+          <button class="filter-button apply" type="button" onclick="aplicarFiltro()">Aplicar</button>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="action-button list active" title="List View">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list">
+        <line x1="8" y1="6" x2="21" y2="6"></line>
+        <line x1="8" y1="12" x2="21" y2="12"></line>
+        <line x1="8" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      </svg>
+    </button>
+    <button type="button" class="action-button grid" title="Grid View">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-grid">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+    </button>
+  </div>
+
+</div>
+
+
+
