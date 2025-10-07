@@ -7,7 +7,7 @@ const { getDashboardData } = require('../controllers/dashboardController');
 const SubUser = require('../models/subUsuers'); 
 const User = require('../models/User');
 const { getUserDashboardData } = require('../controllers/userDashboardController');
-
+const Gasto = require('../models/expenses');
 
 // Ruta protegida /home
 router.get('/home', isAuthenticated, async (req, res) => {
@@ -19,16 +19,15 @@ router.get('/home', isAuthenticated, async (req, res) => {
 
   const hasSeenWelcomeAnimation = req.session.hasSeenWelcomeAnimation || false;
   req.session.hasSeenWelcomeAnimation = true;
-  
+
   try {
     let allUsers = [];
-    let allReceipts = []; // AGREGAR ESTA LÍNEA
-    
+    let allReceipts = [];
+
     if (req.session.user && req.session.user.role === 'admin') {
-      // Obtener usuarios
+      // Para admin: obtén todos los recibos de todos los usuarios (como tenías)
       allUsers = await User.find({ role: 'user' }).lean();
-      
-      // AGREGAR: Obtener TODOS los recibos para admin
+
       allReceipts = await Venta.aggregate([
         {
           $lookup: {
@@ -39,15 +38,39 @@ router.get('/home', isAuthenticated, async (req, res) => {
           }
         },
         { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
-        { $sort: { fechaa: -1 } }
+        { $limit: 50 } // traer solo los últimos 50 para no cargar mucho
       ]);
+
+      // Orden manual en JS (porque fechaa es string)
+      function parseFecha(fechaStr) {
+        if (!fechaStr) return new Date(0);
+        const [fecha, hora] = fechaStr.split(' - ');
+        const [dia, mes, anio] = fecha.split('/');
+        return new Date(`${anio}-${mes}-${dia}T${hora}`);
+      }
+
+      allReceipts.sort((a, b) => parseFecha(b.fechaa) - parseFecha(a.fechaa));
     }
 
-    // Obtener las últimas ventas del usuario actual (para usuarios no-admin)
-    const ventas = await Venta.find({ user: req.session.user.id })
-      .sort({ fechaa: -1 })
+    // Para usuarios normales: traer todos sus recibos ordenados por fecha DESC
+    const userId = req.session.user.id;
+
+    let ventas = await Venta.find({ user: userId })
       .populate('productos.productoVenta')
       .lean();
+
+    // Función para convertir la fecha string a Date
+    function parseFecha(fechaStr) {
+      if (!fechaStr) return new Date(0);
+      const [fecha, hora] = fechaStr.split(' - ');
+      const [dia, mes, anio] = fecha.split('/');
+      return new Date(`${anio}-${mes}-${dia}T${hora}`);
+    }
+
+    // Ordenar ventas manualmente por fecha descendente
+    ventas.sort((a, b) => parseFecha(b.fechaa) - parseFecha(a.fechaa));
+
+    // Ya tienes *todos* los recibos del usuario ordenados
 
     req.session.save((err) => {
       if (err) console.error('Error saving session:', err);
@@ -59,10 +82,10 @@ router.get('/home', isAuthenticated, async (req, res) => {
         titleMain: "Inicio",
         user: req.session.user,
         username: req.session.user.nombre,
-        allUsers, 
-        allReceipts, // AGREGAR ESTA LÍNEA
-        hasSeenWelcomeAnimation: hasSeenWelcomeAnimation,
-        ventas
+        allUsers,
+        allReceipts,
+        hasSeenWelcomeAnimation,
+        ventas // TODOS los recibos del usuario ordenados
       });
     });
   } catch (err) {
@@ -70,8 +93,6 @@ router.get('/home', isAuthenticated, async (req, res) => {
     res.status(500).send('Error al cargar la página');
   }
 });
-
-
 
 
 // GET /products
@@ -116,7 +137,6 @@ router.get('/products', isAuthenticated, async (req, res) => {
 });
 
 
-
 router.get('/sell', isAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -147,7 +167,6 @@ if (vendedores.length === 0) {
     res.status(500).send('Error interno del servidor');
   }
 });
-
 
 
 // POST: Guardar venta y redirigir al recibo con el id de la venta
@@ -213,8 +232,6 @@ router.post('/receipt_page', isAuthenticated, async (req, res) => {
     res.status(500).send('Error interno al guardar la venta');
   }
 });
-
-
 
 
 
@@ -347,6 +364,175 @@ router.get('/statistics', isAuthenticated, (req, res) => {
     return getUserDashboardData(req, res);
   } else {
     return res.status(403).send('Acceso denegado');
+  }
+});
+
+// Perfil del usuario normal (solo lectura)
+router.get('/my-profile', isAuthenticated, async (req, res) => {
+  try {
+    const user = req.session.user;
+    
+    if (user.role !== 'user') {
+      return res.redirect('/statistics');
+    }
+
+    const mongoose = require('mongoose');
+    const userId = new mongoose.Types.ObjectId(user.id);
+
+
+    // Información del usuario
+    const usuario = await User.findById(user.id);
+    // Total de gastos
+    const totalGastos = await Gasto.aggregate([
+      { $match: { user: userId } },
+      { $group: { _id: null, total: { $sum: '$monto' } } }
+    ]);
+    // Estadísticas
+    const totalProductos = await Product.countDocuments({ user: userId });
+    const productosActivos = await Product.countDocuments({ user: userId, estado: 'Activo' });
+    const productosAgotados = await Product.countDocuments({ user: userId, estado: 'Agotado' });
+
+    const totalVentas = await Venta.countDocuments({ user: userId });
+    
+    const ingresosTotales = await Venta.aggregate([
+      { $match: { user: userId } },
+      { $group: { _id: null, total: { $sum: '$total' } } }
+    ]);
+    const totalIngresos = ingresosTotales.length > 0 ? ingresosTotales[0].total : 0;
+
+    const clientesUnicos = await Venta.distinct('identificacionCliente', {
+      user: userId,
+      identificacionCliente: { $ne: null, $ne: '', $exists: true }
+    });
+
+    const categorias = await Product.distinct('categoria', { user: userId });
+
+    // Valor del inventario
+    const valorInventario = await Product.aggregate([
+      { $match: { user: userId } },
+      {
+        $group: {
+          _id: null,
+          valorTotal: { $sum: { $multiply: ['$cantidad', '$precio'] } },
+          totalUnidades: { $sum: '$cantidad' }
+        }
+      }
+    ]);
+
+    const inventarioTotal = valorInventario.length > 0 ? valorInventario[0].valorTotal : 0;
+    const unidadesTotales = valorInventario.length > 0 ? valorInventario[0].totalUnidades : 0;
+
+    // Subusuarios
+    const subUsuarios = await SubUser.find({ parentUser: userId });
+
+    // Top 5 productos
+    const topProductos = await Venta.aggregate([
+      { $match: { user: userId } },
+      { $unwind: '$productos' },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'productos.productoVenta',
+          foreignField: '_id',
+          as: 'productoInfo'
+        }
+      },
+      { $unwind: '$productoInfo' },
+      {
+        $group: {
+          _id: '$productoInfo.producto',
+          totalVendido: { $sum: '$productos.cantidadVenta' },
+          ingresos: { $sum: { $multiply: ['$productos.cantidadVenta', '$productos.precioVenta'] } }
+        }
+      },
+      { $sort: { totalVendido: -1 } },
+      { $limit: 5 }
+    ]);
+    
+    // Subusuarios con estadísticas
+function parseFecha(fechaStr) {
+  // Convierte "23/09/2025 - 20:30:45" a un objeto Date
+  const [fecha, hora] = fechaStr.split(' - ');
+  const [dia, mes, anio] = fecha.split('/');
+
+  // Crear string ISO válido: "2025-09-23T20:30:45"
+  const fechaIso = `${anio}-${mes}-${dia}T${hora}`;
+
+  return new Date(fechaIso);
+}
+
+// Obtener estadísticas de ventas para cada subusuario
+const subUsuariosConStats = await Promise.all(
+  subUsuarios.map(async (sub) => {
+    const ventasSub = await Venta.find({ vendedor: sub.nombre }).lean();
+
+    const ventasOrdenadas = ventasSub
+      .filter(v => v.fechaa) // Asegurarse que tiene fecha
+      .map(v => ({
+        ...v,
+        fechaParsed: parseFecha(v.fechaa)
+      }))
+      .filter(v => v.fechaParsed instanceof Date && !isNaN(v.fechaParsed)) // Validar que sea fecha válida
+      .sort((a, b) => b.fechaParsed - a.fechaParsed); // Ordenar descendente
+
+    const ultimaVenta = ventasOrdenadas[0];
+
+    return {
+      ...sub.toObject(),
+      totalVentas: ventasSub.length,
+      ultimaVenta: ultimaVenta ? ultimaVenta.fechaa : null
+    };
+  })
+);
+
+    // Últimas ventas
+function parseFecha(fechaStr) {
+  if (!fechaStr) return new Date(0); // fallback para fechas inválidas
+  const [fecha, hora] = fechaStr.split(' - ');
+  const [dia, mes, anio] = fecha.split('/');
+  return new Date(`${anio}-${mes}-${dia}T${hora}`);
+}
+
+let ultimasVentas = await Venta.find({ user: userId })
+  .select('fechaa nombrecliente total medio codigo')
+  .lean();
+
+ultimasVentas = ultimasVentas
+  .map(v => ({
+    ...v,
+    fechaParsed: parseFecha(v.fechaa)
+  }))
+  .filter(v => !isNaN(v.fechaParsed)) // quitar fechas inválidas
+  .sort((a, b) => b.fechaParsed - a.fechaParsed) // descendente
+  .slice(0, 10); // tomar solo 10
+
+
+    res.render('my-profile', {
+      title: 'Mi Perfil',
+      titleMain: 'Mi Perfil',
+      currentOption: '/my-profile',
+      user,
+      imageUrl: null,
+      usuario,
+      totalProductos,
+      productosActivos,
+      productosAgotados,
+      totalVentas,
+      totalIngresos,
+      clientesUnicos: clientesUnicos.length,
+      categorias,
+      inventarioTotal,
+      unidadesTotales,
+      subUsuarios,
+      topProductos,
+      ultimasVentas,
+      totalGastos: totalGastos[0]?.total || 0,
+      subUsuarios: subUsuariosConStats
+    });
+
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).send('Error al cargar perfil');
   }
 });
 module.exports = router;

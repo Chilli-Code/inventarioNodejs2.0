@@ -17,18 +17,11 @@
     font-size: 0.9em;
 }
 
-.chart-filters input,
-.chart-filters select {
-    padding: 8px 12px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 5px;
-    background: rgba(255,255,255,0.1);
-    color: var(--app-content-main-color);
-}
+
 
 .chart-filters button {
     padding: 10px 20px;
-    background: #4FACFE;
+    background: var(--action-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -78,13 +71,13 @@
       <!-- Filtros -->
       <div class="chart-filters">
         <label>Desde: 
-          <input type="date" id="filtro-fecha-inicio" />
+          <input class="sales-input" type="date" id="filtro-fecha-inicio" />
         </label>
         <label>Hasta: 
-          <input type="date" id="filtro-fecha-fin" />
+          <input class="sales-input" type="date" id="filtro-fecha-fin" />
         </label>
         <label>Categoría:
-          <select id="filtro-categoria">
+          <select class="sales-select" id="filtro-categoria">
             <option value="">Todas</option>
             <% categoriasDisponibles.forEach(cat => { %>
               <option value="<%= cat %>"><%= cat %></option>
@@ -92,7 +85,7 @@
           </select>
         </label>
         <label>Productos por página:
-          <select id="filtro-top">
+          <select class="sales-select" id="filtro-top">
             <option value="5">5 productos</option>
             <option value="10" selected>10 productos</option>
             <option value="15">15 productos</option>

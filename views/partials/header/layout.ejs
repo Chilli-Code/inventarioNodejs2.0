@@ -22,8 +22,9 @@
   <script src="/js/addProduct.js" defer></script>
   <script src="/js/buscador.js" defer></script>
   <script src="/js/HoraInput.js" defer></script>
-
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <% } %>
+
   <% if (currentOption==='edit-product' ) { %>
   <script src="/js/HoraInput.js" defer></script>
 
@@ -54,6 +55,11 @@
     <% if (currentOption==='/support') { %>
   <link rel="stylesheet" href="/css/support.css">
   <% } %>
+      <% if (currentOption==='/expenses') { %>
+<script src="/toastify/toastify.js"></script>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/expenses.css">
+  <% } %>
 
   <!-- SweetAlert2 -->
   <link rel="stylesheet" href="/css/sweetalert2.min.css">
@@ -75,6 +81,9 @@
 <% } %>
 
   <% if (currentOption==='/user') { %>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <% } %>
+    <% if (currentOption==='/my-profile') { %>
   <link rel="stylesheet" href="/css/dashboard.css">
   <% } %>
 <% if (currentOption==='/home') { %>
@@ -136,7 +145,11 @@
   <% } %>
 </script>
 <% } %>
-
+  <% if (currentOption==='/products' ) { %>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="/js/categorias.js" defer></script>
+     <% } %>
 </body>
 
 </html>

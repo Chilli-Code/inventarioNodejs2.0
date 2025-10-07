@@ -1,0 +1,312 @@
+<%- include('./partials/header/layout') %>
+<%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+</div>
+<div class="app-content-actions">
+  <button class="btn-add-gasto" onclick="openModal()">
+    <span><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff" class="icon">
+        <path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path>
+      </svg></span> Registrar Gasto
+  </button>
+  <div style="display: flex; gap: 10px;">
+    <a href="/expenses/balance" class="btn-add-gasto" style="text-decoration: none;">
+      <span>📊</span> Ver Comparación
+    </a>
+  </div>
+
+</div>
+<div class="gastos-wrapper">
+  <div class="gastos-header">
+  </div>
+  <!-- Filtro de mes -->
+  <div class="container-filtro">
+    <label style="color: var(--app-content-main-color); font-weight: 600;">
+      Filtrar por mes:
+    </label>
+    <select id="mesFiltro" style="padding: 10px 15px; 
+                   border: 2px solid var(--sidebar-active-link); 
+                   border-radius: 8px; 
+                   background: var(--app-bg); 
+                   color: var(--app-content-main-color);
+                   font-size: 1em;
+                   cursor: pointer;">
+      <% mesesDisponibles.forEach(mes => { %>
+      <option value="<%= mes.value %>" <%= mes.value === mesSeleccionado ? 'selected' : '' %>>
+        <%= mes.label %>
+      </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <script>
+    document.getElementById('mesFiltro').addEventListener('change', function() {
+      window.location.href = '/expenses?mes=' + this.value;
+    });
+  </script>
+
+  <!-- Balance Cards -->
+  <div class="balance-cards">
+    <div class="balance-card ingresos">
+      <div class="balance-label">Total Ingresos</div>
+      <div class="balance-amount positive">$<%= totalIngresos.toLocaleString() %></div>
+    </div>
+    <div class="balance-card gastos">
+      <div class="balance-label">Total Gastos</div>
+      <div class="balance-amount" style="color: #f44336;">$<%= totalGastos.toLocaleString() %></div>
+    </div>
+    <div class="balance-card balance">
+      <div class="balance-label">Balance General</div>
+      <div class="balance-amount <%= balance >= 0 ? 'positiveGN' : 'negative' %>">
+        $<%= balance.toLocaleString() %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gastos por Categoría -->
+  <% if (gastosPorCategoria && gastosPorCategoria.length > 0) { %>
+  <div class="gastos-section" style="margin-bottom: 30px;">
+    <div class="section-title">📊 Gastos por Categoría</div>
+    <div class="categorias-grid">
+      <% gastosPorCategoria.forEach(cat => { %>
+      <div class="categoria-card">
+        <div class="categoria-name"><%= cat._id %></div>
+        <div class="categoria-amount">$<%= cat.total.toLocaleString() %></div>
+        <div class="categoria-count"><%= cat.cantidad %> gastos</div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Tabla de Gastos -->
+  <div class="gastos-section tableView products-area-wrapper">
+    <div class="section-title">📋 Historial de Gastos</div>
+
+    <% if (gastos && gastos.length > 0) { %>
+    <div style="overflow-x: auto;">
+      <table class="gastos-table">
+        <thead class="products-header">
+          <tr>
+            <th class="product-cell padding color: var(--app-content-main-color);">Fecha</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Concepto</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Categoría</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Monto</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Tp.Pago</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Descripción</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Creado</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Actualizado</th>
+            <th class="product-cell padding color: var(--app-content-main-color);">Acciones</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <% gastos.forEach(gasto => { %>
+          <tr class="products-row articulo mg">
+            <td class="product-cell"><%= gasto.fecha %></td>
+            <td class="product-cell"><strong><%= gasto.concepto %></strong></td>
+            <td class="product-cell"><%= gasto.categoria %></td>
+            <td class="product-cell" style="color: #f44336; font-weight: 600;">
+              -$<%= gasto.monto.toLocaleString() %>
+            </td>
+            <td class="product-cell">
+              <span class="badge badge-<%= gasto.metodoPago.toLowerCase() %>">
+                <%= gasto.metodoPago %>
+              </span>
+            </td>
+            <td class="product-cell">
+              <%= gasto.descripcion || '-' %>
+            </td>
+
+
+              <td class="product-cell">
+    <%= new Date(gasto.createdAt).toLocaleString('es-ES', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }) %>
+  </td>
+    <td class="product-cell">
+    <%= new Date(gasto.updatedAt).toLocaleString('es-ES', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }) %>
+  </td>
+              <td class="product-cell">
+              <button class="btn-action btn-edit" onclick='editGasto(<%= JSON.stringify(gasto) %>)' title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="currentColor" class="icon">
+                  <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z"></path>
+                </svg>
+              </button>
+              <button class="btn-action btn-delete" onclick="deleteGasto('<%= gasto._id %>')" title="Eliminar">
+                <svg id="Layer_1" data-name="Layer 1" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 105.16 122.88">
+                  <defs>
+                  </defs>
+                  <title>Eliminar</title>
+                  <path class="cls-1" d="M11.17,37.16H94.65a8.4,8.4,0,0,1,2,.16,5.93,5.93,0,0,1,2.88,1.56,5.43,5.43,0,0,1,1.64,3.34,7.65,7.65,0,0,1-.06,1.44L94,117.31v0l0,.13,0,.28v0a7.06,7.06,0,0,1-.2.9v0l0,.06v0a5.89,5.89,0,0,1-5.47,4.07H17.32a6.17,6.17,0,0,1-1.25-.19,6.17,6.17,0,0,1-1.16-.48h0a6.18,6.18,0,0,1-3.08-4.88l-7-73.49a7.69,7.69,0,0,1-.06-1.66,5.37,5.37,0,0,1,1.63-3.29,6,6,0,0,1,3-1.58,8.94,8.94,0,0,1,1.79-.13ZM5.65,8.8H37.12V6h0a2.44,2.44,0,0,1,0-.27,6,6,0,0,1,1.76-4h0A6,6,0,0,1,43.09,0H62.46l.3,0a6,6,0,0,1,5.7,6V6h0V8.8h32l.39,0a4.7,4.7,0,0,1,4.31,4.43c0,.18,0,.32,0,.5v9.86a2.59,2.59,0,0,1-2.59,2.59H2.59A2.59,2.59,0,0,1,0,23.62V13.53H0a1.56,1.56,0,0,1,0-.31v0A4.72,4.72,0,0,1,3.88,8.88,10.4,10.4,0,0,1,5.65,8.8Zm42.1,52.7a4.77,4.77,0,0,1,9.49,0v37a4.77,4.77,0,0,1-9.49,0v-37Zm23.73-.2a4.58,4.58,0,0,1,5-4.06,4.47,4.47,0,0,1,4.51,4.46l-2,37a4.57,4.57,0,0,1-5,4.06,4.47,4.47,0,0,1-4.51-4.46l2-37ZM25,61.7a4.46,4.46,0,0,1,4.5-4.46,4.58,4.58,0,0,1,5,4.06l2,37a4.47,4.47,0,0,1-4.51,4.46,4.57,4.57,0,0,1-5-4.06l-2-37Z">
+                  </path>
+                </svg>
+              </button>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">📊</div>
+      <h3>No hay gastos registrados</h3>
+      <p>Comienza registrando tus primeros gastos</p>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('./partials/expenses/modal-register-expenses') %>
+
+<script>
+  // Establecer fecha actual por defecto
+  document.getElementById('fecha').valueAsDate = new Date();
+
+  let editingId = null;
+
+  function openModal() {
+    document.getElementById('gastoModal').classList.add('active');
+    document.getElementById('modalTitle').textContent = 'Registrar Gasto';
+    document.getElementById('gastoForm').reset();
+    document.getElementById('fecha').valueAsDate = new Date();
+    editingId = null;
+  }
+
+  function closeModal() {
+    document.getElementById('gastoModal').classList.remove('active');
+    editingId = null;
+  }
+
+  function showAlert(message, type = 'success') {
+    Toastify({
+      text: message,
+      duration: 4000,
+      gravity: 'top', // Posición vertical
+      position: 'left', // Para permitir el override de la clase
+      className: `toastify-center toastify-${type}`,
+
+      backgroundColor: type === 'success' ?
+        "#00c853" :
+        "#ff1744",
+    }).showToast();
+  }
+
+
+  // Submit form
+  document.getElementById('gastoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    try {
+      const url = editingId ? `/expenses/${editingId}` : '/expenses';
+      const method = editingId ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showAlert(result.message, 'success');
+        closeModal();
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showAlert(result.message, 'error');
+      }
+    } catch (error) {
+      showAlert('Error al guardar el gasto', 'error');
+    }
+  });
+
+  function editGasto(gasto) {
+    editingId = gasto._id;
+    document.getElementById('modalTitle').textContent = 'Editar Gasto';
+    document.getElementById('concepto').value = gasto.concepto;
+    document.getElementById('categoria').value = gasto.categoria;
+    document.getElementById('monto').value = gasto.monto;
+    document.getElementById('fecha').value = gasto.fecha;
+    document.getElementById('metodoPago').value = gasto.metodoPago;
+    document.getElementById('descripcion').value = gasto.descripcion || '';
+    document.getElementById('comprobante').value = gasto.comprobante || '';
+    document.getElementById('gastoModal').classList.add('active');
+  }
+
+async function deleteGasto(id) {
+  const confirmacion = await Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción eliminará el gasto permanentemente.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!confirmacion.isConfirmed) return;
+
+  try {
+    const response = await fetch(`/expenses/${id}`, {
+      method: 'DELETE'
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      Swal.fire({
+        title: '¡Gasto eliminado!',
+        html: '<div id="lottie-container" style="width:150px; height:150px; margin:0 auto;"></div>',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        timer: 2500,
+        didOpen: () => {
+          lottie.loadAnimation({
+            container: document.getElementById('lottie-container'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '/Lottie/delete.json'  // Asegúrate de que este path sea correcto
+          });
+        }
+      });
+
+      setTimeout(() => location.reload(), 2500);
+    } else {
+      Swal.fire('Error', result.message || 'No se pudo eliminar el gasto.', 'error');
+    }
+  } catch (error) {
+    Swal.fire('Error', 'Ocurrió un error al eliminar el gasto.', 'error');
+  }
+}
+
+  // Cerrar modal al hacer clic fuera
+  // document.getElementById('gastoModal').addEventListener('click', (e) => {
+  //     if (e.target.id === 'gastoModal') {
+  //         closeModal();
+  //     }
+  // });
+  const cerrarAlClickFuera = false;
+
+  document.getElementById('gastoModal').addEventListener('click', (e) => {
+    if (cerrarAlClickFuera && e.target.id === 'gastoModal') {
+      closeModal();
+    }
+  });
+
+  // Cerrar modal con ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+</script>

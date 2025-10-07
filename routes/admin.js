@@ -310,7 +310,7 @@ router.get('/user-profile/:id', isAdmin, async (req, res) => {
     // 6. Categorías
     const categorias = await Product.distinct('categoria', { user: userObjectId });
 
-    // 7. Top 5 productos más vendidos
+    // 7.  productos más vendidos
     const topProductos = await Venta.aggregate([
       { $match: { user: userObjectId } },
       { $unwind: '$productos' },
@@ -334,6 +334,20 @@ router.get('/user-profile/:id', isAdmin, async (req, res) => {
       { $limit: 5 }
     ]);
 
+    // 8. Valor total del inventario
+const valorInventario = await Product.aggregate([
+  { $match: { user: userObjectId } },
+  {
+    $group: {
+      _id: null,
+      valorTotal: { $sum: { $multiply: ['$cantidad', '$precio'] } },
+      totalUnidades: { $sum: '$cantidad' }
+    }
+  }
+]);
+
+const inventarioTotal = valorInventario.length > 0 ? valorInventario[0].valorTotal : 0;
+const unidadesTotales = valorInventario.length > 0 ? valorInventario[0].totalUnidades : 0;
     res.render('admin/userProfiles/user-profile', {
       title: `Perfil de ${usuario.nombre}`,
       titleMain: 'Perfil de Usuario',
@@ -352,6 +366,8 @@ router.get('/user-profile/:id', isAdmin, async (req, res) => {
       clientesUnicos: clientesUnicos.length,
       categorias,
       topProductos,
+      inventarioTotal,
+      unidadesTotales,
       currentPage: page,
       totalPages,
       hasNextPage: page < totalPages,

@@ -528,8 +528,19 @@ td.product-cell.hora {
         border-radius: 5px;
         color: var(--action-color);
 }
-
-
+.select2-container--default .select2-selection--single {
+    background-color: transparent !important;
+    border: 1px solid var(--app-content-main-color) !important;
+    border-radius: 5px !important;
+    color: var(--app-content-main-color) !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+    color: var(--app-content-main-color) !important;
+    font-size: 0.9rem !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__clear{
+    color: var(--app-content-main-color) !important;
+}
 .filter-agregar-from input[type=text]:hover{
     border: 1px solid var(--action-color);
 }

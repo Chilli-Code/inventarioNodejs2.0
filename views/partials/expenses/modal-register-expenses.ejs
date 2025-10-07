@@ -1,0 +1,72 @@
+<!-- Modal para registrar/editar gasto -->
+<div id="gastoModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Registrar Gasto</h2>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <form id="gastoForm">
+      <input type="hidden" id="gastoId" name="gastoId">
+
+      <div class="form-group">
+        <label>Concepto *</label>
+        <input type="text" class="form-control" id="concepto" name="concepto" placeholder="Ej: Pago de arriendo, Compra de productos..." required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select class="form-control" id="categoria" name="categoria" required>
+            <option value="">Seleccionar...</option>
+            <option value="Compra de Inventario">Compra de Inventario</option>
+            <option value="Servicios Públicos">Servicios Públicos</option>
+            <option value="Arriendo">Arriendo</option>
+            <option value="Nómina">Nómina</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Impuestos">Impuestos</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Monto *</label>
+          <input type="number" class="form-control" id="monto" name="monto" placeholder="0.00" step="0.01" min="0" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha *</label>
+          <input type="date" class="form-control" id="fecha" name="fecha" required>
+        </div>
+
+        <div class="form-group">
+          <label>Método de Pago *</label>
+          <select class="form-control" id="metodoPago" name="metodoPago" required>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción (opcional)</label>
+        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Detalles adicionales del gasto..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Comprobante (opcional)</label>
+        <input type="text" class="form-control" id="comprobante" name="comprobante" placeholder="Número de factura o referencia">
+      </div>
+
+      <button type="submit" class="btn-submit">
+        💾 Guardar Gasto
+      </button>
+    </form>
+  </div>
+</div>

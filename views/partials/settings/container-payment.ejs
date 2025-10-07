@@ -1,0 +1,21 @@
+<h2 class="app-content-headerText">Configurar Metodo de pago</h2>
+<div class="div-info-update">
+    <div class="lottie-animation-pay" 
+    data-animation-path="/Lottie/Online_Payment.json"
+    style="height:auto; width:400px;overflow:hidden;"
+    >
+</div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.querySelector(".lottie-animation-pay");
+        lottie.loadAnimation({
+            container: container,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: container.getAttribute("data-animation-path")
+        });
+    });
+</script>
+

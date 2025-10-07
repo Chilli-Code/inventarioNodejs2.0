@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const bcrypt = require('bcrypt');
 const User = require('../models/User'); // tu modelo
 const SubUser = require('../models/subUsuers'); 
+const Venta = require('../models/Sell');
 
 router.get('/', isAuthenticated, async (req, res) => {
   try {
@@ -17,12 +18,50 @@ router.get('/', isAuthenticated, async (req, res) => {
     const products = await Product.find({ user: userId }).lean();
     const subusers = await SubUser.find({ parentUser: userId }).lean();
 
+const subUsuariosConStats = await Promise.all(
+  subusers.map(async (sub) => {
+    const ventasSub = await Venta.find({ vendedor: sub.nombre }).lean();
+
+    // ✅ Sumar el campo 'total' de cada venta
+    const totalEnPrecio = ventasSub.reduce((suma, venta) => {
+      return suma + (venta.total || 0); // si no hay total, suma 0
+    }, 0);
+
+    // Procesar fechas para última venta
+    const ventasOrdenadas = ventasSub
+      .filter(v => v.fechaa)
+      .map(v => ({
+        ...v,
+        fechaParsed: parseFecha(v.fechaa)
+      }))
+      .filter(v => v.fechaParsed instanceof Date && !isNaN(v.fechaParsed))
+      .sort((a, b) => b.fechaParsed - a.fechaParsed);
+
+    const ultimaVenta = ventasOrdenadas[0];
+
+    return {
+      ...sub,
+      totalVentas: ventasSub.length,
+      totalEnPrecio: parseFloat(totalEnPrecio.toFixed(2)), // Ej: 40000 → 40000.00
+      ultimaVenta: ultimaVenta ? ultimaVenta.fechaa : null
+    };
+  })
+);
+
+// Función que debes tener definida en tu archivo para convertir el string a Date
+function parseFecha(fechaStr) {
+  const [fecha, hora] = fechaStr.split(' - ');
+  const [dia, mes, anio] = fecha.split('/');
+  return new Date(`${anio}-${mes}-${dia}T${hora}`);
+}
+
     res.render('settings', {
       title: 'Keku Inventory || Perfil',
       titleMain: 'Configuración',
       products,
       user, // ✅ ahora este "user" sí tiene businessName
       subusers,
+      subusers: subUsuariosConStats,
       imageUrl: user.profile_picture || null,
       currentOption: '/settings',
       successMessage: req.flash('success_msg'),

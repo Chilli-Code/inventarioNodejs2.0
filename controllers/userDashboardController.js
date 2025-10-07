@@ -209,7 +209,7 @@ const totalSubUsuarios = await SubUser.countDocuments(subUserFilter);
     res.render('statistics', {
       title: "Mi Dashboard - Estadísticas",
       currentOption: "/statistics",
-      titleMain: "Mi Dashboard",
+      titleMain: "Mis Datos",
       user,
       imageUrl: null,
       username: user.nombre || "Usuario",

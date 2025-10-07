@@ -254,21 +254,49 @@ function updateStats() {
 }
 
 function updatePagination() {
-    const controls = document.getElementById('paginationControls');
+  const controls = document.getElementById('paginationControls');
+  const prev = document.getElementById('prevPage');
+  const next = document.getElementById('nextPage');
 
-    if (itemsPerPage === -1) {
-        controls.style.display = 'none';
-        return;
-    }
-
+  if (itemsPerPage === -1) {
+    controls.style.display = 'none';
+    return;
+  } else {
     controls.style.display = 'flex';
-    const totalPages = Math.ceil(filteredReceipts.length / itemsPerPage);
+  }
 
+  const totalPages = Math.ceil(filteredReceipts.length / itemsPerPage);
 
+  prev.disabled = currentPage <= 1;
+  prev.onclick = () => changePage(-1);
 
-    document.getElementById('prevPage').disabled = currentPage <= 1;
-    document.getElementById('nextPage').disabled = currentPage >= totalPages;
+  next.disabled = currentPage >= totalPages;
+  next.onclick = () => changePage(1);
+
+  // Crear contenedor para números si no existe
+  let pageNumbersContainer = document.getElementById('pageNumbers');
+  if (!pageNumbersContainer) {
+    pageNumbersContainer = document.createElement('div');
+    pageNumbersContainer.id = 'pageNumbers';
+    pageNumbersContainer.classList.add('pagination-info');  // Aquí agregamos la clase
+    controls.insertBefore(pageNumbersContainer, next);
+  }
+  pageNumbersContainer.innerHTML = '';
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.className = i === currentPage ? 'active-page' : '';
+    btn.onclick = () => {
+      currentPage = i;
+      renderReceipts();
+      updatePagination();
+    };
+    pageNumbersContainer.appendChild(btn);
+  }
 }
+
+
 
 function changePage(direction) {
     const totalPages = Math.ceil(filteredReceipts.length / itemsPerPage);

@@ -1,3 +1,14 @@
+<style>
+  .gridOne{
+    width: 50% !important;
+  }
+  @media(max-width: 742px){
+  .gridOne{
+    width: 100% !important;
+  }
+  }
+</style>
+
 <%
 // lista de planes (puedes traerla desde tu backend)
 const plans = [
@@ -14,30 +25,30 @@ const plans = [
       "Priority Customer Support"
     ]
   },
-  {
-    name: "Basic",
-    price: "$29",
-    period: "/month",
-    buttonClass: "btn btn-secondary",
-    buttonText: "Choose Plan",
-    features: [
-      "Inventory Management",
-      "Sales Tracking",
-      "Basic Reporting"
-    ]
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    buttonClass: "btn btn-secondary",
-    buttonText: "Contact Us",
-    features: [
-      "Everything in Pro",
-      "Dedicated Support",
-      "API Access"
-    ]
-  }
+  // {
+  //   name: "Basic",
+  //   price: "$29",
+  //   period: "/month",
+  //   buttonClass: "btn btn-secondary",
+  //   buttonText: "Choose Plan",
+  //   features: [
+  //     "Inventory Management",
+  //     "Sales Tracking",
+  //     "Basic Reporting"
+  //   ]
+  // },
+  // {
+  //   name: "Enterprise",
+  //   price: "Custom",
+  //   period: "",
+  //   buttonClass: "btn btn-secondary",
+  //   buttonText: "Contact Us",
+  //   features: [
+  //     "Everything in Pro",
+  //     "Dedicated Support",
+  //     "API Access"
+  //   ]
+  // }
 ];
 %>
 
@@ -87,12 +98,12 @@ const plans = [
         <% } %>
   <div class="container">
     <div class="section-header">
-      <h2 class="section-title">Pricing Plans</h2>
-      <p class="section-subtitle">Choose a plan that fits your business needs.</p>
+      <h2 class="section-title">PLan Unico</h2>
+      <p class="section-subtitle">Plan adecuado para ti</p>
     </div>
-    <div class="pricing-grid">
+    <div class="pricing-grid" style="display: flex; flex-wrap: wrap; justify-content: center; width: 100%;">
       <% plans.forEach(plan => { %>
-        <div class="pricing-card card-container tilt-card">
+        <div class="pricing-card gridOne card-container tilt-card" style="width: 100%;">
           <div class="inner-container">
             <div class="border-outer">
               <div class="main-card"></div>

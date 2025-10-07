@@ -1,0 +1,177 @@
+
+
+<%- include('./partials/header/layout') %>
+<%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+</div>
+
+<div class="comparacion-wrapper">
+    <div class="comparacion-header">
+        <a href="/expenses" class="btn-back">← Volver</a>
+    </div>
+
+    <!-- Gráfica de Barras -->
+    <div class="chart-container">
+        <div class="chart-title">Comparación de Ingresos vs Gastos</div>
+        <canvas id="chartBarras"></canvas>
+    </div>
+
+    <!-- Gráfica de Líneas -->
+    <div class="chart-container">
+        <div class="chart-title">Tendencia de Balance</div>
+        <canvas id="chartLineas"></canvas>
+    </div>
+
+    <!-- Cards de Meses -->
+    <div class="meses-grid">
+        <% meses.forEach(mes => { %>
+        <div class="mes-card">
+            <div class="mes-nombre"><%= mes.mes %></div>
+            
+            <div class="mes-stat">
+                <span class="stat-label">Ingresos:</span>
+                <span class="stat-value ingresos">$<%= mes.ingresos.toLocaleString() %></span>
+            </div>
+            
+            <div class="mes-stat">
+                <span class="stat-label">Gastos:</span>
+                <span class="stat-value gastos">-$<%= mes.gastos.toLocaleString() %></span>
+            </div>
+            
+            <div class="mes-stat">
+                <span class="stat-label">Balance:</span>
+                <span class="stat-value <%= mes.balance >= 0 ? 'balance-pos' : 'balance-neg' %>">
+                    $<%= mes.balance.toLocaleString() %>
+                </span>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const meses = <%- JSON.stringify(meses) %>;
+
+    // Preparar datos para las gráficas
+    const labels = meses.map(m => m.mes.split(' de ')[0]).reverse(); // Solo el mes
+    const ingresos = meses.map(m => m.ingresos).reverse();
+    const gastos = meses.map(m => m.gastos).reverse();
+    const balances = meses.map(m => m.balance).reverse();
+
+    // Detectar tema
+    const isDark = document.documentElement.classList.contains('dark');
+    const textColor = isDark ? '#fff' : '#666';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    // Configuración común
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor,
+                    font: {
+                        size: 14,
+                        weight: 600
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                ticks: {
+                    color: textColor,
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                },
+                grid: {
+                    color: gridColor
+                }
+            },
+            x: {
+                ticks: {
+                    color: textColor
+                },
+                grid: {
+                    color: gridColor
+                }
+            }
+        }
+    };
+
+    // Gráfica de Barras
+    new Chart(document.getElementById('chartBarras'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Ingresos',
+                    data: ingresos,
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Gastos',
+                    data: gastos,
+                    backgroundColor: 'rgba(244, 67, 54, 0.7)',
+                    borderColor: 'rgba(244, 67, 54, 1)',
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: commonOptions
+    });
+
+    // Gráfica de Líneas (Balance)
+    new Chart(document.getElementById('chartLineas'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Balance',
+                data: balances,
+                borderColor: 'rgba(33, 150, 243, 1)',
+                backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: balances.map(b => b >= 0 ? '#4CAF50' : '#f44336'),
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += '$' + context.parsed.y.toLocaleString();
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Actualizar gráficas si cambia el tema
+    const observer = new MutationObserver(function(mutations) {
+        location.reload();
+    });
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+</script>

@@ -207,13 +207,15 @@
         cursor: not-allowed;
     }
 
-    .pagination-info {
-        padding: 10px 20px;
-        background: var(--app-content-secondary-color);
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
-    }
+.pagination-info {
+    padding: 10px 10px;
+    background: var(--app-content-secondary-color);
+    border-radius: 6px;
+    font-size: 14px;
+    gap: 10px;
+    font-weight: 600;
+    display: flex;
+}
 
 .stats-header {
     display: flex;

@@ -1,0 +1,305 @@
+<style>
+    :root{
+    --bg-cont-info-user:#fff;
+
+}
+.light {
+    --bg-cont-info-user:#1d283c7d;
+
+}
+.profile-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.profile-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 40px;
+    color: white;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+@media (max-width: 768px) {
+    .profile-banner {
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .info-section{
+        padding: 10px !important;
+    }
+}
+
+.profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    font-weight: bold;
+    border: 4px solid white;
+}
+
+.profile-info h1 {
+    margin: 0 0 10px 0;
+    font-size: 2em;
+}
+
+.profile-info p {
+    margin: 5px 0;
+    opacity: 0.9;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background: var(--app-content-secondary-color);
+    border: 1px solid var(--sidebar-active-link);
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+}
+
+.stat-number {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--action-color);
+    margin-bottom: 5px;
+}
+
+.stat-text {
+    color: var(--app-content-main-color);
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.info-section {
+    background: var(--bg-cont-info-user);
+    border: 1px solid var(--sidebar-active-link);
+    border-radius: 15px;
+    padding: 30px !important;
+    margin-bottom: 20px;
+}
+
+.section-header {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--app-content-main-color);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.product-list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: var(--app-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.product-title {
+    font-weight: 600;
+    color: var(--app-content-main-color);
+}
+
+.product-details {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9em;
+    color: var(--app-content-main-color);
+    opacity: 0.8;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: var(--app-content-main-color);
+    opacity: 0.5;
+}
+
+.simple-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.simple-table th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid var(--sidebar-active-link);
+    color: var(--app-content-main-color);
+    font-weight: 600;
+}
+
+.simple-table td {
+    padding: 12px;
+    color: var(--app-content-main-color);
+}
+tr {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border-radius: 4px;
+}
+</style>
+<head>
+    <link rel="stylesheet" href="/css/profileUsers.css">
+</head>
+<%- include('./partials/header/layout') %>
+<%- include('./partials/navigation/navigation', {titleMain: titleMain}); %>
+</div>
+<div class="profile-container">
+    <div class="profile-banner">
+        <div class="profile-avatar-large">
+            <%= usuario.nombre.charAt(0).toUpperCase() %>
+        </div>
+        <div class="profile-info">
+            <h1><%= usuario.nombre %></h1>
+            <p><%= usuario.correo %></p>
+            <p><strong><%= usuario.businessName || 'Mi Negocio' %></strong></p>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-number">$<%= totalIngresos.toLocaleString() %></div>
+            <div class="stat-text">Total Ingresos</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">$<%= inventarioTotal.toLocaleString() %></div>
+            <div class="stat-text">Valor Inventario</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number"><%= totalVentas %></div>
+            <div class="stat-text">Total Ventas</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number"><%= totalProductos %></div>
+            <div class="stat-text">Productos</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number"><%= clientesUnicos %></div>
+            <div class="stat-text">Clientes</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number"><%= categorias.length %></div>
+            <div class="stat-text">Categorías</div>
+        </div>
+        <div class="stat-box">
+           <a class="navigation-link" href="/expenses" style="text-decoration: none;">
+               <div class="stat-number" style="color:#f44336;">$<%= totalGastos.toLocaleString() %></div>
+               <div class="stat-text">Gasttos Totales</div>
+           </a>
+        </div>
+    </div>
+
+    <div class="info-section  tableView products-area-wrapper" style="background-color: var(--app-content-secondary-color);">
+        <h2 class="section-header">Top 5 Productos Más Vendidos</h2>
+        <% if (topProductos && topProductos.length > 0) { %>
+            <% topProductos.forEach((prod, index) => { %>
+                <div class="product-list-item">
+                    <div>
+                        <span style="color: var(--action-color); font-weight: bold; margin-right: 10px;"><%= index + 1 %>.</span>
+                        <span class="product-title"><%= prod._id %></span>
+                    </div>
+                    <div class="product-details">
+                        <span><%= prod.totalVendido %> vendidos</span>
+                        <span>$<%= prod.ingresos.toLocaleString() %></span>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="empty-message">No hay ventas registradas</div>
+        <% } %>
+    </div>
+
+    <div class="info-section tableView products-area-wrapper" style="overflow: hidden;">
+        <h2 class="section-header">Mis Subusuarios (<%= subUsuarios.length %>)</h2>
+        <div style="overflow: auto;">
+        <% if (subUsuarios && subUsuarios.length > 0) { %>
+            <table class="simple-table">
+                <thead class="products-header">
+                    <tr>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Nombre</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Tipo</th>
+                         <th class="product-cell padding color: var(--app-content-main-color);">Total Ventas</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Última Venta</th>
+                        <!-- <th class="product-cell padding color: var(--app-content-main-color);">Fecha Creación</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <% subUsuarios.forEach(sub => { %>
+                        <tr class="products-row articulo mg">
+                            <td class="product-cell"><%= sub.nombre %></td>
+                            <td class="product-cell"><%= sub.tipo %></td>
+                            <!-- <td><%= new Date(sub.createdAt).toLocaleDateString('es-ES') %></td> -->
+                             <td class="product-cell" style="color: var(--action-color); font-weight: 600;">
+                                <%= sub.totalVentas || 0 %>
+                            </td>
+                            <td class="product-cell">
+                                 <% if (sub.ultimaVenta) { %>
+                                    <%= sub.ultimaVenta %>
+                                <% } else { %>
+                                    <span style="opacity: 0.5;">Sin ventas</span>
+                                <% } %>
+                                </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <div class="empty-message">No tienes subusuarios</div>
+        <% } %>
+        </div>
+    </div>
+
+    <div class="info-section tableView products-area-wrapper" style="overflow: hidden;">
+        <h2 class="section-header">Últimas 10 Ventas</h2>
+        <div style="overflow: auto;">
+            <% if (ultimasVentas && ultimasVentas.length > 0) { %>
+                <table class="simple-table">
+                    <thead class="products-header">
+                        <tr>
+                            <th class="product-cell padding color: var(--app-content-main-color);">Fecha</th>
+                            <th class="product-cell padding color: var(--app-content-main-color);">Cliente</th>
+                            <th class="product-cell padding color: var(--app-content-main-color);">Código</th>
+                            <th class="product-cell padding color: var(--app-content-main-color);">Total</th>
+                            <th class="product-cell padding color: var(--app-content-main-color);">Medio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% ultimasVentas.forEach(venta => { %>
+                            <tr class="products-row articulo mg">
+                                <td class="product-cell"><%= venta.fechaa %></td>
+                                <td class="product-cell"><%= venta.nombrecliente || 'N/A' %></td>
+                                <td class="product-cell" style="font-family: monospace;"><%= venta.codigo %></td>
+                                <td class="product-cell" style="color: #2ba972; font-weight: 600;">$<%= venta.total.toLocaleString() %></td>
+                                <td class="product-cell"><%= venta.medio %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="empty-message">No tienes ventas registradas</div>
+            <% } %>
+        </div>
+    </div>
+</div>

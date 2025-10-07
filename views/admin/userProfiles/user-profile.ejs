@@ -15,6 +15,8 @@
     --bg-cont-info-user:#1d283c7d;
 
 }
+
+
 </style>
 
 <head>
@@ -26,12 +28,16 @@
 </div>
 <div class="app-content-actions">
     <a href="/listUsers" class="back-btn">
-        ← Volver
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"
+            class="icon">
+            <path
+                d="m480-320 56-56-64-64h168v-80H472l64-64-56-56-160 160 160 160Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z">
+            </path>
+        </svg> Volver
     </a>
 
 </div>
 <div class="profile-container">
-
     <div class="profile-header">
         <div class="user-info">
             <div class="user-avatar">
@@ -91,8 +97,7 @@
             <div class="empty-state">No hay datos de ventas</div>
         <% } %>
     </div>
-
-    <div class="section" style="background-color: var(--bg-cont-info-user);">
+    <div class="section tableView" style="background-color: var(--bg-cont-info-user);">
         <h2 class="section-title">Subusuarios (<%= subUsuarios.length %>)</h2>
         <% if (subUsuarios && subUsuarios.length > 0) { %>
             <table>
@@ -121,18 +126,26 @@
         <% } %>
     </div>
 
-    <div class="section tableView products-area-wrapper" style="padding: 25px !important; background-color: var(--bg-cont-info-user);">
+    <div class="section filterListUsers tableView products-area-wrapper" style="padding: 25px !important; background-color: var(--bg-cont-info-user);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 class="section-title" style="margin: 0;">Productos (<%= totalProductos %>)</h2>
         <div style="color: var(--app-content-main-color); opacity: 0.7;">
             Página <%= currentPage %> de <%= totalPages %>
         </div>
     </div>
-        <h2 class="section-title">Últimos 10 Productos</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="section-title" style="margin-bottom: 0px;">Valor del Inventario</h2>
+        <div style="color: var(--app-content-main-color); opacity: 0.7; display: flex; align-items: center; gap:2px;">
+            <p style="color:#2ba972">
+                $
+            </p>
+            <%= inventarioTotal.toLocaleString() %></div>
+
+    </div>
         <%- include('./filterProfileUser') %>
         <% if (productos && productos.length > 0) { %>
-            <div style="height: 100%; overflow-x: auto; overflow-y: auto;">
-            <table>
+            <div style="overflow-x: auto; overflow-y: auto;">
+            <table id="products-row">
                 <thead class="products-header">
                     <tr class="header-sub">
                         <th class="product-cell padding color: var(--app-content-main-color);">Producto</th>
@@ -147,13 +160,13 @@
                 <tbody>
                     <% productos.forEach(prod => { %>
                         <tr class="products-row articulo mg">
-                            <td class="product-cell onetitle"><%= prod.producto %></td>
-                            <td class="product-cell"><%= prod.categoria %></td>
-                            <td class="product-cell">
+                            <td class="product-cell tituloProduct busqueda onetitle"><%= prod.producto %></td>
+                            <td class="product-cell category"><%= prod.categoria %></td>
+                            <td class="product-cell price">
                                 <p style="color:#2ba972">$</p>
                                 <%= prod.precio.toLocaleString() %></td>
-                            <td class="product-cell"><%= prod.cantidad %></td>
-                            <td class="product-cell"><%= prod.ventas || 0 %></td>
+                            <td class="product-cell cantidad"><%= prod.cantidad %></td>
+                            <td class="product-cell sales"><%= prod.ventas || 0 %></td>
                             <td class="product-cell">
                                 <span class="status <%= prod.estado === 'Activo' ? 'active' : 'disabled' %>">
                                     <%= prod.estado %>
@@ -172,26 +185,34 @@
             <% if (hasPrevPage) { %>
                 <a href="/listUsers/user-profile/<%= usuario._id %>?page=<%= currentPage - 1 %>" 
                    style="padding: 8px 16px; background: var(--action-color); color: white; border-radius: 5px; text-decoration: none;">
-                    ← 
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="icon">
+                  <path d="m480-320 56-56-64-64h168v-80H472l64-64-56-56-160 160 160 160Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path>
+                </svg>
                 </a>
             <% } else { %>
                 <span style="padding: 8px 16px; background: #ccc; color: #666; border-radius: 5px; opacity: 0.5;">
-                    ← 
+                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="icon">
+                  <path d="m480-320 56-56-64-64h168v-80H472l64-64-56-56-160 160 160 160Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path>
+                </svg>
                 </span>
             <% } %>
             <% if (hasNextPage) { %>
                 <a href="/listUsers/user-profile/<%= usuario._id %>?page=<%= currentPage + 1 %>" 
                    style="padding: 8px 16px; background: var(--action-color); color: white; border-radius: 5px; text-decoration: none;">
-                     →
+                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="icon">
+                  <path d="m480-320 160-160-160-160-56 56 64 64H320v80h168l-64 64 56 56Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path>
+                </svg>
                 </a>
             <% } else { %>
                 <span style="padding: 8px 16px; background: #ccc; color: #666; border-radius: 5px; opacity: 0.5;">
-                     →
+                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="icon">
+                  <path d="m480-320 160-160-160-160-56 56 64 64H320v80h168l-64 64 56 56Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path>
+                </svg>
                 </span>
             <% } %>
         </div>
         <% } else { %>
-            <div class="empty-state">No tiene productos</div>
+            <div class="empty-state noDataDiv">No tiene productos</div>
         <% } %>
     </div>
 
@@ -204,6 +225,7 @@
                     <tr class="header-sub">
                         <th class="product-cell padding color: var(--app-content-main-color);">Fecha</th>
                         <th class="product-cell padding color: var(--app-content-main-color);">Cliente</th>
+                        <th class="product-cell padding color: var(--app-content-main-color);">Codigo Recibo</th>
                         <th class="product-cell padding color: var(--app-content-main-color);">Total</th>
                         <th class="product-cell padding color: var(--app-content-main-color);">Medio de Pago</th>
                     </tr>
@@ -213,6 +235,7 @@
                         <tr class="products-row">
                             <td class="product-cell"><%= venta.fechaa %></td>
                             <td class="product-cell"><%= venta.nombrecliente || 'N/A' %></td>
+                            <td class="product-cell"><%= venta.codigo || 'N/A' %></td>
                             <td class="product-cell">
                                 <p style="color:#2ba972">$</p>
                                 <%= venta.total.toLocaleString() %></td>
@@ -280,11 +303,11 @@
   }
 
   function aplicarFiltro(){
-    const inputBuscador = document.getElementById('buscador');
-    const selectCategoria = document.getElementById('filtro-categoria');
-    const selectEstado = document.getElementById('filtro-estado');
-    const selectOrden = document.getElementById('filtro-orden');
-    const noDataDiv = document.querySelector('.noData');
+const inputBuscador = document.getElementById('buscador-admin');
+const selectCategoria = document.getElementById('filtro-categoria-admin');
+const selectEstado = document.getElementById('filtro-estado-admin');
+const selectOrden = document.getElementById('filtro-orden-admin');
+const noDataDiv = document.querySelector('.noDataDiv');
 
     const textoBuscado = (inputBuscador?.value || '').toLowerCase().trim();
     const categoria = (selectCategoria?.value || '').toLowerCase();
@@ -352,27 +375,25 @@
 
     if (noDataDiv) noDataDiv.style.display = filasVisibles.length > 0 ? 'none' : 'block';
   }
-
-  function resetFilters(){
-    const buscador = document.getElementById('buscador');
-    const cat = document.getElementById('filtro-categoria');
-    const est = document.getElementById('filtro-estado');
-    const ord = document.getElementById('filtro-orden');
+function resetFilters(){
+    const buscador = document.getElementById('buscador-admin');
+    const cat = document.getElementById('filtro-categoria-admin');
+    const est = document.getElementById('filtro-estado-admin');
+    const ord = document.getElementById('filtro-orden-admin');
 
     if (buscador) buscador.value = '';
     if (cat) cat.value = '';
     if (est) est.value = '';
     if (ord) ord.value = '';
 
-    // Mostrar todas las filas (referencias reales)
     filasOriginales.forEach(r => r.style.display = '');
 
     const contador = document.getElementById('filteredCount');
     if (contador) contador.textContent = filasOriginales.length;
 
-    const noDataDiv = document.querySelector('.noData');
+    const noDataDiv = document.querySelector('.noDataDiv');
     if (noDataDiv) noDataDiv.style.display = 'none';
-  }
+}
 
   function initFilters(){
     const tbody = document.querySelector('#products-row tbody');
@@ -383,10 +404,10 @@
     const contador = document.getElementById('filteredCount');
     if (contador) contador.textContent = filasOriginales.length;
 
-    document.getElementById('buscador')?.addEventListener('input', aplicarFiltro);
-    document.getElementById('filtro-categoria')?.addEventListener('change', aplicarFiltro);
-    document.getElementById('filtro-estado')?.addEventListener('change', aplicarFiltro);
-    document.getElementById('filtro-orden')?.addEventListener('change', aplicarFiltro);
+    document.getElementById('buscador-admin')?.addEventListener('input', aplicarFiltro);
+    document.getElementById('filtro-categoria-admin')?.addEventListener('change', aplicarFiltro);
+    document.getElementById('filtro-estado-admin')?.addEventListener('change', aplicarFiltro);
+    document.getElementById('filtro-orden-admin')?.addEventListener('change', aplicarFiltro);
   }
 
   // inicializar al cargar. Si usas defer, esto se ejecutará correctamente.
@@ -396,5 +417,67 @@
   window.aplicarFiltro = aplicarFiltro;
   window.resetFilters = resetFilters;
   window.initFilters = initFilters;
+
+
+
 })();
+
+
+</script>
+
+<script>
+document.addEventListener('click', function(e) {
+    if (e.target.closest('a[href*="?page="]')) {
+        e.preventDefault();
+        
+        const link = e.target.closest('a[href*="?page="]');
+        const userId = '<%= usuario._id %>';
+        const page = new URL(link.href).searchParams.get('page');
+        
+        // Mostrar loading
+        const section = document.querySelector('.section.filterListUsers');
+        const originalHTML = section.innerHTML;
+        section.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--app-content-main-color);">⏳ Cargando...</div>';
+        
+        fetch(`/listUsers/user-profile/${userId}?page=${page}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Obtener toda la sección de productos del nuevo HTML
+            const newSection = doc.querySelector('.section.filterListUsers');
+            
+            if (newSection) {
+                // Reemplazar TODO el contenido de la sección
+                section.innerHTML = newSection.innerHTML;
+                
+                // Reinicializar filtros
+                if (typeof window.initFilters === 'function') {
+                    window.initFilters();
+                }
+                
+                // Actualizar URL del navegador
+                window.history.pushState({}, '', `/listUsers/user-profile/${userId}?page=${page}`);
+                
+                // Scroll suave
+                section.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } else {
+                // Si falla, restaurar contenido original
+                section.innerHTML = originalHTML;
+                alert('Error al cargar la página');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            section.innerHTML = originalHTML;
+            alert('Error al cargar la página');
+        });
+    }
+});
 </script>

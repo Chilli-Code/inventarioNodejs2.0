@@ -1,3 +1,15 @@
+<style>
+    .cont-from-ventas button{
+        margin-top: 0px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__clear{
+        padding: 0px !important;
+        height: 30px !important;
+    }
+    .select2-container .select2-selection--single{
+        height: 33px !important;
+    }
+</style>
 <div class="contenedor-ventas">
     <div class="cont-from-ventas">
 
@@ -12,10 +24,7 @@
                 <input type="text" name="producto" value="<%= data.producto %>" placeholder="Actuliza El Nombre">
                 <hr>
                 <label>Categoria</label>
-                <select name="categoria" value="<%= data.categoria %>">
-                    <option>Tecnologia</option>
-                    <option>Ropa</option>
-                    <option>Heladeria</option>
+                <select name="categoria" class="selectCategoria" id="selectCategoria" value="<%= data.categoria %>">
                 </select>
                 <hr>
                 <label>Estado</label>
@@ -34,7 +43,7 @@
                 <input name="hora" type="text" id="clock" readonly>
                 <hr>
 
-                <button type="submit" class="filter-button apply agregaar">Actulizar</button>
+                <button type="submit" class="filter-button apply agregaar btn-action">Actulizar</button>
             </form>
         </div>
     </div>
