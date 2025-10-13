@@ -28,9 +28,6 @@
     margin-top:-70px;
 }
 
-@media (max-width: 990px) {
-
-}
 @media (max-width: 260px) {
     .over{
         margin-top: 300px;
@@ -52,6 +49,12 @@
     /* padding: 20px 20px; */
     display: flex;
     align-items: center;
+}
+
+@media (max-width: 1440px) {
+    .contenedor-ventas .cont-from-ventas{
+        height: auto !important;
+    }
 }
 
 .contenedor-image {
@@ -215,6 +218,9 @@
     .contenedor-image .lottie-animation{
         height: 250px;
     }
+    .overform{
+        margin-bottom: 10px;
+    }
 }
 
 .cont-from-ventas .titleSell{
@@ -252,9 +258,6 @@ div#productos-seleccionados {
     margin-top:-70px;
 }
 
-@media (max-width: 990px) {
-
-}
 @media (max-width: 260px) {
     .over{
         margin-top: 300px;
@@ -461,6 +464,3 @@ div#productos-seleccionados {
     /* top: 20px; */
     right: 0;
 }
-
-
-
